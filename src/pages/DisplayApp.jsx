@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { Wifi, WifiOff, Trophy, Zap, Clock3 } from 'lucide-react';
 import { Brand, Badge, Countdown, Leaderboard, QuestionOptions, Spinner, Timer, Empty } from '../components/UI.jsx';
+import { applyTheme } from '../theme.js';
 
 export default function DisplayApp() {
   const [params] = useSearchParams();
@@ -18,6 +19,8 @@ export default function DisplayApp() {
     socket.on('connect_error', () => setConnected(false));
     return () => socket.disconnect();
   }, [key]);
+
+  useEffect(() => { if (state?.settings?.theme) applyTheme(state.settings.theme); }, [state?.settings?.theme?.primary, state?.settings?.theme?.accent, state?.settings?.theme?.ink]);
 
   if (!state) return <div className="display-loading"><Spinner label="Connecting the projector…" /></div>;
 
@@ -40,7 +43,7 @@ export default function DisplayApp() {
         {state.phase === 'round1' && <DisplayRound1 state={state} />}
         {(state.phase === 'round2_pick' || state.phase === 'round2_countdown' || state.phase === 'round2_question' || state.phase === 'round2_reveal') && <DisplayRound2 state={state} />}
         {(state.phase === 'round3_question' || state.phase === 'round3_reveal') && <DisplayRound3 state={state} />}
-        {(state.phase === 'round2_done' || state.phase === 'round3_done' || state.phase === 'round1_closed') && <DisplayBoard state={state} />}
+        {(state.phase === 'round2_done' || state.phase === 'round3_done' || state.phase === 'round1_closed' || state.phase === 'finished') && <DisplayBoard state={state} />}
       </main>
 
       <footer className="display-foot">

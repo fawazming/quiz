@@ -240,7 +240,7 @@ Recommendations:
 - Delete old `dist` bundles before uploading a new one if space is tight.
 - Keep one or two `.db` backups, not dozens.
 - Do not install PM2, Puppeteer, Chrome or a second copy of the app.
-- The database starts tiny but grows with answers and audit logs. One competition will remain well under 10 MB.
+- The database starts tiny but grows with answers, custom questions, theme/settings and audit logs. One competition will remain well under 10 MB.
 
 If you run out of space:
 
@@ -272,7 +272,7 @@ npm cache clean --force
 
 Restart the Node.js site from the alwaysdata panel.
 
-The database schema is created if missing, and questions are upserted from `data/questions.json`. Scores and candidates are preserved.
+The database schema is created if missing, and the initial 94 questions are seeded only when the question table is empty. Admin edits, imports, custom questions, scores, theme and candidates are stored in `data/quiz.db`; back it up before updates.
 
 ### Back up the database first
 

@@ -18,9 +18,9 @@ import Settings from '../admin/Settings.jsx';
 
 const NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'round1', label: 'Round 1 · CBT', icon: ListChecks },
-  { id: 'round2', label: 'Round 2 · Pick', icon: HelpCircle },
-  { id: 'round3', label: 'Round 3 · Race', icon: Trophy },
+  { id: 'round1', label: 'Round 1 · CBT', icon: ListChecks, round: 1 },
+  { id: 'round2', label: 'Round 2 · Pick', icon: HelpCircle, round: 2 },
+  { id: 'round3', label: 'Round 3 · Race', icon: Trophy, round: 3 },
   { id: 'candidates', label: 'Candidates', icon: Users },
   { id: 'questions', label: 'Question bank', icon: ListChecks },
   { id: 'scores', label: 'Scores', icon: Trophy },
@@ -36,7 +36,14 @@ export default function AdminApp() {
   if (!state) return <div className="page-center"><Spinner label="Connecting to the arena…" /></div>;
 
   const isAdmin = user.role === 'admin';
-  const items = isAdmin ? NAV : NAV.filter(n => ['dashboard','round1','round2','round3','candidates','questions','scores'].includes(n.id));
+  const labels = {
+    round1: state.settings.round1Label || 'CBT',
+    round2: state.settings.round2Label || 'Pick',
+    round3: state.settings.round3Label || 'Race'
+  };
+  const items = (isAdmin ? NAV : NAV.filter(n => ['dashboard','round1','round2','round3','candidates','questions','scores'].includes(n.id)))
+    .filter(n => !n.round || !!state.settings.enabledRounds?.[n.round])
+    .map(n => n.round ? { ...n, label: `Round ${n.round} · ${labels['round' + n.round]}` } : n);
 
   return (
     <div className="app-shell">
@@ -70,7 +77,7 @@ export default function AdminApp() {
         <header className="app-topbar">
           <button className="icon-btn mobile-only" onClick={() => setMobile(v => !v)}>{mobile ? <X size={20} /> : <Menu size={20} />}</button>
           <div className="topbar-title">
-            <h1>{NAV.find(n => n.id === tab)?.label || 'Dashboard'}</h1>
+            <h1>{items.find(n => n.id === tab)?.label || 'Dashboard'}</h1>
             <span>{state.event.theme}</span>
           </div>
           <div className="topbar-right">

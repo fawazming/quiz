@@ -16,3 +16,6 @@ coverage/
 .idea/
 
 deploy/
+
+# local task notes
+improve.txt

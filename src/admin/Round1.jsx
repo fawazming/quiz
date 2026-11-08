@@ -11,6 +11,7 @@ export default function Round1({ state, adminState }) {
   const done = sessions.filter(s => s.status === 'submitted');
   const active = sessions.filter(s => s.status === 'active');
   const open = state.round1.open;
+  const hasNextRound = !!(state.settings.enabledRounds?.[2] || state.settings.enabledRounds?.[3]);
 
   return (
     <div className="stack">
@@ -22,12 +23,12 @@ export default function Round1({ state, adminState }) {
       </div>
 
       <div className="two-col">
-        <Card title="CBT control" subtitle="50 PDF-sourced questions · individual timing · auto-scored">
+        <Card title="CBT control" subtitle={`${state.settings.round1QuestionCount} PDF-sourced questions · individual timing · auto-scored`}>
           <div className="control-row">
             {!open ? (
-              <Button onClick={() => run('round1:open', {}, 'Round 1 is open')} loading={busy === 'round1:open'}><Play size={16} /> Open Round 1</Button>
+              <Button onClick={() => run('round1:open', {}, 'Round 1 is open')} loading={busy === 'round1:open'}><Play size={16} /> Start fresh CBT</Button>
             ) : (
-              <Button variant="danger" onClick={() => run('round1:close', {}, 'Round 1 closed and finalised')} loading={busy === 'round1:close'}><Square size={15} /> Close &amp; finalise</Button>
+              <Button variant="danger" onClick={() => run('round1:close', {}, 'Round 1 closed and finalised')} loading={busy === 'round1:close'}><Square size={15} /> End &amp; finalise</Button>
             )}
             <Button variant="ghost" onClick={() => setConfirmReset(true)}><RotateCcw size={15} /> Reset Round 1</Button>
           </div>
@@ -36,31 +37,38 @@ export default function Round1({ state, adminState }) {
           )}
           <div className="notice">
             <AlertTriangle size={16} />
-            <span>Closing the round finalises every active session at its current score. Candidates cannot reopen unless you reset the round.</span>
+            <span>Starting a fresh CBT clears previous CBT sessions and answers. Closing finalises every active session at its current score.</span>
           </div>
         </Card>
 
-        <Card title="Qualification" subtitle="Rank by Round 1 score, then move the top candidates to Round 2">
-          <div className="qualify-box">
-            <label>Qualify top</label>
-            <div className="inline-form">
-              <input type="number" min="1" max={state.stats.totalCandidates || 1} value={qualifyCount} onChange={e => setQualifyCount(e.target.value)} />
-              <Button variant="gold" onClick={() => run('round1:qualify', { count: Number(qualifyCount) }, `Top ${qualifyCount} qualified`)} loading={busy === 'round1:qualify'}>
-                <Trophy size={16} /> Qualify
-              </Button>
-            </div>
-            <p className="muted small">Ties are broken by overall total, then name. You can manually adjust qualification in the Candidates tab.</p>
-          </div>
-          <div className="qualify-list">
-            {state.leaderboard.slice(0, Number(qualifyCount) || 8).map((r, i) => (
-              <div key={r.id} className={`qualify-row ${r.qualified ? 'is-qualified' : ''}`}>
-                <span className="q-rank">{i + 1}</span>
-                <span><strong>{r.name}</strong><small>{r.school}</small></span>
-                <span className="q-score">{r.round1} pts</span>
+        {hasNextRound ? (
+          <Card title="Qualification" subtitle="Rank by Round 1 score, then move candidates to the next stage">
+            <div className="qualify-box">
+              <label>Qualify top</label>
+              <div className="inline-form">
+                <input type="number" min="1" max={state.stats.totalCandidates || 1} value={qualifyCount} onChange={e => setQualifyCount(e.target.value)} />
+                <Button variant="gold" onClick={() => run('round1:qualify', { count: Number(qualifyCount) }, `Top ${qualifyCount} qualified`)} loading={busy === 'round1:qualify'}>
+                  <Trophy size={16} /> Qualify
+                </Button>
               </div>
-            ))}
-          </div>
-        </Card>
+              <p className="muted small">Ties are broken by overall total, then name. You can manually adjust qualification in the Candidates tab.</p>
+            </div>
+            <div className="qualify-list">
+              {state.leaderboard.slice(0, Number(qualifyCount) || 8).map((r, i) => (
+                <div key={r.id} className={`qualify-row ${r.qualified ? 'is-qualified' : ''}`}>
+                  <span className="q-rank">{i + 1}</span>
+                  <span><strong>{r.name}</strong><small>{r.school}</small></span>
+                  <span className="q-score">{r.round1} pts</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        ) : (
+          <Card title="CBT-only event" subtitle="No qualification needed">
+            <p className="muted">Rounds 2 and 3 are disabled. Close the CBT when finished; candidates see the final leaderboard immediately.</p>
+            <div className="notice"><AlertTriangle size={16} /><span>You can enable other rounds later in Settings.</span></div>
+          </Card>
+        )}
       </div>
 
       <Card title="Candidate progress" subtitle="Live CBT sessions" actions={<Badge tone={phaseTone(state.phase)}>{phaseLabel(state.phase)}</Badge>}>

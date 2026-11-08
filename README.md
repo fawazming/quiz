@@ -6,6 +6,8 @@ A real-time competition web app for the **MSSN Remo Area Council MSS Week 2026 I
 2. **Round 2 — Pick a number:** the active candidate chooses an unused number on their tablet. A 5-second countdown runs, then the question appears on the projector and tablet. One answer window, then a projector reveal with name, school and points.
 3. **Round 3 — First to answer:** Kahoot-style race. Every finalist sees the question; the first submitted answer locks it. Points combine accuracy and response speed.
 
+Rounds are independently switchable. Enable only Round 1 for a CBT-only event, only Round 2/3 for a standalone live final, or any combination. Round labels and branding are configurable in **Settings**.
+
 Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and Vite**. No Docker required. The deployment guide targets a plain SSH + Node.js + PM2 + Nginx VPS.
 
 ---
@@ -13,12 +15,15 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 ## Feature map
 
 ### Admin
+- Enable any combination of rounds; run only CBT, only a live final, or all three.
 - Open/close Round 1, watch live submissions, qualify the top N.
-- Start/pause/advance Round 2, see the number board, the answer key and the reveal.
+- End and conclude Round 2 or Round 3 at any moment; finish the whole event from the dashboard.
+- Start/advance/end Round 2, see the number board, the answer key and the reveal.
 - Start/advance Round 3, see the first-answer lock and race result.
 - Candidate registry with unique six-character tablet codes, CSV import, qualification toggles.
-- Question bank browser (94 questions, PDF provenance, answer and explanation).
-- Event settings: timers, points, speed bonuses, countdown, qualification count.
+- Question bank manager: add, edit, delete, import JSON/CSV, and inspect the 94 PDF-sourced questions.
+- Theme presets and custom primary/accent/dark colours, applied live to admin, tablets and projector.
+- Event settings: independent round switches, custom round labels, timers, points, speed bonuses, countdown, qualification count and branding.
 - CSV result export and an append-only score-adjustment audit log.
 
 ### Scorekeeper
@@ -121,7 +126,7 @@ The server is the single source of truth for timestamps and locks, so a slow tab
 
 ## Question bank — PDF only
 
-`data/questions.json` contains **94 questions**:
+The app ships with **94 PDF-sourced questions**. Admins can add, import, edit or delete questions at runtime; custom questions are stored in SQLite and preserved across restarts.
 
 | Pool | Count | Composition |
 |---|---:|---|
@@ -136,7 +141,7 @@ All questions trace to the MSSN Remo ICT Quiz 2026 study guide. `data/SOURCES.md
 npm run questions:verify
 ```
 
-The admin question browser shows the source, PDF reference, options, answer and explanation.
+The admin question manager shows the source, PDF reference, options, answer and explanation, and provides add/edit/delete plus JSON/CSV import. Use **Add question** or **Import** in the Question bank tab.
 
 ---
 
@@ -182,6 +187,7 @@ The admin question browser shows the source, PDF reference, options, answer and 
 | `npm run package:alwaysdata` | Build a minimal upload folder in `deploy/alwaysdata/` |
 | `npm run reset:password -- <user> <password>` | Reset an admin/scorekeeper password |
 | `node scripts/smoke-test.js` | End-to-end server test; first run a test server on port 3100 with `DB_PATH=data/smoke.db PORT=3100 node server/index.js` |
+| `node scripts/capacity-test.js 100 http://localhost:3100` | Hold N live Socket.IO connections for a capacity check |
 
 ---
 

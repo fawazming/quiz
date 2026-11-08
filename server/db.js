@@ -145,10 +145,7 @@ const questions = JSON.parse(fs.readFileSync(config.questionsFile, 'utf8'));
 const upsertQuestion = db.prepare(`
   INSERT INTO questions (id, source, pdf_ref, module, topic, prompt, options_json, correct_index, explanation, pool, sort_order)
   VALUES (@id, @source, @pdf_ref, @module, @topic, @prompt, @options_json, @correct_index, @explanation, @pool, @sort_order)
-  ON CONFLICT(id) DO UPDATE SET
-    source=excluded.source, pdf_ref=excluded.pdf_ref, module=excluded.module, topic=excluded.topic,
-    prompt=excluded.prompt, options_json=excluded.options_json, correct_index=excluded.correct_index,
-    explanation=excluded.explanation, pool=excluded.pool, sort_order=excluded.sort_order
+  ON CONFLICT(id) DO NOTHING
 `);
 const seedQuestions = (list) => transaction(() => {
   for (const q of list) {
@@ -159,7 +156,8 @@ const seedQuestions = (list) => transaction(() => {
     });
   }
 });
-seedQuestions(questions);
+const existingQuestionCount = db.prepare('SELECT COUNT(*) AS n FROM questions').get().n;
+if (existingQuestionCount === 0) seedQuestions(questions);
 
 export function getSettings() {
   const rows = db.prepare('SELECT key, value FROM settings').all();
@@ -196,7 +194,7 @@ export function defaultGameState() {
     },
     round3: {
       phase: 'idle', questionIds: [], index: -1, questionId: null,
-      startedAt: null, deadlineAt: null, reveal: null, answerSeconds: 30
+      startedAt: null, deadlineAt: null, reveal: null, eligibleIds: [], answerSeconds: 30
     },
     updatedAt: Date.now()
   };

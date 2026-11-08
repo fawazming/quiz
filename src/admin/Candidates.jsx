@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Upload, Search, Copy, RefreshCw, Trash2, CheckCircle2, Circle, UserX, UserCheck } from 'lucide-react';
+import { Plus, Upload, Search, Copy, RefreshCw, Trash2, CheckCircle2, Circle, UserX, UserCheck, RotateCcw } from 'lucide-react';
 import { Card, Button, Badge, Modal, OnlineBadge, Spinner, Empty } from '../components/UI.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
@@ -59,6 +59,14 @@ export default function Candidates({ adminState }) {
       await api(`/api/admin/candidates/${deleteTarget.id}`, { method: 'DELETE' });
       push(`${deleteTarget.name} removed`, 'success');
       setDeleteTarget(null);
+      await load();
+    } catch (err) { push(err.message, 'error'); }
+  }
+
+  async function resetCbt(row) {
+    try {
+      await api(`/api/admin/candidates/${row.id}/reset-round1`, { method: 'POST' });
+      push(`CBT attempt reset for ${row.name}`, 'success');
       await load();
     } catch (err) { push(err.message, 'error'); }
   }
@@ -125,6 +133,7 @@ export default function Candidates({ adminState }) {
                     </td>
                     <td className="row-actions">
                       {isAdmin && <>
+                        <button className="icon-btn" title="Reset CBT attempt" onClick={() => resetCbt(r)}><RotateCcw size={15} /></button>
                         <button className="icon-btn" title="Regenerate code" onClick={() => regenerate(r)}><RefreshCw size={15} /></button>
                         <button className="icon-btn" title={r.active ? 'Deactivate' : 'Activate'} onClick={() => patch(r, { active: !r.active }, r.active ? 'Candidate deactivated' : 'Candidate activated')}>
                           {r.active ? <UserX size={15} /> : <UserCheck size={15} />}

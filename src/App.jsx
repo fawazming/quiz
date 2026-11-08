@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth.jsx';
 import { SocketProvider } from './socket.jsx';
 import { ToastProvider } from './toast.jsx';
+import ThemeSync from './ThemeSync.jsx';
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
 import Join from './pages/Join.jsx';
@@ -16,6 +17,7 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <SocketProvider>
+          <ThemeSync />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />

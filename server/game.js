@@ -149,7 +149,12 @@ export class GameEngine {
         round3BasePoints: s.round3_base_points,
         round3SpeedBonus: s.round3_speed_bonus,
         round3WrongPenalty: s.round3_wrong_penalty,
-        round3LockOnFirstAnswer: !!s.round3_lock_on_first_answer
+        round3LockOnFirstAnswer: !!s.round3_lock_on_first_answer,
+        enabledRounds: { 1: !!s.round1_enabled, 2: !!s.round2_enabled, 3: !!s.round3_enabled },
+        round1Label: s.round1_label,
+        round2Label: s.round2_label,
+        round3Label: s.round3_label,
+        theme: { primary: s.theme_primary, accent: s.theme_accent, ink: s.theme_ink }
       },
       round: this.state.round,
       phase: this.state.phase,
@@ -201,6 +206,7 @@ export class GameEngine {
           ? db.prepare('SELECT COUNT(*) AS n FROM round3_answers WHERE question_id = ?').get(r3q.id).n : 0,
         questionNumber: (round3.index ?? -1) + 1,
         totalQuestions: (round3.questionIds || []).length,
+        eligibleIds: round3.eligibleIds || [],
         answerSeconds: s.round3_answer_seconds
       }
     };
@@ -253,11 +259,18 @@ export class GameEngine {
       throw new Error('Finish or reset the current round before reopening Round 1');
     }
     const s = this.settings();
+    if (!s.round1_enabled) throw new Error('Round 1 is disabled in Settings');
     const now = Date.now();
+    transaction(() => {
+      db.prepare('DELETE FROM round1_answers').run();
+      db.prepare('DELETE FROM round1_sessions').run();
+      db.prepare('UPDATE candidates SET qualified = 0').run();
+    });
     this.state.round = 1;
     this.state.phase = 'round1';
     this.state.round1 = { open: true, startedAt: now, endsAt: now + s.round1_duration_minutes * 60_000 };
     this.save();
+    for (const candidate of getCandidates()) this.emitRound1(candidate.id);
     this.schedule('round1:close', this.state.round1.endsAt, () => this.closeRound1('system'));
     this.log(actor, 'round1.open', { endsAt: this.state.round1.endsAt });
     this.broadcast();
@@ -267,13 +280,17 @@ export class GameEngine {
   startRound1Session(candidateId) {
     const s = this.settings();
     if (!this.state.round1.open || this.state.phase !== 'round1') throw new Error('Round 1 is not open');
-    if (Date.now() >= this.state.round1.endsAt) throw new Error('Round 1 has ended');
+    if (Date.now() >= this.state.round1.endsAt) {
+      this.closeRound1('system');
+      throw new Error('Round 1 has ended');
+    }
     const candidate = getCandidateById(candidateId);
     if (!candidate || !candidate.active) throw new Error('Candidate not found');
     let session = this.candidateSession(candidateId);
     if (session?.status === 'submitted') throw new Error('You have already submitted Round 1');
     if (!session) {
       const total = Math.min(s.round1_question_count, getQuestions('round1').length);
+      if (total < 1) throw new Error('No Round 1 questions are available. Add or import questions first.');
       const deadline = Math.min(this.state.round1.endsAt, Date.now() + s.round1_duration_minutes * 60_000);
       const info = db.prepare(`INSERT INTO round1_sessions
         (candidate_id, started_at, deadline_at, status, total_questions) VALUES (?, ?, ?, 'active', ?)`)
@@ -337,7 +354,7 @@ export class GameEngine {
       }
     });
     this.state.round1.open = false;
-    this.state.phase = 'round1_closed';
+    this.state.phase = (s.round2_enabled || s.round3_enabled) ? 'round1_closed' : 'finished';
     this.state.round = 1;
     this.save();
     this.log(actor, 'round1.close', { finalized: sessions.length });
@@ -368,18 +385,31 @@ export class GameEngine {
     this.state.round1 = { open: false, startedAt: null, endsAt: null };
     if (this.state.round === 1) { this.state.round = 0; this.state.phase = 'lobby'; }
     this.save();
+    for (const candidate of getCandidates()) this.emitRound1(candidate.id);
     this.log(actor, 'round1.reset');
     this.broadcast();
   }
 
+  resetCandidateRound1(candidateId, actor = 'admin') {
+    const session = this.candidateSession(candidateId);
+    if (session) {
+      db.prepare('DELETE FROM round1_answers WHERE session_id = ?').run(session.id);
+      db.prepare('DELETE FROM round1_sessions WHERE id = ?').run(session.id);
+    }
+    this.emitRound1(candidateId);
+    this.broadcast();
+    this.log(actor, 'round1.reset_candidate', { candidateId });
+  }
+
   /* ------------------------------- ROUND 2 ------------------------------- */
   startRound2(actor = 'admin', { shuffleOrder = false } = {}) {
+    if (!this.settings().round2_enabled) throw new Error('Round 2 is disabled in Settings');
     if (!['idle','done'].includes(this.state.round2.phase)) throw new Error('Round 2 is already in progress or awaiting a reset');
     const s = this.settings();
     db.prepare('DELETE FROM round2_picks').run();
     let qualified = getCandidates().filter(c => c.qualified);
     if (!qualified.length) qualified = getCandidates();
-    if (qualified.length < 2) throw new Error('At least two active candidates are required');
+    if (qualified.length < 1) throw new Error('At least one active candidate is required');
     let order;
     if (shuffleOrder) order = shuffle(qualified).map(c => c.id);
     else {
@@ -392,6 +422,7 @@ export class GameEngine {
     }
     let pool = getQuestions('round2').map(q => q.id);
     pool = shuffle(pool);
+    if (!pool.length) throw new Error('No Round 2 questions are available. Add or import questions first.');
     const count = Math.min(s.round2_question_count, pool.length);
     const numbers = {};
     for (let i = 0; i < count; i++) numbers[String(i + 1)] = pool[i];
@@ -521,7 +552,7 @@ export class GameEngine {
       r2.activeCandidateId = null;
       r2.questionId = null;
       r2.deadlineAt = null;
-      this.state.phase = 'round2_done';
+      this.state.phase = this.settings().round3_enabled ? 'round2_done' : 'finished';
       this.save();
       this.broadcast();
       return;
@@ -541,6 +572,20 @@ export class GameEngine {
     this.broadcast();
   }
 
+  endRound2(actor = 'admin') {
+    this.clearRoundTimers();
+    const r2 = this.state.round2;
+    r2.phase = 'done';
+    r2.activeCandidateId = null;
+    r2.questionId = null;
+    r2.deadlineAt = null;
+    r2.countdownEndsAt = null;
+    this.state.phase = this.settings().round3_enabled ? 'round2_done' : 'finished';
+    this.save();
+    this.log(actor, 'round2.end');
+    this.broadcast();
+  }
+
   resetRound2(actor = 'admin') {
     this.clearRoundTimers();
     db.prepare('DELETE FROM round2_picks').run();
@@ -548,7 +593,7 @@ export class GameEngine {
       phase: 'idle', order: [], turnIndex: 0, activeCandidateId: null, numbers: {},
       pickedNumbers: [], totalNumbers: 0, activeNumber: null, questionId: null,
       startedAt: null, countdownEndsAt: null, deadlineAt: null, reveal: null,
-      answerSeconds: this.settings().round2_answer_seconds, countdownSeconds: this.settings().countdown_seconds
+      eligibleIds: [], answerSeconds: this.settings().round2_answer_seconds, countdownSeconds: this.settings().countdown_seconds
     };
     if (this.state.round === 2) { this.state.round = 0; this.state.phase = 'lobby'; }
     this.save();
@@ -558,26 +603,29 @@ export class GameEngine {
 
   /* ------------------------------- ROUND 3 ------------------------------- */
   startRound3(actor = 'admin', { shuffleQuestions = false } = {}) {
+    if (!this.settings().round3_enabled) throw new Error('Round 3 is disabled in Settings');
     if (!['idle','done'].includes(this.state.round3.phase)) throw new Error('Round 3 is already in progress or awaiting a reset');
     const s = this.settings();
+    let eligible = getCandidates().filter(c => c.qualified);
+    if (!eligible.length) eligible = getCandidates();
+    if (!eligible.length) throw new Error('Add or activate candidates before starting Round 3');
     db.prepare('DELETE FROM round3_answers').run();
-    const qualified = getCandidates().filter(c => c.qualified);
-    if (!qualified.length) throw new Error('Qualify candidates before starting Round 3');
     let pool = getQuestions('round3').map(q => q.id);
     if (shuffleQuestions) pool = shuffle(pool);
     const count = Math.min(s.round3_question_count, pool.length);
     pool = pool.slice(0, count);
+    if (!pool.length) throw new Error('No Round 3 questions available');
     this.clearRoundTimers();
     this.state.round = 3;
     this.state.round3 = {
       phase: 'question', questionIds: pool, index: 0, questionId: pool[0],
       startedAt: Date.now(), deadlineAt: Date.now() + s.round3_answer_seconds * 1000,
-      reveal: null, answerSeconds: s.round3_answer_seconds
+      reveal: null, eligibleIds: eligible.map(c => c.id), answerSeconds: s.round3_answer_seconds
     };
     this.state.phase = 'round3_question';
     this.save();
     this.schedule('round3:timeout', this.state.round3.deadlineAt, () => this.timeoutRound3());
-    this.log(actor, 'round3.start', { questions: count, finalists: qualified.length });
+    this.log(actor, 'round3.start', { questions: count, finalists: eligible.length });
     this.broadcast();
   }
 
@@ -587,7 +635,7 @@ export class GameEngine {
     if (Date.now() > r3.deadlineAt) { this.timeoutRound3(); throw new Error('Time is up'); }
     const candidate = getCandidateById(candidateId);
     if (!candidate || !candidate.active) throw new Error('Candidate not found');
-    if (!candidate.qualified) throw new Error('You have not qualified for Round 3');
+    if (!(r3.eligibleIds || []).includes(candidateId) && !candidate.qualified) throw new Error('You are not eligible for Round 3');
     if (db.prepare('SELECT 1 FROM round3_answers WHERE question_id = ?').get(r3.questionId)) {
       throw new Error('Someone answered first — this question is locked');
     }
@@ -659,6 +707,24 @@ export class GameEngine {
     this.broadcast();
   }
 
+  endRound3(actor = 'admin') {
+    this.clearRoundTimers();
+    const r3 = this.state.round3;
+    r3.phase = 'done';
+    this.state.phase = 'finished';
+    this.save();
+    this.log(actor, 'round3.end');
+    this.broadcast();
+  }
+
+  finishEvent(actor = 'admin') {
+    this.clearRoundTimers();
+    this.state.phase = 'finished';
+    this.save();
+    this.log(actor, 'event.finish');
+    this.broadcast();
+  }
+
   resetRound3(actor = 'admin') {
     this.clearRoundTimers();
     db.prepare('DELETE FROM round3_answers').run();
@@ -704,12 +770,13 @@ export class GameEngine {
       },
       round3: {
         phase: 'idle', questionIds: [], index: -1, questionId: null,
-        startedAt: null, deadlineAt: null, reveal: null,
+        startedAt: null, deadlineAt: null, reveal: null, eligibleIds: [],
         answerSeconds: this.settings().round3_answer_seconds
       },
       updatedAt: Date.now()
     };
     this.save();
+    for (const candidate of getCandidates()) this.emitRound1(candidate.id);
     this.log(actor, 'game.reset');
     this.broadcast();
   }

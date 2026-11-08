@@ -4,6 +4,26 @@ import { Card, Button, Spinner } from '../components/UI.jsx';
 import { api } from '../api.js';
 import { useToast } from '../toast.jsx';
 
+const EXTRA_FIELDS = [
+  ['round1_enabled','Enable Round 1', 'toggle'],
+  ['round2_enabled','Enable Round 2', 'toggle'],
+  ['round3_enabled','Enable Round 3', 'toggle'],
+  ['round1_label','Round 1 label', 'text'],
+  ['round2_label','Round 2 label', 'text'],
+  ['round3_label','Round 3 label', 'text'],
+  ['theme_primary','Primary colour', 'color'],
+  ['theme_accent','Accent colour', 'color'],
+  ['theme_ink','Dark background', 'color']
+];
+
+const PRESETS = [
+  ['Emerald', '#0f5c4b', '#c39a2b', '#0c211d'],
+  ['Royal blue', '#1d4ed8', '#e0a526', '#0b1733'],
+  ['Maroon', '#7b2d3b', '#d6a84b', '#241014'],
+  ['Plum', '#5b2a6e', '#e0b34c', '#1d1024'],
+  ['Slate', '#334155', '#cbd5e1', '#0f172a']
+];
+
 const FIELDS = [
   ['event_name','Event name','text'],
   ['event_theme','Theme','text'],
@@ -40,8 +60,10 @@ export default function Settings() {
     setBusy(true);
     try {
       const payload = {};
-      for (const [key, , type] of FIELDS) {
-        payload[key] = type === 'number' ? Number(settings[key]) : settings[key];
+      for (const [key, , type] of [...FIELDS, ...EXTRA_FIELDS]) {
+        if (type === 'toggle') payload[key] = settings[key] ? 1 : 0;
+        else if (type === 'number') payload[key] = Number(settings[key]);
+        else payload[key] = settings[key];
       }
       const res = await api('/api/admin/settings', { method: 'PATCH', body: payload });
       setSettings(res.settings);
@@ -59,6 +81,35 @@ export default function Settings() {
               <span>{label}</span>
               <input type={type} value={settings[key] ?? ''} onChange={e => setSettings({ ...settings, [key]: e.target.value })} />
             </label>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Rounds & branding" subtitle="Choose which stages your event uses and recolour the arena">
+        <div className="round-toggle-grid">
+          {EXTRA_FIELDS.slice(0, 3).map(([key,label]) => (
+            <label key={key} className={`switch-card ${settings[key] ? 'is-on' : ''}`}>
+              <input type="checkbox" checked={!!settings[key]} onChange={e => setSettings({ ...settings, [key]: e.target.checked ? 1 : 0 })} />
+              <span><strong>{label}</strong><small>{key === 'round1_enabled' ? 'CBT / MCQ elimination' : key === 'round2_enabled' ? 'Pick-a-number round' : 'First-to-answer race'}</small></span>
+            </label>
+          ))}
+        </div>
+        <div className="form-grid two" style={{ marginTop: '14px' }}>
+          {EXTRA_FIELDS.slice(3, 6).map(([key,label]) => (
+            <label key={key}><span>{label}</span><input value={settings[key] ?? ''} onChange={e => setSettings({ ...settings, [key]: e.target.value })} /></label>
+          ))}
+        </div>
+        <div className="theme-row">
+          <div className="theme-preview" style={{ background: settings.theme_primary, borderColor: settings.theme_accent }} />
+          {PRESETS.map(([name, primary, accent, ink]) => (
+            <button type="button" key={name} className="preset-chip" onClick={() => setSettings({ ...settings, theme_primary: primary, theme_accent: accent, theme_ink: ink })}>
+              <span style={{ background: primary }} /><span style={{ background: accent }} />{name}
+            </button>
+          ))}
+        </div>
+        <div className="form-grid two" style={{ marginTop: '12px' }}>
+          {EXTRA_FIELDS.slice(6).map(([key,label]) => (
+            <label key={key}><span>{label}</span><input type="color" value={settings[key] || '#000000'} onChange={e => setSettings({ ...settings, [key]: e.target.value })} /></label>
           ))}
         </div>
       </Card>
@@ -88,7 +139,7 @@ export default function Settings() {
       </Card>
 
       <div className="sticky-actions">
-        <div className="notice inline"><Info size={16} /><span>Changes apply when the next round or question starts. Question counts cannot exceed the seeded PDF bank (50 / 22 / 22).</span></div>
+        <div className="notice inline"><Info size={16} /><span>Changes apply when the next round or question starts. Disabled rounds are hidden from the admin navigation and cannot be started. Question counts are capped to the questions currently assigned to that pool.</span></div>
         <Button type="submit" loading={busy}><Save size={16} /> Save settings</Button>
       </div>
     </form>

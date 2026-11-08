@@ -610,3 +610,18 @@ p{line-height:1.6}
   .hero-admin-actions{max-width:100%;justify-content:flex-start}
   .palette-grid{grid-template-columns:repeat(8,1fr)}
 }
+
+/* Rounds & theme settings */
+.round-toggle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.switch-card{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--line);background:#fbfdfb;border-radius:10px;padding:10px;cursor:pointer}
+.switch-card.is-on{border-color:var(--emerald);background:var(--mint-2)}
+.switch-card input{margin-top:2px;accent-color:var(--emerald)}
+.switch-card strong{display:block;font-size:11.5px}
+.switch-card small{display:block;font-size:9.5px;color:var(--muted);margin-top:1px}
+.theme-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:16px}
+.theme-preview{width:26px;height:26px;border-radius:8px;border:3px solid var(--gold);margin-right:4px}
+.preset-chip{display:flex;align-items:center;gap:4px;border:1px solid var(--line);background:#fff;border-radius:20px;padding:4px 8px;font-size:9.5px;color:var(--muted)}
+.preset-chip span{width:9px;height:9px;border-radius:50%;display:inline-block}
+.preset-chip:hover{border-color:var(--emerald);color:var(--ink)}
+.form-grid input[type="color"]{min-height:38px;padding:3px;cursor:pointer;background:#fff}
+@media(max-width:760px){.round-toggle-grid{grid-template-columns:1fr}}

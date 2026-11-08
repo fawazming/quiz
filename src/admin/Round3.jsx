@@ -9,7 +9,10 @@ export default function Round3({ state, adminState }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const r3 = state.round3;
   const full = adminState?.round3?.questionFull;
-  const finalists = state.leaderboard.filter(c => c.qualified);
+  const eligibleIds = state.round3?.eligibleIds || [];
+  const finalists = eligibleIds.length
+    ? state.candidates.filter(c => eligibleIds.includes(c.id))
+    : state.leaderboard.filter(c => c.qualified);
   const phase = r3.phase;
   const reveal = r3.reveal;
 
@@ -30,6 +33,9 @@ export default function Round3({ state, adminState }) {
             </Button>
             <Button variant="ghost" onClick={() => run('round3:next', {}, 'Next question')} loading={busy === 'round3:next'} disabled={!['question','reveal'].includes(phase)}>
               Next question <ChevronRight size={16} />
+            </Button>
+            <Button variant="danger" onClick={() => run('round3:end', {}, 'Round 3 concluded')} disabled={!['question','reveal'].includes(phase)}>
+              End round
             </Button>
             <Button variant="ghost" onClick={() => setConfirmReset(true)}><RotateCcw size={15} /> Reset</Button>
           </div>

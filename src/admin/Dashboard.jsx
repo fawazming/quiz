@@ -12,19 +12,40 @@ export default function Dashboard({ state, setTab }) {
   const r2q = state.round2.question;
   const r3q = state.round3.question;
 
+  const enabled = state.settings.enabledRounds || {1:true,2:true,3:true};
   const actions = [];
-  if (state.phase === 'lobby' || state.phase === 'round1_closed') {
-    actions.push(<Button key="r1" onClick={() => run('round1:open', {}, 'Round 1 is open')} loading={busy === 'round1:open'}><Play size={16} /> Open Round 1</Button>);
+  if (enabled[1] && (state.phase === 'lobby' || state.phase === 'finished')) {
+    actions.push(<Button key="r1" onClick={() => run('round1:open', {}, 'Round 1 is open')} loading={busy === 'round1:open'}><Play size={16} /> Start {state.settings.round1Label}</Button>);
+  }
+  if (enabled[2] && !enabled[1] && state.phase === 'lobby') {
+    actions.push(<Button key="r2start" variant="gold" onClick={() => run('round2:start', {}, 'Round 2 started')} loading={busy === 'round2:start'}><Play size={16} /> Start {state.settings.round2Label}</Button>);
+  }
+  if (enabled[3] && !enabled[1] && !enabled[2] && state.phase === 'lobby') {
+    actions.push(<Button key="r3start" variant="gold" onClick={() => run('round3:start', {}, 'Round 3 started')} loading={busy === 'round3:start'}><Play size={16} /> Start {state.settings.round3Label}</Button>);
+  }
+  if (state.phase === 'round1_closed' && enabled[2]) {
+    actions.push(<Button key="r2start" variant="gold" onClick={() => run('round2:start', {}, 'Round 2 started')} loading={busy === 'round2:start'}><Play size={16} /> Start {state.settings.round2Label}</Button>);
+  }
+  if (state.phase === 'round1_closed' && !enabled[2] && enabled[3]) {
+    actions.push(<Button key="r3start" variant="gold" onClick={() => run('round3:start', {}, 'Round 3 started')} loading={busy === 'round3:start'}><Play size={16} /> Start {state.settings.round3Label}</Button>);
+  }
+  if (state.phase === 'round2_done' && enabled[3]) {
+    actions.push(<Button key="r3start" variant="gold" onClick={() => run('round3:start', {}, 'Round 3 started')} loading={busy === 'round3:start'}><Play size={16} /> Start {state.settings.round3Label}</Button>);
   }
   if (state.phase === 'round1') {
-    actions.push(<Button key="close" variant="danger" onClick={() => run('round1:close', {}, 'Round 1 closed')} loading={busy === 'round1:close'}><Square size={15} /> Close Round 1</Button>);
-    actions.push(<Button key="qual" variant="gold" onClick={() => run('round1:qualify', { count: state.settings.qualifyTopN }, `Top ${state.settings.qualifyTopN} qualified`)}>Qualify top {state.settings.qualifyTopN}</Button>);
+    actions.push(<Button key="close" variant="danger" onClick={() => run('round1:close', {}, 'Round 1 closed')} loading={busy === 'round1:close'}><Square size={15} /> End {state.settings.round1Label}</Button>);
+    if (enabled[2] || enabled[3]) actions.push(<Button key="qual" variant="gold" onClick={() => run('round1:qualify', { count: state.settings.qualifyTopN }, `Top ${state.settings.qualifyTopN} qualified`)}>Qualify top {state.settings.qualifyTopN}</Button>);
   }
-  if (state.phase === 'round2_pick' || state.phase === 'round2_reveal') {
+  if (enabled[2] && ['round2_pick','round2_countdown','round2_question','round2_reveal'].includes(state.phase)) {
     actions.push(<Button key="next2" onClick={() => run('round2:next', {}, 'Next candidate')}>Next candidate <ChevronRight size={16} /></Button>);
+    actions.push(<Button key="end2" variant="danger" onClick={() => run('round2:end', {}, 'Round 2 concluded')}><Square size={14} /> End round</Button>);
   }
-  if (state.phase === 'round3_question' || state.phase === 'round3_reveal') {
+  if (enabled[3] && ['round3_question','round3_reveal'].includes(state.phase)) {
     actions.push(<Button key="next3" onClick={() => run('round3:next', {}, 'Next question')}>Next question <ChevronRight size={16} /></Button>);
+    actions.push(<Button key="end3" variant="danger" onClick={() => run('round3:end', {}, 'Round 3 concluded')}><Square size={14} /> End round</Button>);
+  }
+  if (!['finished','lobby'].includes(state.phase)) {
+    actions.push(<Button key="finish" variant="ghost" onClick={() => run('game:finish', {}, 'Event concluded')}>Conclude event</Button>);
   }
 
   return (
@@ -93,6 +114,14 @@ export default function Dashboard({ state, setTab }) {
               {state.round3.reveal?.candidate && <p><strong>{state.round3.reveal.candidate.name}</strong> answered first · {state.round3.reveal.points} pts</p>}
             </div>
           )}
+          {state.phase === 'finished' && (
+            <div className="live-placeholder">
+              <Trophy size={26} />
+              <h4>Event concluded</h4>
+              <p>The final standings are live on the projector and ready to export.</p>
+              <Button variant="ghost" onClick={() => setTab('scores')}>Open final scores <ChevronRight size={16} /></Button>
+            </div>
+          )}
           {(state.phase === 'round2_done' || state.phase === 'round3_done') && (
             <div className="live-placeholder">
               <Trophy size={26} />
@@ -110,9 +139,9 @@ export default function Dashboard({ state, setTab }) {
 
       <Card title="Quick stage controls" subtitle="Start the next phase without leaving the dashboard">
         <div className="quick-grid">
-          <button className="quick-action" onClick={() => setTab('round1')}><Target size={20} /><strong>Round 1</strong><span>Open, close, qualify</span></button>
-          <button className="quick-action" onClick={() => setTab('round2')}><HelpCircle size={20} /><strong>Round 2</strong><span>Pick numbers, reveal</span></button>
-          <button className="quick-action" onClick={() => setTab('round3')}><Trophy size={20} /><strong>Round 3</strong><span>First-to-answer race</span></button>
+          {enabled[1] && <button className="quick-action" onClick={() => setTab('round1')}><Target size={20} /><strong>{state.settings.round1Label}</strong><span>Open, close, qualify</span></button>}
+          {enabled[2] && <button className="quick-action" onClick={() => setTab('round2')}><HelpCircle size={20} /><strong>{state.settings.round2Label}</strong><span>Pick numbers, reveal</span></button>}
+          {enabled[3] && <button className="quick-action" onClick={() => setTab('round3')}><Trophy size={20} /><strong>{state.settings.round3Label}</strong><span>First-to-answer race</span></button>}
           <button className="quick-action" onClick={() => setTab('candidates')}><Users size={20} /><strong>Candidates</strong><span>Codes, schools, import</span></button>
         </div>
       </Card>

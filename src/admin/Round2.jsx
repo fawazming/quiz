@@ -32,6 +32,9 @@ export default function Round2({ state, adminState }) {
             <Button variant="ghost" onClick={() => run('round2:next', {}, 'Next candidate')} loading={busy === 'round2:next'} disabled={!['pick','countdown','question','reveal'].includes(phase)}>
               Next <ChevronRight size={16} />
             </Button>
+            <Button variant="danger" onClick={() => run('round2:end', {}, 'Round 2 concluded')} disabled={!['pick','countdown','question','reveal'].includes(phase)}>
+              End round
+            </Button>
             <Button variant="ghost" onClick={() => setConfirmReset(true)}><RotateCcw size={15} /> Reset</Button>
           </div>
           <label className="check-line">

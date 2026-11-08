@@ -26,6 +26,15 @@ export const SETTINGS_DEFAULTS = {
   event_theme: 'Anchored in Deen, Illuminated in Dunya and Digital',
   event_date: 'Thursday, 26th November 2026',
   sponsor_name: 'Rayyan Technologies',
+  round1_enabled: 1,
+  round2_enabled: 1,
+  round3_enabled: 1,
+  round1_label: 'CBT elimination',
+  round2_label: 'Pick a number',
+  round3_label: 'First to answer',
+  theme_primary: '#0f5c4b',
+  theme_accent: '#c39a2b',
+  theme_ink: '#0c211d',
   sponsor_url: 'https://rayyantech.sgm.ng',
   round1_question_count: 50,
   round1_duration_minutes: 45,
@@ -48,5 +57,6 @@ export const NUMERIC_SETTINGS = new Set([
   'round1_question_count','round1_duration_minutes','round1_points_per_correct','qualify_top_n',
   'countdown_seconds','round2_question_count','round2_answer_seconds','round2_base_points',
   'round2_speed_bonus','round3_question_count','round3_answer_seconds','round3_base_points',
-  'round3_speed_bonus','round3_wrong_penalty','round3_lock_on_first_answer'
+  'round3_speed_bonus','round3_wrong_penalty','round3_lock_on_first_answer',
+  'round1_enabled','round2_enabled','round3_enabled'
 ]);

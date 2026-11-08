@@ -20,6 +20,8 @@ export default function CandidateApp() {
 
   const me = state.candidates.find(c => c.id === user.candidateId) || user;
   const qualified = !!state.leaderboard.find(c => c.id === me.id)?.qualified;
+  const inRound2 = (state.round2?.order || []).some(c => c.id === me.id) || state.round2?.activeCandidate?.id === me.id;
+  const inRound3 = (state.round3?.eligibleIds || []).includes(me.id) || qualified;
   const phase = state.phase;
   const isRound1 = state.round === 1 || phase === 'round1' || phase === 'round1_closed';
 
@@ -52,24 +54,26 @@ export default function CandidateApp() {
       <main className="candidate-main">
         {error && <div className="alert error"><AlertTriangle size={16} /> {error}</div>}
 
-        {isRound1 && (
+        {phase === 'finished' && <FinalBoard state={state} me={me} />}
+
+        {phase !== 'finished' && isRound1 && (
           round1 ? <Round1Test round1={round1} state={state} busy={busy} action={action} setRound1={setRound1} />
             : <Spinner label="Loading your CBT paper…" />
         )}
 
-        {state.round === 2 && (
-          qualified
+        {phase !== 'finished' && state.round === 2 && (
+          inRound2
             ? <Round2Play state={state} me={me} busy={busy} action={action} />
             : <Eliminated state={state} me={me} />
         )}
 
-        {state.round === 3 && (
-          qualified
+        {phase !== 'finished' && state.round === 3 && (
+          inRound3
             ? <Round3Play state={state} me={me} busy={busy} action={action} />
             : <Eliminated state={state} me={me} />
         )}
 
-        {state.round === 0 && <Lobby state={state} me={me} />}
+        {phase !== 'finished' && state.round === 0 && <Lobby state={state} me={me} />}
       </main>
     </div>
   );
@@ -79,7 +83,7 @@ function Lobby({ state, me }) {
   return (
     <div className="candidate-lobby">
       <div className="candidate-hero">
-        <div className="hero-kicker"><span /> MSS Week 2026 · ICT Quiz</div>
+        <div className="hero-kicker"><span /> {state.event.name}</div>
         <h1>Welcome,<br />{me.name.split(' ')[0]}.</h1>
         <p>You are checked in for <strong>{state.event.name}</strong>. Keep this tab open. The admin will open Round 1 shortly.</p>
         <div className="lobby-status">
@@ -88,11 +92,11 @@ function Lobby({ state, me }) {
           <div><strong>{state.settings.round1QuestionCount}</strong><span>CBT questions</span></div>
         </div>
       </div>
-      <Card title="How the competition runs" className="candidate-rules">
+      <Card title="How the event runs" className="candidate-rules">
         <ol>
-          <li><b>Round 1 — CBT:</b> {state.settings.round1QuestionCount} MCQs, {state.settings.round1DurationMinutes} minutes. Answer at your own pace.</li>
-          <li><b>Round 2 — Pick a number:</b> the top {state.settings.qualifyTopN} qualify. Pick an unused number; the question appears after a {state.settings.countdownSeconds}-second countdown.</li>
-          <li><b>Round 3 — First to answer:</b> finalists race. The first submitted answer locks the question; speed and accuracy decide the points.</li>
+          {state.settings.enabledRounds?.[1] && <li><b>{state.settings.round1Label}:</b> {state.settings.round1QuestionCount} MCQs, {state.settings.round1DurationMinutes} minutes. Answer at your own pace.</li>}
+          {state.settings.enabledRounds?.[2] && <li><b>{state.settings.round2Label}:</b> pick an unused number; the question appears after a {state.settings.countdownSeconds}-second countdown.</li>}
+          {state.settings.enabledRounds?.[3] && <li><b>{state.settings.round3Label}:</b> the first submitted answer locks the question; speed and accuracy decide the points.</li>}
         </ol>
       </Card>
     </div>
@@ -117,10 +121,14 @@ function Round1Test({ round1, state, busy, action, setRound1 }) {
     }
   }, [remaining, round1.started, round1.status, autoSubmitted]);
 
+  if (!round1.open && !round1.started) {
+    return <Waiting title="CBT is not open" sub="The admin has not opened Round 1 yet, or it has been closed. Keep this tablet open." state={state} />;
+  }
+
   if (!round1.started) {
     return (
       <div className="candidate-gate">
-        <Card title="Round 1 · CBT elimination" subtitle={`${state.settings.round1QuestionCount} questions · ${state.settings.round1DurationMinutes} minutes`}>
+        <Card title={state.settings.round1Label || 'CBT elimination'} subtitle={`${state.settings.round1QuestionCount} questions · ${state.settings.round1DurationMinutes} minutes`}>
           <div className="gate-points">
             <div><strong>{state.settings.round1QuestionCount}</strong><span>MCQs</span></div>
             <div><strong>{state.settings.round1DurationMinutes}m</strong><span>total time</span></div>

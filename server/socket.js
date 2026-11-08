@@ -47,15 +47,18 @@ export function registerSockets(io, engine) {
     socket.on('round1:close', adminOnly(() => engine.closeRound1(user.username || 'admin')));
     socket.on('round1:qualify', adminOnly((payload) => engine.qualifyTop(user.username || 'admin', payload.count)));
     socket.on('round1:reset', adminOnly(() => engine.resetRound1(user.username || 'admin')));
+    socket.on('round1:reset-candidate', adminOnly((payload) => engine.resetCandidateRound1(Number(payload.candidateId), user.username || 'admin')));
 
     /* ------------------------------- ROUND 2 ------------------------------- */
     socket.on('round2:start', adminOnly((payload) => engine.startRound2(user.username || 'admin', { shuffleOrder: !!payload.shuffleOrder })));
     socket.on('round2:next', adminOnly(() => engine.nextRound2(user.username || 'admin')));
+    socket.on('round2:end', adminOnly(() => engine.endRound2(user.username || 'admin')));
     socket.on('round2:reset', adminOnly(() => engine.resetRound2(user.username || 'admin')));
 
     /* ------------------------------- ROUND 3 ------------------------------- */
     socket.on('round3:start', adminOnly((payload) => engine.startRound3(user.username || 'admin', { shuffleQuestions: !!payload.shuffleQuestions })));
     socket.on('round3:next', adminOnly(() => engine.nextRound3(user.username || 'admin')));
+    socket.on('round3:end', adminOnly(() => engine.endRound3(user.username || 'admin')));
     socket.on('round3:reset', adminOnly(() => engine.resetRound3(user.username || 'admin')));
 
     /* ------------------------------- SCORES -------------------------------- */
@@ -67,6 +70,7 @@ export function registerSockets(io, engine) {
       } catch (e) { fail(ack, e); }
     });
 
+    socket.on('game:finish', adminOnly(() => engine.finishEvent(user.username || 'admin')));
     socket.on('game:reset', adminOnly(() => engine.resetAll(user.username || 'admin')));
 
     /* ------------------------------ CANDIDATE ------------------------------ */

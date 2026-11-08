@@ -9,9 +9,10 @@ import { GameEngine } from './game.js';
 import { registerSockets } from './socket.js';
 import { expressAuth, authenticateStaff, authenticateCandidate, signUser } from './auth.js';
 import {
-  db, transaction, getCandidates, getCandidateById, makeCode, getQuestions,
+  db, transaction, getCandidates, getCandidateById, getQuestionById, makeCode, getQuestions,
   getLeaderboard, getSettings, setSettings, audit
 } from './db.js';
+import { listQuestions, createQuestion, updateQuestion, deleteQuestion, assertQuestionEditable, importQuestions } from './questionAdmin.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -145,6 +146,13 @@ app.delete('/api/admin/candidates/:id', expressAuth(['admin']), (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/admin/candidates/:id/reset-round1', expressAuth(['admin']), (req, res) => {
+  const id = Number(req.params.id);
+  if (!getCandidateById(id)) return res.status(404).json({ error: 'Candidate not found' });
+  engine.resetCandidateRound1(id, req.user.username);
+  res.json({ ok: true });
+});
+
 app.post('/api/admin/candidates/:id/regenerate-code', expressAuth(['admin']), (req, res) => {
   const id = Number(req.params.id);
   if (!getCandidateById(id)) return res.status(404).json({ error: 'Candidate not found' });
@@ -157,23 +165,76 @@ app.post('/api/admin/candidates/:id/regenerate-code', expressAuth(['admin']), (r
 
 app.get('/api/admin/questions', expressAuth(['admin','scorekeeper']), (req, res) => {
   const pool = req.query.pool;
-  const rows = getQuestions(['round1','round2','round3'].includes(pool) ? pool : null);
-  res.json(rows.map(q => ({
-    id: q.id, source: q.source, pdfRef: q.pdf_ref, module: q.module, topic: q.topic,
-    prompt: q.prompt, options: q.options, correctIndex: q.correct_index,
-    explanation: q.explanation, pool: q.pool
-  })));
+  const rows = listQuestions();
+  res.json(['round1','round2','round3'].includes(pool) ? rows.filter(q => q.pool === pool) : rows);
+});
+
+app.post('/api/admin/questions', expressAuth(['admin']), (req, res) => {
+  try {
+    const q = createQuestion(req.body || {});
+    audit(req.user.username, 'question.create', { id: q.id, pool: q.pool });
+    engine.broadcast();
+    res.status(201).json(q);
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.patch('/api/admin/questions/:id', expressAuth(['admin']), (req, res) => {
+  try {
+    const existing = getQuestionById(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Question not found' });
+    assertQuestionEditable(engine, existing);
+    const q = updateQuestion(req.params.id, req.body || {});
+    audit(req.user.username, 'question.update', { id: q.id });
+    engine.broadcast();
+    res.json(q);
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.delete('/api/admin/questions/:id', expressAuth(['admin']), (req, res) => {
+  try {
+    const existing = getQuestionById(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Question not found' });
+    assertQuestionEditable(engine, existing);
+    deleteQuestion(req.params.id);
+    audit(req.user.username, 'question.delete', { id: req.params.id, prompt: existing.prompt });
+    engine.broadcast();
+    res.json({ ok: true });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.post('/api/admin/questions/import', expressAuth(['admin']), (req, res) => {
+  try {
+    const result = importQuestions(req.body?.data || req.body?.csv || req.body?.json || '');
+    audit(req.user.username, 'question.import', { created: result.created.length, errors: result.errors.length });
+    engine.broadcast();
+    res.json({ created: result.created, errors: result.errors });
+  } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 app.get('/api/admin/settings', expressAuth(['admin','scorekeeper']), (req, res) => res.json(getSettings()));
 
 app.patch('/api/admin/settings', expressAuth(['admin']), (req, res) => {
   try {
-    const allowed = new Set(Object.keys(getSettings()));
+    const current = getSettings();
+    const allowed = new Set(Object.keys(current));
     const patch = {};
     for (const [k, v] of Object.entries(req.body || {})) {
       if (!allowed.has(k)) continue;
-      patch[k] = v;
+      if (k.startsWith('theme_')) {
+        if (!/^#[0-9a-f]{6}$/i.test(String(v))) throw new Error(`${k} must be a 6-digit hex colour`);
+        patch[k] = String(v);
+      } else if (['round1_enabled','round2_enabled','round3_enabled'].includes(k)) {
+        patch[k] = v ? 1 : 0;
+      } else if (['round1_label','round2_label','round3_label'].includes(k)) {
+        if (!String(v).trim() || String(v).length > 80) throw new Error(`${k} must be 1–80 characters`);
+        patch[k] = String(v).trim();
+      } else if (typeof current[k] === 'number') {
+        const n = Number(v);
+        if (!Number.isFinite(n) || n < 0) throw new Error(`${k} must be a non-negative number`);
+        patch[k] = n;
+      } else {
+        patch[k] = String(v);
+      }
     }
     if (!Object.keys(patch).length) return res.status(400).json({ error: 'No valid settings supplied' });
     setSettings(patch);
