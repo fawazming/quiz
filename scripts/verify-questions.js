@@ -38,7 +38,7 @@ if (questions.length !== 94) {
 
 console.log(`Total: ${questions.length}`);
 console.log(`Round 1: ${pools.round1.length} · Round 2: ${pools.round2.length} · Round 3: ${pools.round3.length}`);
-console.log(`PDF-sourced entries: ${questions.filter(q => q.source.includes('PDF')).length}`);
+console.log(`Derived from PDF content: ${questions.filter(q => q.source.includes('Derived from PDF')).length}`);
 if (errors) {
   console.error(`\n${errors} problem(s) found.`);
   process.exit(1);

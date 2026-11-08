@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Users, Wifi, Trophy, Target, Play, Square, ChevronRight, Sparkles, Clock3, MonitorPlay
+  Users, Wifi, Trophy, Target, Play, Square, ChevronRight, Sparkles, Clock3, HelpCircle
 } from 'lucide-react';
 import { Card, Stat, Button, Badge, Leaderboard, Timer, Empty } from '../components/UI.jsx';
 import { useAction, phaseLabel, phaseTone } from './shared.js';
@@ -111,7 +111,7 @@ export default function Dashboard({ state, setTab }) {
       <Card title="Quick stage controls" subtitle="Start the next phase without leaving the dashboard">
         <div className="quick-grid">
           <button className="quick-action" onClick={() => setTab('round1')}><Target size={20} /><strong>Round 1</strong><span>Open, close, qualify</span></button>
-          <button className="quick-action" onClick={() => setTab('round2')}><HelpCircleIcon /><strong>Round 2</strong><span>Pick numbers, reveal</span></button>
+          <button className="quick-action" onClick={() => setTab('round2')}><HelpCircle size={20} /><strong>Round 2</strong><span>Pick numbers, reveal</span></button>
           <button className="quick-action" onClick={() => setTab('round3')}><Trophy size={20} /><strong>Round 3</strong><span>First-to-answer race</span></button>
           <button className="quick-action" onClick={() => setTab('candidates')}><Users size={20} /><strong>Candidates</strong><span>Codes, schools, import</span></button>
         </div>
@@ -120,6 +120,3 @@ export default function Dashboard({ state, setTab }) {
   );
 }
 
-function HelpCircleIcon() {
-  return <Target size={20} />;
-}

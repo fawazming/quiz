@@ -9,8 +9,8 @@ import { GameEngine } from './game.js';
 import { registerSockets } from './socket.js';
 import { expressAuth, authenticateStaff, authenticateCandidate, signUser } from './auth.js';
 import {
-  db, transaction, getCandidates, getCandidateById, getCandidateByCode, makeCode, getQuestions,
-  getLeaderboard, getSettings, setSettings, getGameState, audit
+  db, transaction, getCandidates, getCandidateById, makeCode, getQuestions,
+  getLeaderboard, getSettings, setSettings, audit
 } from './db.js';
 
 const app = express();

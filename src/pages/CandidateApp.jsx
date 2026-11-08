@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   LogOut, Wifi, WifiOff, Timer as TimerIcon, CheckCircle2, ChevronLeft, ChevronRight,
-  Send, Trophy, Circle, Lock, Zap, School, UserRound, AlertTriangle
+  Send, Trophy, Circle, Lock, Zap, School, AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
 import { useSocket } from '../socket.jsx';

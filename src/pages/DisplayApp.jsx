@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import { Wifi, WifiOff, Trophy, Zap, Clock3, Users, Hash } from 'lucide-react';
+import { Wifi, WifiOff, Trophy, Zap, Clock3 } from 'lucide-react';
 import { Brand, Badge, Countdown, Leaderboard, QuestionOptions, Spinner, Timer, Empty } from '../components/UI.jsx';
 
 export default function DisplayApp() {
