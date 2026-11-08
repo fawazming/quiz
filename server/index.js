@@ -229,8 +229,8 @@ app.use((err, req, res, next) => {
 
 registerSockets(io, engine);
 
-server.listen(config.port, () => {
-  console.log(`MSSN ICT Quiz Arena listening on http://localhost:${config.port}`);
+server.listen(config.port, config.host, () => {
+  console.log(`MSSN ICT Quiz Arena listening on http://${config.host}:${config.port}`);
   console.log(`Round: ${engine.state.round} · Phase: ${engine.state.phase}`);
   if (config.nodeEnv === 'production' && config.jwtSecret.startsWith('change-this')) {
     console.warn('WARNING: set a strong JWT_SECRET before exposing this server.');

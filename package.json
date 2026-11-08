@@ -16,19 +16,15 @@
     "seed:demo": "node scripts/seed-demo.js",
     "questions:verify": "node scripts/verify-questions.js",
     "test": "vitest run",
-    "reset:password": "node scripts/reset-password.js"
+    "reset:password": "node scripts/reset-password.js",
+    "package:alwaysdata": "node scripts/package-alwaysdata.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "lucide-react": "^0.468.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.1",
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {
@@ -36,6 +32,11 @@
     "concurrently": "^9.1.2",
     "nodemon": "^3.1.9",
     "vite": "^6.0.7",
-    "vitest": "^3.0.5"
+    "vitest": "^3.0.5",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.1",
+    "socket.io-client": "^4.8.1"
   }
 }

@@ -7,6 +7,7 @@ export const ROOT = path.resolve(__dirname, '..');
 
 export const config = {
   port: Number(process.env.PORT || 3000),
+  host: process.env.HOST || process.env.IP || '0.0.0.0',
   nodeEnv: process.env.NODE_ENV || 'development',
   dbPath: process.env.DB_PATH || path.join(ROOT, 'data', 'quiz.db'),
   jwtSecret: process.env.JWT_SECRET || 'change-this-secret-before-running-in-public',

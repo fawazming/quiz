@@ -179,6 +179,7 @@ The admin question browser shows the source, PDF reference, options, answer and 
 | `npm test` | Scoring unit tests |
 | `npm run questions:verify` | Validate 94 questions, pools, options and provenance |
 | `npm run seed:demo` | Add eight demo candidates and print codes |
+| `npm run package:alwaysdata` | Build a minimal upload folder in `deploy/alwaysdata/` |
 | `npm run reset:password -- <user> <password>` | Reset an admin/scorekeeper password |
 | `node scripts/smoke-test.js` | End-to-end server test; first run a test server on port 3100 with `DB_PATH=data/smoke.db PORT=3100 node server/index.js` |
 
@@ -188,7 +189,8 @@ The admin question browser shows the source, PDF reference, options, answer and 
 
 | Variable | Default | Notes |
 |---|---|---|
-| `PORT` | `3000` | Node HTTP port |
+| `PORT` | `3000` | Node HTTP port; alwaysdata supplies this automatically |
+| `HOST` / `IP` | `0.0.0.0` | Bind address; alwaysdata supplies `IP` automatically |
 | `NODE_ENV` | `development` | Set `production` on the server |
 | `DB_PATH` | `./data/quiz.db` | Must be on a persistent disk |
 | `JWT_SECRET` | dev placeholder | **Change in production** |
@@ -201,7 +203,9 @@ The admin question browser shows the source, PDF reference, options, answer and 
 
 ## Deployment
 
-See **[DEPLOYMENT.md](DEPLOYMENT.md)** for the full SSH + Node.js guide:
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for a general SSH + Node.js VPS guide, or **[DEPLOYMENT-ALWAYSDATA.md](DEPLOYMENT-ALWAYSDATA.md)** for the 100 MB alwaysdata free-plan procedure (build locally, upload `dist`, install only server dependencies).
+
+The general guide covers:
 
 - install Node 24 and PM2;
 - clone from GitHub;
