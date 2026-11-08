@@ -84,6 +84,8 @@ cd mssn-ict-quiz-arena
 npm ci
 ```
 
+> If you exported `NODE_ENV=production` in the shell, use `npm ci --include=dev` so Vite is available for the build.
+
 Create the production environment file:
 
 ```bash
