@@ -1,0 +1,1694 @@
+[
+  {
+    "id": "ch1-q1",
+    "source": "Chapter 1 MCQ 1",
+    "pdfRef": "Chapter 1",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "Which statement correctly distinguishes RAM from ROM?",
+    "options": [
+      "RAM is volatile and holds active data; ROM is non-volatile and stores firmware.",
+      "RAM is non-volatile; ROM loses its contents when power is removed.",
+      "RAM stores the operating system permanently; ROM is upgraded by adding sticks.",
+      "RAM is slower than ROM but has a larger capacity."
+    ],
+    "correctIndex": 0,
+    "explanation": "RAM is volatile working memory; ROM retains firmware without power.",
+    "pool": "round1",
+    "sortOrder": 1
+  },
+  {
+    "id": "ch1-q2",
+    "source": "Chapter 1 MCQ 2",
+    "pdfRef": "Chapter 1",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "A student replaces a 4 GB RAM module with a 16 GB module. What is the most direct expected benefit?",
+    "options": [
+      "The screen resolution increases automatically.",
+      "The SSD gains more storage capacity.",
+      "More applications and browser tabs can remain open without heavy slowdown.",
+      "The CPU clock speed rises from 2.4 GHz to 4.8 GHz."
+    ],
+    "correctIndex": 2,
+    "explanation": "More RAM allows more concurrent data in memory; it does not change CPU speed or storage.",
+    "pool": "round1",
+    "sortOrder": 2
+  },
+  {
+    "id": "ch1-q3",
+    "source": "Chapter 1 MCQ 3",
+    "pdfRef": "Chapter 1",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "A desktop powers on, the fans spin, but there is no display and the motherboard emits a repeated beep pattern. What is the most appropriate first step?",
+    "options": [
+      "Reinstall the operating system immediately.",
+      "Open the power supply while it is still plugged in.",
+      "Replace the monitor and keyboard.",
+      "Consult the motherboard manual or manufacturer’s beep-code table."
+    ],
+    "correctIndex": 3,
+    "explanation": "POST beep codes are manufacturer-specific; decode them before replacing parts.",
+    "pool": "round1",
+    "sortOrder": 3
+  },
+  {
+    "id": "ch1-q4",
+    "source": "Chapter 1 MCQ 4",
+    "pdfRef": "Chapter 1",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "Which maintenance action is inappropriate for a solid-state drive?",
+    "options": [
+      "Enabling TRIM.",
+      "Running a traditional disk defragmenter regularly.",
+      "Keeping free space available for wear levelling.",
+      "Backing up important files to another drive."
+    ],
+    "correctIndex": 1,
+    "explanation": "Defragmentation is for mechanical HDDs; SSDs use TRIM and wear levelling.",
+    "pool": "round1",
+    "sortOrder": 4
+  },
+  {
+    "id": "ch1-q5",
+    "source": "Chapter 1 MCQ 5",
+    "pdfRef": "Chapter 1",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "In the path C:\\Users\\Amina\\Documents\\ict.txt, which part is the file extension?",
+    "options": [
+      "C:\\",
+      "Users\\Amina",
+      ".txt",
+      "Documents"
+    ],
+    "correctIndex": 2,
+    "explanation": "The extension follows the final dot and hints at the file type.",
+    "pool": "round1",
+    "sortOrder": 5
+  },
+  {
+    "id": "ch2-q1",
+    "source": "Chapter 2 MCQ 1",
+    "pdfRef": "Chapter 2",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "A formula in D2 contains =$C$5*B2. When copied to E3, what does it become?",
+    "options": [
+      "=$C$5*B3",
+      "=$C$5*C3",
+      "=$D$6*C3",
+      "=C5*B2"
+    ],
+    "correctIndex": 1,
+    "explanation": "$C$5 stays fixed; B2 shifts one column right and one row down to C3.",
+    "pool": "round1",
+    "sortOrder": 6
+  },
+  {
+    "id": "ch2-q2",
+    "source": "Chapter 2 MCQ 2",
+    "pdfRef": "Chapter 2",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "Which function is best for counting how many students scored “A” in a column of grades?",
+    "options": [
+      "SUM",
+      "VLOOKUP",
+      "AVERAGE",
+      "COUNTIF"
+    ],
+    "correctIndex": 3,
+    "explanation": "COUNTIF counts cells matching one criterion; SUM would add numbers, not count grades.",
+    "pool": "round1",
+    "sortOrder": 7
+  },
+  {
+    "id": "ch2-q3",
+    "source": "Chapter 2 MCQ 3",
+    "pdfRef": "Chapter 2",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "Which property must a primary key have?",
+    "options": [
+      "It must be unique and never null.",
+      "It must be the same for every record.",
+      "It must be a person’s full name.",
+      "It must appear in every table as a foreign key."
+    ],
+    "correctIndex": 0,
+    "explanation": "Uniqueness prevents duplicate records; non-null ensures every row is identifiable.",
+    "pool": "round1",
+    "sortOrder": 8
+  },
+  {
+    "id": "ch2-q4",
+    "source": "Chapter 2 MCQ 4",
+    "pdfRef": "Chapter 2",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "Which query returns the titles of books published after 2015, newest first?",
+    "options": [
+      "SELECT Books WHERE Year > 2015 ORDER BY Title;",
+      "SELECT Title FROM Books ORDER BY Year WHERE Year > 2015;",
+      "SELECT Title FROM Books WHERE Year > 2015 ORDER BY Year DESC;",
+      "INSERT INTO Books WHERE Year > 2015;"
+    ],
+    "correctIndex": 2,
+    "explanation": "Correct clause order: SELECT, FROM, WHERE, ORDER BY. The other options violate the required order.",
+    "pool": "round1",
+    "sortOrder": 9
+  },
+  {
+    "id": "ch2-q5",
+    "source": "Chapter 2 MCQ 5",
+    "pdfRef": "Chapter 2",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "A school wants to show the percentage of the ICT budget spent on four categories. Which chart is most appropriate?",
+    "options": [
+      "A line chart with no axis labels.",
+      "A pie chart with four labelled slices.",
+      "A scatter plot of category names.",
+      "A bar chart with the vertical axis starting at 90%."
+    ],
+    "correctIndex": 1,
+    "explanation": "A pie chart shows parts of a whole; four categories are readable, with labels.",
+    "pool": "round1",
+    "sortOrder": 10
+  },
+  {
+    "id": "ch3-q1",
+    "source": "Chapter 3 MCQ 1",
+    "pdfRef": "Chapter 3",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "Which malware encrypts a victim’s files and demands payment for the decryption key?",
+    "options": [
+      "Adware",
+      "Worm",
+      "Ransomware",
+      "Rootkit"
+    ],
+    "correctIndex": 2,
+    "explanation": "Ransomware encrypts data and sells the key; offline backups are the strongest defence.",
+    "pool": "round1",
+    "sortOrder": 11
+  },
+  {
+    "id": "ch3-q2",
+    "source": "Chapter 3 MCQ 2",
+    "pdfRef": "Chapter 3",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "Which login approach is strongest against guessing and credential theft?",
+    "options": [
+      "A long unique passphrase plus multi-factor authentication.",
+      "The same strong password on every account.",
+      "Your birthday followed by “123”.",
+      "Replacing “a” with “@” in a common word."
+    ],
+    "correctIndex": 0,
+    "explanation": "Length, uniqueness and a second factor defeat guessing and stolen passwords.",
+    "pool": "round1",
+    "sortOrder": 12
+  },
+  {
+    "id": "ch3-q3",
+    "source": "Chapter 3 MCQ 3",
+    "pdfRef": "Chapter 3",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "What does the padlock and HTTPS in a browser guarantee?",
+    "options": [
+      "The website is honest and safe to buy from.",
+      "Your password will never be stolen.",
+      "The site cannot contain phishing content.",
+      "The connection is encrypted and the certificate matches the domain."
+    ],
+    "correctIndex": 3,
+    "explanation": "HTTPS protects data in transit; it does not certify ethics or legitimacy.",
+    "pool": "round1",
+    "sortOrder": 13
+  },
+  {
+    "id": "ch3-q4",
+    "source": "Chapter 3 MCQ 4",
+    "pdfRef": "Chapter 3",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "Which is an example of an active digital footprint?",
+    "options": [
+      "A cookie stored when you visit a news site.",
+      "A comment you deliberately post under your real name.",
+      "Your IP address recorded by a game server.",
+      "The device type detected by a website."
+    ],
+    "correctIndex": 1,
+    "explanation": "Active footprints are deliberate; cookies, IP and device data are passive.",
+    "pool": "round1",
+    "sortOrder": 14
+  },
+  {
+    "id": "ch3-q5",
+    "source": "Chapter 3 MCQ 5",
+    "pdfRef": "Chapter 3",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "An image is licensed CC BY-NC 4.0. Which use is permitted without further permission?",
+    "options": [
+      "Using it in a school project with attribution, no payment.",
+      "Selling posters of the image without attribution.",
+      "Claiming you created the image.",
+      "Using it in a commercial advertisement."
+    ],
+    "correctIndex": 0,
+    "explanation": "BY = attribution; NC = non-commercial. A school project with credit is allowed.",
+    "pool": "round1",
+    "sortOrder": 15
+  },
+  {
+    "id": "ch4-q1",
+    "source": "Chapter 4 MCQ 1",
+    "pdfRef": "Chapter 4",
+    "module": 2,
+    "topic": "Algorithms",
+    "prompt": "Which property of an algorithm means that it must eventually stop?",
+    "options": [
+      "Definiteness",
+      "Generality",
+      "Effectiveness",
+      "Finiteness"
+    ],
+    "correctIndex": 3,
+    "explanation": "Finiteness means the algorithm terminates after a finite number of steps.",
+    "pool": "round1",
+    "sortOrder": 16
+  },
+  {
+    "id": "ch4-q2",
+    "source": "Chapter 4 MCQ 2",
+    "pdfRef": "Chapter 4",
+    "module": 2,
+    "topic": "Algorithms",
+    "prompt": "Which flowchart symbol represents a decision?",
+    "options": [
+      "Rectangle",
+      "Diamond",
+      "Parallelogram",
+      "Oval"
+    ],
+    "correctIndex": 1,
+    "explanation": "The diamond asks a question and has multiple exits (yes/no).",
+    "pool": "round1",
+    "sortOrder": 17
+  },
+  {
+    "id": "ch4-q3",
+    "source": "Chapter 4 MCQ 3",
+    "pdfRef": "Chapter 4",
+    "module": 2,
+    "topic": "Algorithms",
+    "prompt": "A loop is required to ask for a password until it is correct, with no fixed number of attempts. Which structure is most natural?",
+    "options": [
+      "WHILE loop",
+      "FOR loop",
+      "Sequence",
+      "A single IF statement"
+    ],
+    "correctIndex": 0,
+    "explanation": "WHILE repeats while a condition is true; FOR needs a known count.",
+    "pool": "round1",
+    "sortOrder": 18
+  },
+  {
+    "id": "ch4-q4",
+    "source": "Chapter 4 MCQ 4",
+    "pdfRef": "Chapter 4",
+    "module": 2,
+    "topic": "Algorithms",
+    "prompt": "What is the output of this pseudocode?\nSET total ← 0\nFOR i ← 1 TO 4\n  total ← total + i\nENDFOR\nOUTPUT total",
+    "options": [
+      "4",
+      "6",
+      "10",
+      "15"
+    ],
+    "correctIndex": 2,
+    "explanation": "1 + 2 + 3 + 4 = 10. The loop runs four times.",
+    "pool": "round1",
+    "sortOrder": 19
+  },
+  {
+    "id": "ch4-q5",
+    "source": "Chapter 4 MCQ 5",
+    "pdfRef": "Chapter 4",
+    "module": 2,
+    "topic": "Algorithms",
+    "prompt": "A grade algorithm tests score ≥ 50 before score ≥ 70. A student scores 85. What grade is produced, and what is the error called?",
+    "options": [
+      "A; correct boundary handling",
+      "C; wrong test order (logic error)",
+      "B; infinite loop",
+      "F; syntax error"
+    ],
+    "correctIndex": 1,
+    "explanation": "85 satisfies ≥ 50 first, so the lower band is wrongly selected; order the tests highest first.",
+    "pool": "round1",
+    "sortOrder": 20
+  },
+  {
+    "id": "ch5-q1",
+    "source": "Chapter 5 MCQ 1",
+    "pdfRef": "Chapter 5",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "What is the data type of age after age = input(\"Age: \")?",
+    "options": [
+      "str",
+      "float",
+      "int",
+      "bool"
+    ],
+    "correctIndex": 0,
+    "explanation": "input() returns text; convert with int() for arithmetic.",
+    "pool": "round1",
+    "sortOrder": 21
+  },
+  {
+    "id": "ch5-q2",
+    "source": "Chapter 5 MCQ 2",
+    "pdfRef": "Chapter 5",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "What are the values of 17 // 5 and 17 % 5?",
+    "options": [
+      "3.4 and 0",
+      "3 and 2",
+      "2 and 3",
+      "5 and 17"
+    ],
+    "correctIndex": 1,
+    "explanation": "17 ÷ 5 = 3 remainder 2; // gives 3, % gives 2.",
+    "pool": "round1",
+    "sortOrder": 22
+  },
+  {
+    "id": "ch5-q3",
+    "source": "Chapter 5 MCQ 3",
+    "pdfRef": "Chapter 5",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "How many times does the loop run?\nfor i in range(1, 5):\n  print(i)",
+    "options": [
+      "3 times, printing 1–3",
+      "0 times",
+      "5 times, printing 1–5",
+      "4 times, printing 1–4"
+    ],
+    "correctIndex": 3,
+    "explanation": "range(1, 5) includes 1, 2, 3, 4 — the stop value 5 is excluded.",
+    "pool": "round1",
+    "sortOrder": 23
+  },
+  {
+    "id": "ch5-q4",
+    "source": "Chapter 5 MCQ 4",
+    "pdfRef": "Chapter 5",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "Given items = [\"books\", \"pens\", \"bags\"], what is items[1]?",
+    "options": [
+      "\"books\"",
+      "\"bags\"",
+      "\"pens\"",
+      "An IndexError"
+    ],
+    "correctIndex": 2,
+    "explanation": "Index 0 is “books”, index 1 is “pens”, index 2 is “bags”.",
+    "pool": "round1",
+    "sortOrder": 24
+  },
+  {
+    "id": "ch5-q5",
+    "source": "Chapter 5 MCQ 5",
+    "pdfRef": "Chapter 5",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "What is printed when score = 60?\nif score >= 70:\n  print(\"A\")\nelif score >= 60:\n  print(\"B\")\nelse:\n  print(\"C\")",
+    "options": [
+      "B",
+      "A",
+      "C",
+      "Nothing"
+    ],
+    "correctIndex": 0,
+    "explanation": "60 is not ≥ 70, but it is ≥ 60, so the elif branch prints B.",
+    "pool": "round1",
+    "sortOrder": 25
+  },
+  {
+    "id": "ch6-q1",
+    "source": "Chapter 6 MCQ 1",
+    "pdfRef": "Chapter 6",
+    "module": 3,
+    "topic": "AI Foundations",
+    "prompt": "What did Alan Turing’s 1950 test actually evaluate?",
+    "options": [
+      "Whether a machine is conscious.",
+      "Whether a human judge can distinguish machine from human in text conversation.",
+      "Whether a machine can solve arithmetic faster than a human.",
+      "Whether a machine can physically move like a human."
+    ],
+    "correctIndex": 1,
+    "explanation": "The imitation game measures indistinguishability in conversation, not consciousness.",
+    "pool": "round1",
+    "sortOrder": 26
+  },
+  {
+    "id": "ch6-q2",
+    "source": "Chapter 6 MCQ 2",
+    "pdfRef": "Chapter 6",
+    "module": 3,
+    "topic": "AI Foundations",
+    "prompt": "Which system is the clearest example of narrow AI?",
+    "options": [
+      "A calculator following fixed arithmetic rules.",
+      "A human-level general assistant.",
+      "A wall clock with a battery.",
+      "A spam filter trained on labelled emails."
+    ],
+    "correctIndex": 3,
+    "explanation": "A spam filter learns from data; a calculator follows fixed rules.",
+    "pool": "round1",
+    "sortOrder": 27
+  },
+  {
+    "id": "ch6-q3",
+    "source": "Chapter 6 MCQ 3",
+    "pdfRef": "Chapter 6",
+    "module": 3,
+    "topic": "AI Foundations",
+    "prompt": "Which pair is the best example of the modern drivers of AI?",
+    "options": [
+      "Paper archives and typewriters.",
+      "Printers and keyboards.",
+      "Big Data and GPU computing.",
+      "Larger screens and louder speakers."
+    ],
+    "correctIndex": 2,
+    "explanation": "Data and parallel compute are core; algorithms and investment complete the picture.",
+    "pool": "round1",
+    "sortOrder": 28
+  },
+  {
+    "id": "ch6-q4",
+    "source": "Chapter 6 MCQ 4",
+    "pdfRef": "Chapter 6",
+    "module": 3,
+    "topic": "AI Foundations",
+    "prompt": "What was a major cause of the “AI winters”?",
+    "options": [
+      "Overpromising followed by disappointment, high costs and funding cuts.",
+      "Too many working products in schools.",
+      "The invention of the internet.",
+      "Governments banning all computers."
+    ],
+    "correctIndex": 0,
+    "explanation": "Hype, cost and unmet expectations led to funding collapses.",
+    "pool": "round1",
+    "sortOrder": 29
+  },
+  {
+    "id": "ch6-q5",
+    "source": "Chapter 6 MCQ 5",
+    "pdfRef": "Chapter 6",
+    "module": 3,
+    "topic": "AI Foundations",
+    "prompt": "A company claims its app “uses AI” because it follows a fixed set of if-else rules written by a developer. Which judgement is most accurate?",
+    "options": [
+      "It is definitely AGI.",
+      "It cannot be useful without a GPU.",
+      "It must use a neural network.",
+      "It is automation, not necessarily machine learning."
+    ],
+    "correctIndex": 3,
+    "explanation": "Rule-based logic is automation; AI usually implies learning or probabilistic inference.",
+    "pool": "round1",
+    "sortOrder": 30
+  },
+  {
+    "id": "ch7-q1",
+    "source": "Chapter 7 MCQ 1",
+    "pdfRef": "Chapter 7",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "A model predicts the price of a house from its size, location and age. Which type of learning is this?",
+    "options": [
+      "Unsupervised clustering",
+      "Reinforcement learning",
+      "Supervised regression",
+      "Supervised classification"
+    ],
+    "correctIndex": 2,
+    "explanation": "Price is a continuous number and the data is labelled → supervised regression.",
+    "pool": "round1",
+    "sortOrder": 31
+  },
+  {
+    "id": "ch7-q2",
+    "source": "Chapter 7 MCQ 2",
+    "pdfRef": "Chapter 7",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "A business groups customers into “budget”, “loyal” and “seasonal” segments without predefined labels. Which technique is most likely?",
+    "options": [
+      "Clustering",
+      "Classification",
+      "Regression",
+      "Reinforcement learning"
+    ],
+    "correctIndex": 0,
+    "explanation": "No labels; the algorithm discovers groups of similar customers.",
+    "pool": "round1",
+    "sortOrder": 32
+  },
+  {
+    "id": "ch7-q3",
+    "source": "Chapter 7 MCQ 3",
+    "pdfRef": "Chapter 7",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "How does a reinforcement-learning agent improve?",
+    "options": [
+      "By reading a labelled answer key for every action.",
+      "By receiving rewards and penalties for actions taken in an environment.",
+      "By sorting unlabelled data into clusters.",
+      "By increasing the screen resolution."
+    ],
+    "correctIndex": 1,
+    "explanation": "RL learns from consequences; no correct action is supplied for every state.",
+    "pool": "round1",
+    "sortOrder": 33
+  },
+  {
+    "id": "ch7-q4",
+    "source": "Chapter 7 MCQ 4",
+    "pdfRef": "Chapter 7",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "What is the role of weights in a neural network?",
+    "options": [
+      "They store the original training images.",
+      "They set the screen brightness.",
+      "They count the number of layers.",
+      "They scale the strength of connections and are adjusted during training."
+    ],
+    "correctIndex": 3,
+    "explanation": "Weights control signal strength; training updates them to reduce loss.",
+    "pool": "round1",
+    "sortOrder": 34
+  },
+  {
+    "id": "ch7-q5",
+    "source": "Chapter 7 MCQ 5",
+    "pdfRef": "Chapter 7",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "A model scores 99% on training data but 58% on new data. What is the most likely problem?",
+    "options": [
+      "Overfitting",
+      "Underfitting",
+      "Too much test data",
+      "The GPU is too fast"
+    ],
+    "correctIndex": 0,
+    "explanation": "The gap between training and test accuracy is the signature of overfitting.",
+    "pool": "round1",
+    "sortOrder": 35
+  },
+  {
+    "id": "ch8-q1",
+    "source": "Chapter 8 MCQ 1",
+    "pdfRef": "Chapter 8",
+    "module": 3,
+    "topic": "Applied AI",
+    "prompt": "What is a pixel?",
+    "options": [
+      "A complete photograph stored as one number.",
+      "A camera lens.",
+      "A type of computer vision algorithm.",
+      "The smallest unit of a digital image, holding colour or brightness values."
+    ],
+    "correctIndex": 3,
+    "explanation": "Pixels are the smallest picture elements; colour uses RGB values.",
+    "pool": "round1",
+    "sortOrder": 36
+  },
+  {
+    "id": "ch8-q2",
+    "source": "Chapter 8 MCQ 2",
+    "pdfRef": "Chapter 8",
+    "module": 3,
+    "topic": "Applied AI",
+    "prompt": "What do the early layers of a convolutional neural network typically detect?",
+    "options": [
+      "Complete human faces",
+      "Edges and simple textures",
+      "The meaning of a sentence",
+      "The price of a product"
+    ],
+    "correctIndex": 1,
+    "explanation": "Early convolution filters respond to edges and textures; deeper layers combine them.",
+    "pool": "round1",
+    "sortOrder": 37
+  },
+  {
+    "id": "ch8-q3",
+    "source": "Chapter 8 MCQ 3",
+    "pdfRef": "Chapter 8",
+    "module": 3,
+    "topic": "Applied AI",
+    "prompt": "What is tokenization in NLP?",
+    "options": [
+      "Compressing an image into pixels.",
+      "Translating a language into another language.",
+      "Splitting text into words, subwords or characters that the model can process.",
+      "Deleting stop words from a database."
+    ],
+    "correctIndex": 2,
+    "explanation": "Tokenization converts text into model-readable units and IDs.",
+    "pool": "round1",
+    "sortOrder": 38
+  },
+  {
+    "id": "ch8-q4",
+    "source": "Chapter 8 MCQ 4",
+    "pdfRef": "Chapter 8",
+    "module": 3,
+    "topic": "Applied AI",
+    "prompt": "Which prompt is most likely to produce a useful, exam-ready explanation?",
+    "options": [
+      "“Act as an ICT teacher. Explain supervised vs unsupervised learning to JSS3 students in 180 words, with one school example each and a three-row table. No code.”",
+      "“Write something about machine learning.”",
+      "“Explain AI.”",
+      "“Give me all the answers.”"
+    ],
+    "correctIndex": 0,
+    "explanation": "It names the role, audience, task, length, examples and format.",
+    "pool": "round1",
+    "sortOrder": 39
+  },
+  {
+    "id": "ch8-q5",
+    "source": "Chapter 8 MCQ 5",
+    "pdfRef": "Chapter 8",
+    "module": 3,
+    "topic": "Applied AI",
+    "prompt": "A chatbot confidently cites a law that does not exist. What is this called, and what should you do?",
+    "options": [
+      "Overfitting; ignore it.",
+      "Tokenization; retype the question.",
+      "Hallucination; verify with a primary source.",
+      "Sentiment analysis; check the tone."
+    ],
+    "correctIndex": 2,
+    "explanation": "Fabricated facts are hallucinations; verify against a reliable primary source.",
+    "pool": "round1",
+    "sortOrder": 40
+  },
+  {
+    "id": "ch9-q1",
+    "source": "Chapter 9 MCQ 1",
+    "pdfRef": "Chapter 9",
+    "module": 3,
+    "topic": "AI Ethics",
+    "prompt": "A model scores 98% on its training images but 55% on new photos. What is the most likely diagnosis?",
+    "options": [
+      "Overfitting",
+      "Underfitting",
+      "Class imbalance in the test set only",
+      "The camera is broken"
+    ],
+    "correctIndex": 0,
+    "explanation": "The gap between training and test performance is the signature of overfitting.",
+    "pool": "round1",
+    "sortOrder": 41
+  },
+  {
+    "id": "ch9-q2",
+    "source": "Chapter 9 MCQ 2",
+    "pdfRef": "Chapter 9",
+    "module": 3,
+    "topic": "AI Ethics",
+    "prompt": "A dataset has 950 “no hand” images and 50 “hand up” images. The model predicts “no hand” every time. Why is 95% accuracy misleading?",
+    "options": [
+      "Because accuracy is always wrong.",
+      "Because the images are too large.",
+      "Because the model has learned the majority class and fails the minority class entirely.",
+      "Because the model used too many classes."
+    ],
+    "correctIndex": 2,
+    "explanation": "Accuracy is dominated by the majority class; the minority class is never detected.",
+    "pool": "round1",
+    "sortOrder": 42
+  },
+  {
+    "id": "ch9-q3",
+    "source": "Chapter 9 MCQ 3",
+    "pdfRef": "Chapter 9",
+    "module": 3,
+    "topic": "AI Ethics",
+    "prompt": "Which action best reduces sampling bias in a facial-recognition dataset?",
+    "options": [
+      "Collect more images of the same volunteers.",
+      "Collect diverse faces across skin tones, ages, genders and lighting conditions.",
+      "Increase the screen resolution.",
+      "Delete all metadata."
+    ],
+    "correctIndex": 1,
+    "explanation": "Representation across affected groups reduces sampling bias; more of the same does not.",
+    "pool": "round1",
+    "sortOrder": 43
+  },
+  {
+    "id": "ch9-q4",
+    "source": "Chapter 9 MCQ 4",
+    "pdfRef": "Chapter 9",
+    "module": 3,
+    "topic": "AI Ethics",
+    "prompt": "A viral video appears to show a school official making a shocking statement. What is the most responsible first step?",
+    "options": [
+      "Share it immediately so others can decide.",
+      "Assume it is real because it looks realistic.",
+      "Edit the clip to make it clearer.",
+      "Verify the original source, date and context before sharing."
+    ],
+    "correctIndex": 3,
+    "explanation": "Verify provenance and context first; sharing an unverified deepfake causes harm.",
+    "pool": "round1",
+    "sortOrder": 44
+  },
+  {
+    "id": "ch9-q5",
+    "source": "Chapter 9 MCQ 5",
+    "pdfRef": "Chapter 9",
+    "module": 3,
+    "topic": "AI Ethics",
+    "prompt": "Which skill is most likely to remain valuable as AI automates routine tasks?",
+    "options": [
+      "Memorising facts that can be searched instantly.",
+      "Typing faster than everyone else.",
+      "Judgement, verification, communication and ethical reasoning.",
+      "Copying AI answers without reading them."
+    ],
+    "correctIndex": 2,
+    "explanation": "AI supports but does not replace judgement, trust and accountability.",
+    "pool": "round1",
+    "sortOrder": 45
+  },
+  {
+    "id": "mock-q2",
+    "source": "Mock Q2",
+    "pdfRef": "Mock Examination Q2",
+    "module": 1,
+    "topic": "Mixed revision",
+    "prompt": "A processor is labelled “3.2 GHz”. What does this mean?",
+    "options": [
+      "It has 3.2 GB of RAM.",
+      "It performs about 3.2 billion cycles per second.",
+      "It can store 3.2 terabytes.",
+      "It consumes 3.2 watts."
+    ],
+    "correctIndex": 1,
+    "explanation": "Hertz = cycles per second; 3.2 GHz = 3.2 billion cycles per second.",
+    "pool": "round1",
+    "sortOrder": 46
+  },
+  {
+    "id": "mock-q3",
+    "source": "Mock Q3",
+    "pdfRef": "Mock Examination Q3",
+    "module": 1,
+    "topic": "Mixed revision",
+    "prompt": "Which is a genuine advantage of an SSD over an HDD?",
+    "options": [
+      "It has more moving parts.",
+      "It is always cheaper per gigabyte.",
+      "It has no moving parts and offers faster random access.",
+      "It requires regular defragmentation."
+    ],
+    "correctIndex": 2,
+    "explanation": "Flash memory has no moving parts; random access is much faster than a spinning disk.",
+    "pool": "round1",
+    "sortOrder": 47
+  },
+  {
+    "id": "mock-q4",
+    "source": "Mock Q4",
+    "pdfRef": "Mock Examination Q4",
+    "module": 1,
+    "topic": "Mixed revision",
+    "prompt": "What is the main purpose of the POST?",
+    "options": [
+      "To install the operating system.",
+      "To back up files automatically.",
+      "To connect to the internet.",
+      "To check essential hardware before the OS loads."
+    ],
+    "correctIndex": 3,
+    "explanation": "POST checks CPU, RAM, GPU and basic devices before booting the OS.",
+    "pool": "round1",
+    "sortOrder": 48
+  },
+  {
+    "id": "mock-q9",
+    "source": "Mock Q9",
+    "pdfRef": "Mock Examination Q9",
+    "module": 1,
+    "topic": "Mixed revision",
+    "prompt": "Which SQL statement lists the names of all JSS3 students?",
+    "options": [
+      "SELECT Name FROM Students WHERE Class = 'JSS3';",
+      "SELECT Students WHERE Name = JSS3;",
+      "INSERT INTO Students VALUES ('JSS3');",
+      "WHERE Name FROM Students;"
+    ],
+    "correctIndex": 0,
+    "explanation": "Correct order: SELECT, FROM, WHERE; text values use single quotes.",
+    "pool": "round1",
+    "sortOrder": 49
+  },
+  {
+    "id": "mock-q15",
+    "source": "Mock Q15",
+    "pdfRef": "Mock Examination Q15",
+    "module": 2,
+    "topic": "Mixed revision",
+    "prompt": "What does this loop output?\nFOR i ← 2 TO 5\n  OUTPUT i\nENDFOR",
+    "options": [
+      "2 3 4",
+      "1 2 3 4 5",
+      "2 3 4 5",
+      "5 4 3 2"
+    ],
+    "correctIndex": 2,
+    "explanation": "The FOR loop includes both endpoints: 2, 3, 4, 5.",
+    "pool": "round1",
+    "sortOrder": 50
+  },
+  {
+    "id": "mock-q7",
+    "source": "Mock Q7",
+    "pdfRef": "Mock Examination Q7",
+    "module": 1,
+    "topic": "Mixed revision",
+    "prompt": "Which final argument makes VLOOKUP return only an exact match?",
+    "options": [
+      "TRUE",
+      "FALSE",
+      "0.5",
+      "\"A\""
+    ],
+    "correctIndex": 1,
+    "explanation": "FALSE forces an exact match; TRUE allows an approximate match.",
+    "pool": "round2",
+    "sortOrder": 1
+  },
+  {
+    "id": "mock-q18",
+    "source": "Mock Q18",
+    "pdfRef": "Mock Examination Q18",
+    "module": 2,
+    "topic": "Mixed revision",
+    "prompt": "Which numbers does range(2, 7) produce?",
+    "options": [
+      "2, 3, 4, 5, 6, 7",
+      "2, 3, 4, 5, 6",
+      "3, 4, 5, 6",
+      "1, 2, 3, 4, 5, 6"
+    ],
+    "correctIndex": 1,
+    "explanation": "range(2, 7) includes 2–6; the stop value 7 is excluded.",
+    "pool": "round2",
+    "sortOrder": 2
+  },
+  {
+    "id": "mock-q19",
+    "source": "Mock Q19",
+    "pdfRef": "Mock Examination Q19",
+    "module": 2,
+    "topic": "Mixed revision",
+    "prompt": "Given items = [\"A\", \"B\", \"C\"], what is items[-1]?",
+    "options": [
+      "\"A\"",
+      "\"B\"",
+      "An error",
+      "\"C\""
+    ],
+    "correctIndex": 3,
+    "explanation": "Negative index −1 refers to the last element, “C”.",
+    "pool": "round2",
+    "sortOrder": 3
+  },
+  {
+    "id": "mock-q21",
+    "source": "Mock Q21",
+    "pdfRef": "Mock Examination Q21",
+    "module": 2,
+    "topic": "Mixed revision",
+    "prompt": "What is the most common cause of an infinite WHILE loop?",
+    "options": [
+      "The condition never becomes false because the variable is never updated.",
+      "The loop body is too short.",
+      "The list has too many items.",
+      "The print function is missing."
+    ],
+    "correctIndex": 0,
+    "explanation": "If the loop variable is never updated, the condition stays true forever.",
+    "pool": "round2",
+    "sortOrder": 4
+  },
+  {
+    "id": "derived-01",
+    "source": "Derived from PDF · Chapter 1.1 · CPU",
+    "pdfRef": "Chapter 1.1 · CPU",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "What does the arithmetic logic unit (ALU) do?",
+    "options": [
+      "Stores files permanently",
+      "Performs calculations and logical comparisons",
+      "Coordinates network traffic",
+      "Displays images"
+    ],
+    "correctIndex": 1,
+    "explanation": "The ALU is the part of the CPU that performs arithmetic and logical operations.",
+    "pool": "round2",
+    "sortOrder": 5
+  },
+  {
+    "id": "derived-02",
+    "source": "Derived from PDF · Chapter 1.1 · CPU",
+    "pdfRef": "Chapter 1.1 · CPU",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "What is the main role of the control unit?",
+    "options": [
+      "Stores the operating system",
+      "Coordinates the fetch–decode–execute cycle",
+      "Cools the processor",
+      "Encrypts the hard drive"
+    ],
+    "correctIndex": 1,
+    "explanation": "The control unit directs the CPU cycle and coordinates the other components.",
+    "pool": "round2",
+    "sortOrder": 6
+  },
+  {
+    "id": "derived-03",
+    "source": "Derived from PDF · Chapter 1.1 · Memory",
+    "pdfRef": "Chapter 1.1 · Memory",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "Which memory is non-volatile and normally stores BIOS/UEFI firmware?",
+    "options": [
+      "RAM",
+      "Cache",
+      "ROM",
+      "Register"
+    ],
+    "correctIndex": 2,
+    "explanation": "ROM retains its contents without power and stores firmware such as BIOS/UEFI.",
+    "pool": "round2",
+    "sortOrder": 7
+  },
+  {
+    "id": "derived-04",
+    "source": "Derived from PDF · Chapter 1.1 · SSD maintenance",
+    "pdfRef": "Chapter 1.1 · SSD maintenance",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "What does the TRIM command do for an SSD?",
+    "options": [
+      "Physically defragments the platters",
+      "Marks blocks no longer needed to preserve speed and lifespan",
+      "Encrypts the whole drive",
+      "Increases the clock speed"
+    ],
+    "correctIndex": 1,
+    "explanation": "TRIM tells the SSD which blocks are free, helping maintain performance and lifespan.",
+    "pool": "round2",
+    "sortOrder": 8
+  },
+  {
+    "id": "derived-05",
+    "source": "Derived from PDF · Chapter 1.2 · File paths",
+    "pdfRef": "Chapter 1.2 · File paths",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "Which is an absolute file path?",
+    "options": [
+      "Documents\\ICT\\notes.txt",
+      "C:\\Users\\Amina\\notes.txt",
+      "notes.txt",
+      "..\\notes.txt"
+    ],
+    "correctIndex": 1,
+    "explanation": "An absolute path starts at the root, here the C: drive.",
+    "pool": "round2",
+    "sortOrder": 9
+  },
+  {
+    "id": "derived-06",
+    "source": "Derived from PDF · Chapter 1.2 · Operating systems",
+    "pdfRef": "Chapter 1.2 · Operating systems",
+    "module": 1,
+    "topic": "Hardware & OS",
+    "prompt": "What is the purpose of a device driver?",
+    "options": [
+      "To scan for malware",
+      "To let the operating system communicate with hardware",
+      "To compress files",
+      "To manage passwords"
+    ],
+    "correctIndex": 1,
+    "explanation": "A driver translates operating-system commands into signals a device understands.",
+    "pool": "round2",
+    "sortOrder": 10
+  },
+  {
+    "id": "derived-07",
+    "source": "Derived from PDF · Chapter 2.1 · Cell references",
+    "pdfRef": "Chapter 2.1 · Cell references",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "In a spreadsheet, what does the reference $B4 lock when copied?",
+    "options": [
+      "Both the column and the row",
+      "Only the row",
+      "Only the column",
+      "Nothing"
+    ],
+    "correctIndex": 2,
+    "explanation": "$B4 is a mixed reference: the column is locked, but the row can change.",
+    "pool": "round2",
+    "sortOrder": 11
+  },
+  {
+    "id": "derived-08",
+    "source": "Derived from PDF · Chapter 2.1 · Formula errors",
+    "pdfRef": "Chapter 2.1 · Formula errors",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "Which spreadsheet error appears when a formula divides by zero?",
+    "options": [
+      "#N/A",
+      "#VALUE!",
+      "#DIV/0!",
+      "#REF!"
+    ],
+    "correctIndex": 2,
+    "explanation": "#DIV/0! indicates division by zero or by an empty cell.",
+    "pool": "round2",
+    "sortOrder": 12
+  },
+  {
+    "id": "derived-09",
+    "source": "Derived from PDF · Chapter 2.1 · Charts",
+    "pdfRef": "Chapter 2.1 · Charts",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "Which chart is best for showing the percentage share of four budget categories?",
+    "options": [
+      "Line chart",
+      "Scatter plot",
+      "Pie chart",
+      "Histogram"
+    ],
+    "correctIndex": 2,
+    "explanation": "A pie chart shows parts of a whole; four labelled slices are readable.",
+    "pool": "round2",
+    "sortOrder": 13
+  },
+  {
+    "id": "derived-10",
+    "source": "Derived from PDF · Chapter 2.2 · Database concepts",
+    "pdfRef": "Chapter 2.2 · Database concepts",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "In a database table, what is a record?",
+    "options": [
+      "A column definition",
+      "One complete row of related fields",
+      "A link between two tables",
+      "A query result"
+    ],
+    "correctIndex": 1,
+    "explanation": "A record is one complete row; a field is one column.",
+    "pool": "round2",
+    "sortOrder": 14
+  },
+  {
+    "id": "derived-11",
+    "source": "Derived from PDF · Chapter 2.2 · Keys",
+    "pdfRef": "Chapter 2.2 · Keys",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "What is a foreign key?",
+    "options": [
+      "A key that must be unique in every table",
+      "A field that references a primary key in another table",
+      "A password for the database",
+      "A field that can never be null"
+    ],
+    "correctIndex": 1,
+    "explanation": "A foreign key creates a relationship by referring to a primary key in another table.",
+    "pool": "round2",
+    "sortOrder": 15
+  },
+  {
+    "id": "derived-12",
+    "source": "Derived from PDF · Chapter 2.2 · SQL",
+    "pdfRef": "Chapter 2.2 · SQL",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "Which SQL clause filters rows by a condition?",
+    "options": [
+      "SELECT",
+      "FROM",
+      "WHERE",
+      "ORDER BY"
+    ],
+    "correctIndex": 2,
+    "explanation": "WHERE filters rows; SELECT chooses columns and ORDER BY sorts the result.",
+    "pool": "round2",
+    "sortOrder": 16
+  },
+  {
+    "id": "derived-13",
+    "source": "Derived from PDF · Chapter 2.2 · SQL",
+    "pdfRef": "Chapter 2.2 · SQL",
+    "module": 1,
+    "topic": "Spreadsheets & SQL",
+    "prompt": "Which SQL keyword sorts the result set?",
+    "options": [
+      "SORT",
+      "ORDER BY",
+      "GROUP",
+      "ARRANGE"
+    ],
+    "correctIndex": 1,
+    "explanation": "ORDER BY sorts results ascending (ASC) or descending (DESC).",
+    "pool": "round2",
+    "sortOrder": 17
+  },
+  {
+    "id": "derived-14",
+    "source": "Derived from PDF · Chapter 3.1 · Malware",
+    "pdfRef": "Chapter 3.1 · Malware",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "Which malware self-replicates across networks without attaching to a host file?",
+    "options": [
+      "Virus",
+      "Worm",
+      "Trojan",
+      "Adware"
+    ],
+    "correctIndex": 1,
+    "explanation": "A worm spreads by itself; a virus needs a host file to run.",
+    "pool": "round2",
+    "sortOrder": 18
+  },
+  {
+    "id": "derived-15",
+    "source": "Derived from PDF · Chapter 3.1 · Phishing",
+    "pdfRef": "Chapter 3.1 · Phishing",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "What is phishing conducted through SMS called?",
+    "options": [
+      "Vishing",
+      "Smishing",
+      "Pharming",
+      "Spamming"
+    ],
+    "correctIndex": 1,
+    "explanation": "Smishing is phishing by SMS; vishing uses voice calls.",
+    "pool": "round2",
+    "sortOrder": 19
+  },
+  {
+    "id": "derived-16",
+    "source": "Derived from PDF · Chapter 3.1 · Backups",
+    "pdfRef": "Chapter 3.1 · Backups",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "What does the 3-2-1 backup rule mean?",
+    "options": [
+      "3 passwords, 2 devices, 1 user",
+      "3 copies, 2 media types, 1 off-site/offline",
+      "3 scans, 2 firewalls, 1 antivirus",
+      "3 admins, 2 backups, 1 server"
+    ],
+    "correctIndex": 1,
+    "explanation": "Keep 3 copies on 2 media types, with 1 copy off-site or offline; test the restore.",
+    "pool": "round2",
+    "sortOrder": 20
+  },
+  {
+    "id": "derived-17",
+    "source": "Derived from PDF · Chapter 3.2 · Verification",
+    "pdfRef": "Chapter 3.2 · Verification",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "What is the SIFT method used for?",
+    "options": [
+      "Speeding up a computer",
+      "Verifying information before sharing it",
+      "Sorting a database",
+      "Encrypting files"
+    ],
+    "correctIndex": 1,
+    "explanation": "SIFT means Stop, Investigate, Find better coverage, Trace the claim to its source.",
+    "pool": "round2",
+    "sortOrder": 21
+  },
+  {
+    "id": "derived-18",
+    "source": "Derived from PDF · Chapter 3.2 · Copyright",
+    "pdfRef": "Chapter 3.2 · Copyright",
+    "module": 1,
+    "topic": "Cybersecurity & Ethics",
+    "prompt": "Which Creative Commons licence allows reuse with attribution but not commercial use?",
+    "options": [
+      "CC0",
+      "CC BY",
+      "CC BY-NC",
+      "CC BY-ND"
+    ],
+    "correctIndex": 2,
+    "explanation": "BY requires attribution; NC restricts use to non-commercial purposes.",
+    "pool": "round2",
+    "sortOrder": 22
+  },
+  {
+    "id": "derived-19",
+    "source": "Derived from PDF · Chapter 4.1 · Flowchart symbols",
+    "pdfRef": "Chapter 4.1 · Flowchart symbols",
+    "module": 2,
+    "topic": "Algorithms",
+    "prompt": "Which flowchart symbol marks the start or end of an algorithm?",
+    "options": [
+      "Rectangle",
+      "Diamond",
+      "Oval",
+      "Parallelogram"
+    ],
+    "correctIndex": 2,
+    "explanation": "The oval is the terminal symbol for start and end.",
+    "pool": "round3",
+    "sortOrder": 1
+  },
+  {
+    "id": "derived-20",
+    "source": "Derived from PDF · Chapter 4.1 · Pseudocode",
+    "pdfRef": "Chapter 4.1 · Pseudocode",
+    "module": 2,
+    "topic": "Algorithms",
+    "prompt": "What is pseudocode?",
+    "options": [
+      "A programming language used only in Python",
+      "Structured English used to express an algorithm",
+      "A diagram of a database",
+      "A type of computer hardware"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pseudocode expresses logic in structured English without language syntax.",
+    "pool": "round3",
+    "sortOrder": 2
+  },
+  {
+    "id": "derived-21",
+    "source": "Derived from PDF · Chapter 4.1 · Tracing",
+    "pdfRef": "Chapter 4.1 · Tracing",
+    "module": 2,
+    "topic": "Algorithms",
+    "prompt": "What is a trace table used for?",
+    "options": [
+      "Recording each variable’s value step by step",
+      "Drawing a database schema",
+      "Measuring the CPU clock speed",
+      "Compressing images"
+    ],
+    "correctIndex": 0,
+    "explanation": "A trace table tests an algorithm by recording variable values at each step.",
+    "pool": "round3",
+    "sortOrder": 3
+  },
+  {
+    "id": "derived-22",
+    "source": "Derived from PDF · Chapter 4.1 · Iteration",
+    "pdfRef": "Chapter 4.1 · Iteration",
+    "module": 2,
+    "topic": "Algorithms",
+    "prompt": "What is the usual cause of an infinite WHILE loop?",
+    "options": [
+      "The loop body is too short",
+      "The condition never becomes false because the variable is not updated",
+      "The list has too many items",
+      "The print statement is missing"
+    ],
+    "correctIndex": 1,
+    "explanation": "A WHILE loop needs a change that eventually makes its condition false.",
+    "pool": "round3",
+    "sortOrder": 4
+  },
+  {
+    "id": "derived-23",
+    "source": "Derived from PDF · Chapter 5.1 · Data types",
+    "pdfRef": "Chapter 5.1 · Data types",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "Which Python type stores True or False?",
+    "options": [
+      "int",
+      "str",
+      "bool",
+      "float"
+    ],
+    "correctIndex": 2,
+    "explanation": "bool represents truth values True and False.",
+    "pool": "round3",
+    "sortOrder": 5
+  },
+  {
+    "id": "derived-24",
+    "source": "Derived from PDF · Chapter 5.1 · Operators",
+    "pdfRef": "Chapter 5.1 · Operators",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "What does the // operator do in Python?",
+    "options": [
+      "Returns the remainder",
+      "Raises to a power",
+      "Performs floor division",
+      "Converts to a string"
+    ],
+    "correctIndex": 2,
+    "explanation": "// divides and rounds the quotient down to a whole number.",
+    "pool": "round3",
+    "sortOrder": 6
+  },
+  {
+    "id": "derived-25",
+    "source": "Derived from PDF · Chapter 5.1 · Operators",
+    "pdfRef": "Chapter 5.1 · Operators",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "What does the % operator return in Python?",
+    "options": [
+      "The remainder after division",
+      "The quotient rounded down",
+      "The absolute value",
+      "The percentage"
+    ],
+    "correctIndex": 0,
+    "explanation": "% is the modulus operator; 17 % 5 gives 2.",
+    "pool": "round3",
+    "sortOrder": 7
+  },
+  {
+    "id": "derived-26",
+    "source": "Derived from PDF · Chapter 5.2 · Lists",
+    "pdfRef": "Chapter 5.2 · Lists",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "Which list method adds an item to the end of a Python list?",
+    "options": [
+      "insert()",
+      "append()",
+      "remove()",
+      "pop()"
+    ],
+    "correctIndex": 1,
+    "explanation": "append() adds one item to the end of a list.",
+    "pool": "round3",
+    "sortOrder": 8
+  },
+  {
+    "id": "derived-27",
+    "source": "Derived from PDF · Chapter 5.2 · Lists",
+    "pdfRef": "Chapter 5.2 · Lists",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "What does len(items) return?",
+    "options": [
+      "The last item",
+      "The number of elements in the list",
+      "The sum of the elements",
+      "The first index"
+    ],
+    "correctIndex": 1,
+    "explanation": "len() returns the number of elements in a sequence.",
+    "pool": "round3",
+    "sortOrder": 9
+  },
+  {
+    "id": "derived-28",
+    "source": "Derived from PDF · Chapter 5.2 · Errors",
+    "pdfRef": "Chapter 5.2 · Errors",
+    "module": 2,
+    "topic": "Python",
+    "prompt": "Which error occurs when a Python list index is out of range?",
+    "options": [
+      "ValueError",
+      "TypeError",
+      "IndexError",
+      "NameError"
+    ],
+    "correctIndex": 2,
+    "explanation": "IndexError means the index is beyond the list length; remember the last index is len-1.",
+    "pool": "round3",
+    "sortOrder": 10
+  },
+  {
+    "id": "derived-29",
+    "source": "Derived from PDF · Chapter 6.1 · Types of AI",
+    "pdfRef": "Chapter 6.1 · Types of AI",
+    "module": 3,
+    "topic": "AI Foundations",
+    "prompt": "What does ANI stand for?",
+    "options": [
+      "Artificial general intelligence",
+      "Artificial narrow intelligence",
+      "Automatic network intelligence",
+      "Applied neural interface"
+    ],
+    "correctIndex": 1,
+    "explanation": "ANI is narrow AI: excellent at one task, not general across domains.",
+    "pool": "round3",
+    "sortOrder": 11
+  },
+  {
+    "id": "derived-30",
+    "source": "Derived from PDF · Chapter 6.2 · AI history",
+    "pdfRef": "Chapter 6.2 · AI history",
+    "module": 3,
+    "topic": "AI Foundations",
+    "prompt": "What is an AI winter?",
+    "options": [
+      "A period of reduced AI funding and interest after hype",
+      "A cooling system for data centres",
+      "A seasonal break in AI classes",
+      "A type of neural network"
+    ],
+    "correctIndex": 0,
+    "explanation": "AI winters followed overpromising, high costs and funding cuts.",
+    "pool": "round3",
+    "sortOrder": 12
+  },
+  {
+    "id": "derived-31",
+    "source": "Derived from PDF · Chapter 7.1 · Supervised learning",
+    "pdfRef": "Chapter 7.1 · Supervised learning",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "What is labelled data?",
+    "options": [
+      "Data without any values",
+      "Data that includes the correct answers for training",
+      "Data stored only in the cloud",
+      "Data that has been encrypted"
+    ],
+    "correctIndex": 1,
+    "explanation": "Supervised learning trains on labelled examples with known answers.",
+    "pool": "round3",
+    "sortOrder": 13
+  },
+  {
+    "id": "derived-32",
+    "source": "Derived from PDF · Chapter 7.1 · Supervised learning",
+    "pdfRef": "Chapter 7.1 · Supervised learning",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "What does a classification model predict?",
+    "options": [
+      "A continuous number",
+      "A discrete category",
+      "A cluster centre",
+      "A reward signal"
+    ],
+    "correctIndex": 1,
+    "explanation": "Classification predicts a class label; regression predicts a number.",
+    "pool": "round3",
+    "sortOrder": 14
+  },
+  {
+    "id": "derived-33",
+    "source": "Derived from PDF · Chapter 7.1 · Supervised learning",
+    "pdfRef": "Chapter 7.1 · Supervised learning",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "What does a regression model predict?",
+    "options": [
+      "A discrete category",
+      "A continuous number",
+      "A policy",
+      "A token"
+    ],
+    "correctIndex": 1,
+    "explanation": "Regression predicts a continuous quantity such as a price or rainfall amount.",
+    "pool": "round3",
+    "sortOrder": 15
+  },
+  {
+    "id": "derived-34",
+    "source": "Derived from PDF · Chapter 7.1 · Unsupervised learning",
+    "pdfRef": "Chapter 7.1 · Unsupervised learning",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "What is clustering?",
+    "options": [
+      "Grouping similar unlabelled items",
+      "Predicting a label from labelled examples",
+      "Maximising a reward",
+      "Encrypting a database"
+    ],
+    "correctIndex": 0,
+    "explanation": "Clustering is unsupervised learning that finds groups in unlabelled data.",
+    "pool": "round3",
+    "sortOrder": 16
+  },
+  {
+    "id": "derived-35",
+    "source": "Derived from PDF · Chapter 7.2 · Reinforcement learning",
+    "pdfRef": "Chapter 7.2 · Reinforcement learning",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "In reinforcement learning, what is a reward?",
+    "options": [
+      "A labelled training example",
+      "Feedback that tells the agent how good an action was",
+      "A type of neural layer",
+      "A database key"
+    ],
+    "correctIndex": 1,
+    "explanation": "The reward signal shapes the agent’s policy over many actions.",
+    "pool": "round3",
+    "sortOrder": 17
+  },
+  {
+    "id": "derived-36",
+    "source": "Derived from PDF · Chapter 7.2 · Training",
+    "pdfRef": "Chapter 7.2 · Training",
+    "module": 3,
+    "topic": "Machine Learning",
+    "prompt": "What is overfitting?",
+    "options": [
+      "The model is too simple to learn",
+      "The model memorises training data and performs poorly on new data",
+      "The model trains too quickly",
+      "The model has no weights"
+    ],
+    "correctIndex": 1,
+    "explanation": "Overfitting shows high training accuracy but poor test accuracy.",
+    "pool": "round3",
+    "sortOrder": 18
+  },
+  {
+    "id": "derived-37",
+    "source": "Derived from PDF · Chapter 8.1 · Computer vision",
+    "pdfRef": "Chapter 8.1 · Computer vision",
+    "module": 3,
+    "topic": "Applied AI",
+    "prompt": "In computer vision, what does a pixel represent?",
+    "options": [
+      "A small camera lens",
+      "The smallest unit of a digital image",
+      "A type of neural network",
+      "A colour space"
+    ],
+    "correctIndex": 1,
+    "explanation": "A pixel is the smallest unit of a digital image; it stores brightness or RGB colour values.",
+    "pool": "round3",
+    "sortOrder": 19
+  },
+  {
+    "id": "derived-38",
+    "source": "Derived from PDF · Chapter 8.2 · NLP",
+    "pdfRef": "Chapter 8.2 · NLP",
+    "module": 3,
+    "topic": "Applied AI",
+    "prompt": "What is tokenization?",
+    "options": [
+      "Splitting text into units a model can process",
+      "Compressing an image",
+      "Encrypting a password",
+      "Sorting a database"
+    ],
+    "correctIndex": 0,
+    "explanation": "Tokenization converts text into words, subwords or characters and then IDs.",
+    "pool": "round3",
+    "sortOrder": 20
+  },
+  {
+    "id": "derived-39",
+    "source": "Derived from PDF · Chapter 8.2 · Generative AI",
+    "pdfRef": "Chapter 8.2 · Generative AI",
+    "module": 3,
+    "topic": "Applied AI",
+    "prompt": "What is an AI hallucination?",
+    "options": [
+      "A confident but fabricated output",
+      "A hardware failure",
+      "A type of encryption",
+      "A slow network"
+    ],
+    "correctIndex": 0,
+    "explanation": "A hallucination is a plausible but false output; verify it against a primary source.",
+    "pool": "round3",
+    "sortOrder": 21
+  },
+  {
+    "id": "derived-40",
+    "source": "Derived from PDF · Chapter 9.1 · Model training",
+    "pdfRef": "Chapter 9.1 · Model training",
+    "module": 3,
+    "topic": "AI Ethics",
+    "prompt": "What is transfer learning?",
+    "options": [
+      "Training a model from zero on a small dataset",
+      "Reusing a pre-trained model and training a new final layer",
+      "Deleting the training data",
+      "Converting text to speech"
+    ],
+    "correctIndex": 1,
+    "explanation": "Teachable Machine uses transfer learning: a large model’s features plus your new final layer.",
+    "pool": "round3",
+    "sortOrder": 22
+  }
+]

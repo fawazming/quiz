@@ -1,0 +1,41 @@
+{
+  "name": "mssn-ict-quiz-arena",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Real-time MSSN Remo ICT Quiz arena — CBT elimination, pick-a-number round, and Kahoot-style final. PDF-sourced questions, Socket.IO, SQLite.",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c green,cyan \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "nodemon --watch server --watch data server/index.js",
+    "dev:client": "vite",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "seed:demo": "node scripts/seed-demo.js",
+    "questions:verify": "node scripts/verify-questions.js",
+    "test": "vitest run",
+    "reset:password": "node scripts/reset-password.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.9",
+    "vite": "^6.0.7",
+    "vitest": "^3.0.5"
+  }
+}
