@@ -625,3 +625,41 @@ p{line-height:1.6}
 .preset-chip:hover{border-color:var(--emerald);color:var(--ink)}
 .form-grid input[type="color"]{min-height:38px;padding:3px;cursor:pointer;background:#fff}
 @media(max-width:760px){.round-toggle-grid{grid-template-columns:1fr}}
+
+/* Branding uploads and custom background */
+.upload-line{display:flex;gap:6px;align-items:center}
+.upload-line>input{flex:1;min-width:0}
+.file-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:9px 10px;border-radius:8px;background:var(--mint);border:1px solid #b9dccb;color:var(--emerald);font-size:10px;font-weight:800;white-space:nowrap;cursor:pointer}
+.file-btn input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.brand-preview-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.brand-preview{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:100px}
+.brand-preview img{height:26px;max-width:130px;object-fit:contain}
+.brand-preview small{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.brand-preview.cover{width:140px;height:62px;background-size:cover;background-position:center;justify-content:flex-end;color:#fff;text-shadow:0 1px 4px #000}
+.brand-preview.cover small{color:#fff}
+.landing{background-image:linear-gradient(rgba(12,33,29,.88),rgba(12,33,29,.92)),var(--brand-background-image,none);background-size:cover;background-position:center}
+.auth-aside{background-image:linear-gradient(rgba(12,33,29,.86),rgba(12,33,29,.92)),var(--brand-background-image,none);background-size:cover;background-position:center}
+.display-shell{background-image:linear-gradient(rgba(12,33,29,.9),rgba(12,33,29,.94)),var(--brand-background-image,none);background-size:cover;background-position:center}
+.brand-mono{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--gold);color:#241c05;font-weight:900}
+
+/* Display fallback / setup */
+.display-fallback{min-height:100vh;background:var(--ink);color:#fff;display:flex;flex-direction:column;padding:26px clamp(20px,5vw,60px);background-image:linear-gradient(rgba(12,33,29,.9),rgba(12,33,29,.96)),var(--brand-background-image,none);background-size:cover;background-position:center}
+.display-fallback-card{margin:auto;text-align:center;max-width:640px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:clamp(24px,4vw,46px)}
+.display-fallback-card svg{color:var(--gold-2)}
+.display-fallback-card h1{font-size:clamp(38px,6vw,72px);color:#fff;margin:12px 0}
+.display-fallback-card p{color:#bcd4ca;font-size:clamp(13px,1.3vw,17px);line-height:1.6}
+.display-fallback-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:22px 0 14px}
+.display-fallback-card small{font-size:10px;color:#8fb2a4}
+
+/* Question groups / AI */
+.toolbar-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.compact-select{border:1px solid var(--line);background:#fbfdfb;border-radius:8px;padding:7px 8px;font-size:11px;color:var(--ink);max-width:190px}
+.form-inline{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--emerald)}
+.form-inline select{border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11px;background:#fbfdfb;text-transform:none;letter-spacing:0;font-weight:500}
+.inline-group-form{display:grid;grid-template-columns:1fr 1.3fr auto;gap:8px;margin-bottom:14px}
+.inline-group-form input{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fbfdfb}
+.group-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.group-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid #edf2ef;background:#fff}
+.group-row:last-child{border-bottom:0}
+.group-row strong{display:block;font-size:12px}.group-row small{display:block;font-size:9.5px;color:var(--muted);margin-top:2px}
+@media(max-width:760px){.inline-group-form{grid-template-columns:1fr}.toolbar-right{width:100%}}

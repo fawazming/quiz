@@ -4,20 +4,22 @@ import {
   Trophy, Clock3, Check, X, Loader2, ChevronRight, Wifi, WifiOff, ShieldCheck
 } from 'lucide-react';
 import { useCountdown, formatTime } from '../useCountdown.js';
+import { useBranding } from '../branding.jsx';
 
 export function Brand({ compact = false, light = false }) {
+  const { branding } = useBranding();
   return (
     <Link to="/" className={`brand ${compact ? 'brand-compact' : ''} ${light ? 'brand-light' : ''}`}>
-      <img src="/brand/mssn.webp" alt="MSSN" className="brand-mssn" />
+      {branding.logoUrl ? <img src={branding.logoUrl} alt={branding.org} className="brand-mssn" /> : <span className="brand-mssn brand-mono">{branding.org?.slice(0,1)}</span>}
       <span className="brand-divider" />
       <span className="brand-text">
-        <strong>MSSN Remo</strong>
-        <small>ICT Quiz Arena</small>
+        <strong>{branding.org}</strong>
+        <small>{branding.appName}</small>
       </span>
-      {!compact && (
+      {!compact && branding.showSponsor && (
         <>
           <span className="brand-spacer" />
-          <span className="brand-sponsored">Proudly supported by <img src="/brand/rayyan.png" alt="Rayyan Technologies" /></span>
+          <span className="brand-sponsored">Proudly supported by {branding.sponsorLogoUrl ? <img src={branding.sponsorLogoUrl} alt={branding.sponsorName} /> : branding.sponsorName}</span>
         </>
       )}
     </Link>

@@ -50,7 +50,6 @@ export function expressAuth(roles = null) {
 export function socketAuth(socket, next) {
   const auth = socket.handshake.auth || {};
   if (auth.display) {
-    if (config.displayKey && auth.key !== config.displayKey) return next(new Error('Invalid display key'));
     socket.user = { role: 'display' };
     return next();
   }

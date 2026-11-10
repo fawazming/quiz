@@ -16,6 +16,37 @@ That leaves ~80 MB for the database, logs and backups on a 100 MB plan. (The cur
 
 ---
 
+## 0. One-command install from GitHub (recommended)
+
+The repository includes the built `dist/` client, so the server does **not** need Vite or the full development tree.
+
+On the alwaysdata server:
+
+```bash
+ssh YOURACCOUNT@ssh-YOURACCOUNT.alwaysdata.net
+mkdir -p ~/www
+git clone --depth 1 https://github.com/fawazming/quiz.git ~/www/ict-quiz-arena
+bash ~/www/ict-quiz-arena/scripts/install-alwaysdata.sh
+```
+
+The script pulls the latest GitHub revision, runs `npm ci --omit=dev`, clears the npm cache and creates `.env` on first run. Then:
+
+```bash
+nano ~/www/ict-quiz-arena/.env
+```
+
+Create the Node.js site as shown in section 5. For later updates:
+
+```bash
+bash ~/www/ict-quiz-arena/scripts/install-alwaysdata.sh
+```
+
+then restart the Node.js site from the admin panel.
+
+If the repository is private, clone with an SSH deploy key or a GitHub token before running the script.
+
+---
+
 ## 1. Create the account and enable SSH
 
 1. Sign up at [alwaysdata](https://www.alwaysdata.com/) and choose the **Free** plan.
@@ -119,8 +150,9 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=<strong password>
 SCOREKEEPER_USERNAME=scorekeeper
 SCOREKEEPER_PASSWORD=<different strong password>
-DISPLAY_KEY=<optional long random string>
 DB_PATH=/home/YOURACCOUNT/www/ict-quiz-arena/data/quiz.db
+GROQ_API_KEY=<optional; enables AI question generation>
+GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
 Do **not** set `PORT`. alwaysdata provides `PORT` and `IP`; the app binds to them automatically.
@@ -179,6 +211,10 @@ Log in with the credentials from `.env`, then:
 2. Give each candidate their six-character code.
 3. Open `/display` on the hall projector.
 4. Run Round 1, qualify, then Round 2 and Round 3.
+
+### AI question assistant (optional)
+
+Set `GROQ_API_KEY` in `.env` to enable **Question bank → AI**. The key stays on the server; the browser never receives it. Leave it empty if you do not want AI features.
 
 ### Demo candidates
 
@@ -319,7 +355,6 @@ The health endpoint should return:
 
 - [ ] `JWT_SECRET` is long and random.
 - [ ] Admin and scorekeeper passwords are changed from the defaults.
-- [ ] `DISPLAY_KEY` is set if `/display` should not be public.
 - [ ] HTTPS is enabled.
 - [ ] The database file is inside `~/www/ict-quiz-arena/data`, not in `dist`.
 - [ ] A backup was taken before the event.

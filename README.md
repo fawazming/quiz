@@ -23,6 +23,8 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 - Candidate registry with unique six-character tablet codes, CSV import, qualification toggles.
 - Question bank manager: add, edit, delete, import JSON/CSV, and inspect the 94 PDF-sourced questions.
 - Theme presets and custom primary/accent/dark colours, applied live to admin, tablets and projector.
+- Custom organisation/app names, logos, sponsor logo and background image upload.
+- Question groups, CSV/JSON export, and a Groq-powered AI question generator / CSV cleanup assistant.
 - Event settings: independent round switches, custom round labels, timers, points, speed bonuses, countdown, qualification count and branding.
 - CSV result export and an append-only score-adjustment audit log.
 
@@ -39,7 +41,8 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 
 ### Projector display
 - Full-screen lobby, CBT progress, number board, countdown, question board, reveal and final leaderboard.
-- Optional `DISPLAY_KEY` query-string protection.
+- Opens directly with no pairing key; use the browser full-screen mode on the projector.
+- Direct display URL — no pairing key required. Open it on the projector and use the browser's full-screen mode.
 
 ---
 
@@ -185,6 +188,7 @@ The admin question manager shows the source, PDF reference, options, answer and 
 | `npm run questions:verify` | Validate 94 questions, pools, options and provenance |
 | `npm run seed:demo` | Add eight demo candidates and print codes |
 | `npm run package:alwaysdata` | Build a minimal upload folder in `deploy/alwaysdata/` |
+| `bash scripts/install-alwaysdata.sh` | Server-side install/update from GitHub (Node 24, production deps only) |
 | `npm run reset:password -- <user> <password>` | Reset an admin/scorekeeper password |
 | `node scripts/smoke-test.js` | End-to-end server test; first run a test server on port 3100 with `DB_PATH=data/smoke.db PORT=3100 node server/index.js` |
 | `node scripts/capacity-test.js 100 http://localhost:3100` | Hold N live Socket.IO connections for a capacity check |
@@ -201,15 +205,31 @@ The admin question manager shows the source, PDF reference, options, answer and 
 | `DB_PATH` | `./data/quiz.db` | Must be on a persistent disk |
 | `JWT_SECRET` | dev placeholder | **Change in production** |
 | `JWT_EXPIRES_IN` | `12h` | Staff/candidate session length |
+| `GROQ_API_KEY` | empty | Enables the AI question assistant (server-side only) |
+| `GROQ_MODEL` | `llama-3.3-70b-versatile` | Groq model used for generation/CSV cleanup |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | `admin` / `MSSN2026!` | Seeded on first boot only |
 | `SCOREKEEPER_USERNAME` / `SCOREKEEPER_PASSWORD` | `scorekeeper` / `SCORE2026!` | Seeded on first boot only |
-| `DISPLAY_KEY` | empty | If set, `/display?key=...` is required |
 
 ---
 
+## Extra build prompt
+
+`KAHOOT_PUBLIC_JOIN_PROMPT.md` contains a ready-to-paste AI prompt for a separate **public-join Kahoot-style quiz app** with a 30 MB production deployment budget.
+
 ## Deployment
 
-See **[DEPLOYMENT.md](DEPLOYMENT.md)** for a general SSH + Node.js VPS guide, or **[DEPLOYMENT-ALWAYSDATA.md](DEPLOYMENT-ALWAYSDATA.md)** for the 100 MB alwaysdata free-plan procedure (build locally, upload `dist`, install only server dependencies).
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for a general SSH + Node.js VPS guide, or **[DEPLOYMENT-ALWAYSDATA.md](DEPLOYMENT-ALWAYSDATA.md)** for the alwaysdata free-plan procedure.
+
+One-command alwaysdata install from GitHub:
+
+```bash
+ssh YOURACCOUNT@ssh-YOURACCOUNT.alwaysdata.net
+mkdir -p ~/www
+git clone --depth 1 https://github.com/fawazming/quiz.git ~/www/ict-quiz-arena
+bash ~/www/ict-quiz-arena/scripts/install-alwaysdata.sh
+```
+
+The built `dist/` is committed, so the server installs only production dependencies (~15 MB). Create the Node.js site with `node /home/YOURACCOUNT/www/ict-quiz-arena/server/index.js` and Node 24.
 
 The general guide covers:
 

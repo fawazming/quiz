@@ -41,6 +41,7 @@ export function normalizeQuestion(input, { partial = false } = {}) {
     const module = Number(input.module ?? 1);
     out.module = [1,2,3].includes(module) ? module : 1;
   }
+  if (!partial || input.groupId !== undefined) out.groupId = input.groupId ? String(input.groupId) : null;
   return out;
 }
 
@@ -54,9 +55,9 @@ export function createQuestion(input) {
   const id = input.id && !db.prepare('SELECT 1 FROM questions WHERE id = ?').get(input.id)
     ? String(input.id) : `custom-${crypto.randomUUID()}`;
   db.prepare(`INSERT INTO questions
-    (id, source, pdf_ref, module, topic, prompt, options_json, correct_index, explanation, pool, sort_order)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .run(id, q.source, q.pdfRef, q.module, q.topic, q.prompt, JSON.stringify(q.options), q.correctIndex, q.explanation, q.pool, nextSortOrder(q.pool));
+    (id, source, pdf_ref, module, topic, prompt, options_json, correct_index, explanation, pool, group_id, sort_order)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(id, q.source, q.pdfRef, q.module, q.topic, q.prompt, JSON.stringify(q.options), q.correctIndex, q.explanation, q.pool, q.groupId || null, nextSortOrder(q.pool));
   return getQuestionById(id);
 }
 
@@ -75,6 +76,7 @@ export function updateQuestion(id, input) {
   if (q.source !== undefined) { fields.push('source = ?'); values.push(q.source); }
   if (q.pdfRef !== undefined) { fields.push('pdf_ref = ?'); values.push(q.pdfRef); }
   if (q.module !== undefined) { fields.push('module = ?'); values.push(q.module); }
+  if (q.groupId !== undefined) { fields.push('group_id = ?'); values.push(q.groupId); }
   if (!fields.length) throw new Error('Nothing to update');
   db.prepare(`UPDATE questions SET ${fields.join(', ')} WHERE id = ?`).run(...values, id);
   return getQuestionById(id);
@@ -111,7 +113,7 @@ export function assertQuestionEditable(engine, question) {
   if (used > 0) throw new Error('This question has already been used. Reset the relevant round before editing it.');
 }
 
-export function importQuestions(raw) {
+export function importQuestions(raw, groupId = null) {
   const input = String(raw ?? '').trim();
   if (!input) throw new Error('Paste JSON or CSV question data');
   let rows;
@@ -127,7 +129,7 @@ export function importQuestions(raw) {
   const errors = [];
   for (const [index, row] of rows.entries()) {
     try {
-      created.push(createQuestion(normalizeImportRow(row)));
+      created.push(createQuestion({ ...normalizeImportRow(row), groupId }));
     } catch (err) {
       errors.push({ row: index + 1, error: err.message });
     }
@@ -135,11 +137,19 @@ export function importQuestions(raw) {
   return { created, errors };
 }
 
-function normalizeImportRow(row) {
+export function normalizeImportRow(row) {
   if (Array.isArray(row)) {
     return {
       pool: row[0], prompt: row[1], options: [row[2], row[3], row[4], row[5]],
       correct: row[6], explanation: row[7], topic: row[8], source: row[9], pdfRef: row[10], module: row[11]
+    };
+  }
+  if (Array.isArray(row.options)) {
+    return {
+      pool: row.pool || 'round1', prompt: row.prompt || row.question,
+      options: row.options, correct: row.correctIndex ?? row.correct ?? row.answer,
+      explanation: row.explanation, topic: row.topic,
+      source: row.source || 'AI generated', pdfRef: row.pdfRef || 'AI generated', module: row.module || 1
     };
   }
   const get = (name) => {
@@ -187,10 +197,42 @@ function splitCsvLine(line) {
   return cells;
 }
 
+export function listGroups() {
+  return db.prepare(`SELECT g.*, (SELECT COUNT(*) FROM questions q WHERE q.group_id = g.id) AS questionCount
+    FROM question_groups g ORDER BY g.name COLLATE NOCASE`).all();
+}
+
+export function createGroup(input) {
+  const name = text(input.name);
+  if (!name || name.length > 80) throw new Error('Group name must be 1–80 characters');
+  const id = `group-${crypto.randomUUID()}`;
+  db.prepare('INSERT INTO question_groups (id, name, description) VALUES (?, ?, ?)')
+    .run(id, name, text(input.description));
+  return db.prepare('SELECT * FROM question_groups WHERE id = ?').get(id);
+}
+
+export function updateGroup(id, input) {
+  const existing = db.prepare('SELECT * FROM question_groups WHERE id = ?').get(id);
+  if (!existing) throw new Error('Group not found');
+  const name = text(input.name ?? existing.name);
+  if (!name || name.length > 80) throw new Error('Group name must be 1–80 characters');
+  db.prepare('UPDATE question_groups SET name = ?, description = ? WHERE id = ?')
+    .run(name, text(input.description ?? existing.description), id);
+  return db.prepare('SELECT * FROM question_groups WHERE id = ?').get(id);
+}
+
+export function deleteGroup(id) {
+  const existing = db.prepare('SELECT * FROM question_groups WHERE id = ?').get(id);
+  if (!existing) throw new Error('Group not found');
+  db.prepare('UPDATE questions SET group_id = NULL WHERE group_id = ?').run(id);
+  db.prepare('DELETE FROM question_groups WHERE id = ?').run(id);
+  return existing;
+}
+
 export function listQuestions() {
   return getQuestions().map(q => ({
     id: q.id, source: q.source, pdfRef: q.pdf_ref, module: q.module, topic: q.topic,
     prompt: q.prompt, options: q.options, correctIndex: q.correct_index,
-    explanation: q.explanation, pool: q.pool
+    explanation: q.explanation, pool: q.pool, groupId: q.group_id || null
   }));
 }

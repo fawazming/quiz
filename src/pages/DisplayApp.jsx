@@ -1,28 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import { Wifi, WifiOff, Trophy, Zap, Clock3 } from 'lucide-react';
+import { Wifi, WifiOff, Trophy, Zap, Clock3, RefreshCw, Maximize } from 'lucide-react';
 import { Brand, Badge, Countdown, Leaderboard, QuestionOptions, Spinner, Timer, Empty } from '../components/UI.jsx';
-import { applyTheme } from '../theme.js';
+import { applyTheme, applyBranding } from '../theme.js';
 
 export default function DisplayApp() {
   const [params] = useSearchParams();
   const key = params.get('key') || '';
   const [state, setState] = useState(null);
   const [connected, setConnected] = useState(false);
+  const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     const socket = io({ auth: { display: true, key }, transports: ['websocket', 'polling'] });
-    socket.on('connect', () => setConnected(true));
+    socket.on('connect', () => { setConnected(true); setError(''); });
     socket.on('disconnect', () => setConnected(false));
     socket.on('state:update', setState);
-    socket.on('connect_error', () => setConnected(false));
+    socket.on('connect_error', (err) => { setConnected(false); setError(err?.message || 'Could not reach the quiz server'); });
     return () => socket.disconnect();
-  }, [key]);
+  }, [key, attempt]);
 
-  useEffect(() => { if (state?.settings?.theme) applyTheme(state.settings.theme); }, [state?.settings?.theme?.primary, state?.settings?.theme?.accent, state?.settings?.theme?.ink]);
+  useEffect(() => {
+    if (state?.settings?.theme) applyTheme(state.settings.theme);
+    if (state?.settings?.branding) applyBranding(state.settings.branding);
+  }, [state?.settings?.theme?.primary, state?.settings?.theme?.accent, state?.settings?.theme?.ink, state?.settings?.branding?.backgroundUrl]);
 
-  if (!state) return <div className="display-loading"><Spinner label="Connecting the projector…" /></div>;
+  if (!state) return (
+    <div className="display-fallback">
+      <Brand light />
+      <div className="display-fallback-card">
+        <Maximize size={34} />
+        <h1>Display ready</h1>
+        <p>{error || 'Waiting for the live quiz state. Make sure the server is running, then open this page on the projector.'}</p>
+        <div className="display-fallback-actions">
+          <button className="btn btn-gold btn-lg" onClick={() => { setError(''); setAttempt(v => v + 1); }}><RefreshCw size={16} /> Retry connection</button>
+          <button className="btn btn-ghost btn-lg" onClick={() => document.documentElement.requestFullscreen?.()}>Full screen</button>
+        </div>
+        <small>{connected ? 'Connected — loading state…' : 'Live updates will appear automatically once connected.'}</small>
+      </div>
+    </div>
+  );
 
   return (
     <div className="display-shell">

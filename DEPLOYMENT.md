@@ -103,8 +103,9 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=<a strong password>
 SCOREKEEPER_USERNAME=scorekeeper
 SCOREKEEPER_PASSWORD=<a different strong password>
-DISPLAY_KEY=<optional long random string>
 DB_PATH=/home/quiz/mssn-ict-quiz-arena/data/quiz.db
+GROQ_API_KEY=<optional>
+GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
 Generate a secret quickly:
@@ -173,7 +174,7 @@ Open:
 
 - Admin/scorekeeper: `https://quiz.example.com/login`
 - Candidate tablets: `https://quiz.example.com/join`
-- Projector: `https://quiz.example.com/display` (or `.../display?key=YOUR_DISPLAY_KEY`)
+- Projector: `https://quiz.example.com/display`
 
 Nginx **must** forward WebSocket upgrade headers. The included config does. If live updates fail but pages load, check the browser console for `socket.io` errors and confirm those two `proxy_set_header` lines are present.
 
@@ -290,7 +291,7 @@ This creates eight sample candidates and prints their codes. It does **not** del
 | Candidates cannot log in | Code must be six characters, candidate must be **active**, admin may need to regenerate the code. |
 | Round 2 will not start | At least two active candidates are required; qualify candidates first. |
 | Round 3 will not start | At least one candidate must be qualified from Round 1. |
-| Display is blank | Open `/display` directly; if `DISPLAY_KEY` is set, add `?key=...`. |
+| Display is blank | Open `/display` directly. No key or pairing step is required. |
 | Timer seems wrong | The server is authoritative; tablets use server timestamps. Check the server clock: `timedatectl`. |
 
 ### Health and logs
@@ -308,7 +309,6 @@ sudo tail -f /var/log/nginx/error.log
 
 - [ ] `JWT_SECRET` is long, random and not the example value.
 - [ ] Admin and scorekeeper passwords are changed from the defaults.
-- [ ] `DISPLAY_KEY` is set if the projector URL is public.
 - [ ] HTTPS is active and HTTP redirects to HTTPS.
 - [ ] Only ports 22, 80 and 443 are open.
 - [ ] `data/quiz.db` is not inside the public web root (it is outside `dist/`).

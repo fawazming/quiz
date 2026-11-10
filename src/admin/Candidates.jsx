@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Upload, Search, Copy, RefreshCw, Trash2, CheckCircle2, Circle, UserX, UserCheck, RotateCcw } from 'lucide-react';
+import { Plus, Upload, Search, Copy, RefreshCw, Trash2, CheckCircle2, Circle, UserX, UserCheck, RotateCcw, Printer } from 'lucide-react';
 import { Card, Button, Badge, Modal, OnlineBadge, Spinner, Empty } from '../components/UI.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useToast } from '../toast.jsx';
+import { useBranding } from '../branding.jsx';
 
 export default function Candidates({ adminState }) {
   const { user } = useAuth();
   const { push } = useToast();
+  const { branding } = useBranding();
   const isAdmin = user.role === 'admin';
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,6 +97,57 @@ export default function Candidates({ adminState }) {
     catch { push(`Code: ${code}`, 'info'); }
   }
 
+  function printCodes() {
+    const list = (filtered.length ? filtered : rows).filter(r => r.active);
+    if (!list.length) return push('No active candidates to print', 'error');
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const origin = window.location.origin;
+    const logo = branding.logoUrl ? (branding.logoUrl.startsWith('http') ? branding.logoUrl : origin + branding.logoUrl) : '';
+    const sponsor = branding.showSponsor && branding.sponsorLogoUrl ? (branding.sponsorLogoUrl.startsWith('http') ? branding.sponsorLogoUrl : origin + branding.sponsorLogoUrl) : '';
+    const cards = list.map((r, i) => `
+      <article class="card">
+        <div class="card-top"><span class="serial">Candidate ${i + 1} of ${list.length}</span><span class="event">${esc(branding.eventName)}</span></div>
+        <div class="name">${esc(r.name)}</div>
+        <div class="school">${esc(r.school)}</div>
+        <div class="label">ACCESS CODE</div>
+        <div class="code">${esc(r.code)}</div>
+        <div class="hint">Open <strong>${esc(origin)}/join</strong> on your tablet and enter this code.</div>
+      </article>`).join('');
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Candidate codes — ${esc(branding.eventName)}</title>
+      <style>
+        @page{size:A4;margin:11mm}
+        *{box-sizing:border-box}
+        body{font-family:Segoe UI,Arial,sans-serif;color:#0c211d;margin:0;padding:0}
+        header{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:2px solid #0f5c4b;padding-bottom:8px;margin-bottom:8mm}
+        .brand{display:flex;align-items:center;gap:8px}
+        .brand img{height:28px;width:auto}
+        .brand strong{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+        .brand small{font-size:9px;color:#66766f}
+        .meta{text-align:right;font-size:9px;color:#66766f}
+        .meta strong{display:block;color:#0c211d;font-size:11px}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+        .card{border:1.5px solid #0f5c4b;border-radius:10px;padding:10px 12px;break-inside:avoid;min-height:65mm;display:flex;flex-direction:column}
+        .card-top{display:flex;justify-content:space-between;gap:8px;font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#66766f}
+        .name{font-size:22px;font-weight:800;line-height:1.1;margin-top:8px}
+        .school{font-size:11px;color:#3f5650;margin-top:3px;min-height:14px}
+        .label{font-size:8px;letter-spacing:.18em;font-weight:800;color:#0f5c4b;margin-top:auto;padding-top:8px}
+        .code{font-family:Consolas,monospace;font-size:32px;letter-spacing:.18em;font-weight:800;background:#eff9f4;border:1px dashed #0f5c4b;border-radius:6px;padding:4px 8px;margin:2px 0 5px;text-align:center}
+        .hint{font-size:8px;color:#66766f;line-height:1.35}
+        footer{display:flex;justify-content:space-between;align-items:center;margin-top:8mm;padding-top:5px;border-top:1px solid #ccd9d2;font-size:8px;color:#66766f}
+        footer img{height:16px}
+      </style></head><body>
+      <header><div class="brand">${logo ? `<img src="${logo}" alt="">` : ''}<div><strong>${esc(branding.org)}</strong><small>${esc(branding.appName)}</small></div></div><div class="meta"><strong>${esc(branding.eventName)}</strong>${esc(branding.eventDate)}<br>Candidate access codes</div></header>
+      <div class="grid">${cards}</div>
+      <footer><span>Keep this code private. Each code identifies one candidate.</span>${sponsor ? `<img src="${sponsor}" alt="${esc(branding.sponsorName)}">` : ''}</footer>
+      </body></html>`;
+    const win = window.open('', '_blank', 'width=900,height=760');
+    if (!win) return push('Allow pop-ups to print candidate codes', 'error');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 400);
+  }
+
   return (
     <div className="stack">
       <Card
@@ -104,6 +157,7 @@ export default function Candidates({ adminState }) {
           <>
             <Button onClick={() => setShowAdd(true)}><Plus size={16} /> Add candidate</Button>
             <Button variant="ghost" onClick={() => setShowImport(true)}><Upload size={16} /> Import CSV</Button>
+            <Button variant="ghost" onClick={printCodes}><Printer size={16} /> Print codes</Button>
           </>
         ) : <Button variant="ghost" onClick={load}><RefreshCw size={15} /> Refresh</Button>}
       >

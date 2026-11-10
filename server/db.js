@@ -34,6 +34,13 @@ CREATE TABLE IF NOT EXISTS candidates (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS question_groups (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  description TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS questions (
   id TEXT PRIMARY KEY,
   source TEXT NOT NULL,
@@ -45,6 +52,7 @@ CREATE TABLE IF NOT EXISTS questions (
   correct_index INTEGER NOT NULL CHECK (correct_index BETWEEN 0 AND 3),
   explanation TEXT NOT NULL,
   pool TEXT NOT NULL CHECK (pool IN ('round1','round2','round3')),
+  group_id TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0
 );
 
@@ -128,6 +136,9 @@ CREATE INDEX IF NOT EXISTS idx_round2_candidate ON round2_picks(candidate_id);
 CREATE INDEX IF NOT EXISTS idx_round3_candidate ON round3_answers(candidate_id);
 `);
 
+const questionColumns = db.prepare('PRAGMA table_info(questions)').all();
+if (!questionColumns.some(c => c.name === 'group_id')) db.exec('ALTER TABLE questions ADD COLUMN group_id TEXT');
+
 function seedUser(username, password, role) {
   const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
   if (existing) return;
@@ -143,8 +154,8 @@ for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) insertSetting.run(
 
 const questions = JSON.parse(fs.readFileSync(config.questionsFile, 'utf8'));
 const upsertQuestion = db.prepare(`
-  INSERT INTO questions (id, source, pdf_ref, module, topic, prompt, options_json, correct_index, explanation, pool, sort_order)
-  VALUES (@id, @source, @pdf_ref, @module, @topic, @prompt, @options_json, @correct_index, @explanation, @pool, @sort_order)
+  INSERT INTO questions (id, source, pdf_ref, module, topic, prompt, options_json, correct_index, explanation, pool, group_id, sort_order)
+  VALUES (@id, @source, @pdf_ref, @module, @topic, @prompt, @options_json, @correct_index, @explanation, @pool, @group_id, @sort_order)
   ON CONFLICT(id) DO NOTHING
 `);
 const seedQuestions = (list) => transaction(() => {
@@ -152,7 +163,7 @@ const seedQuestions = (list) => transaction(() => {
     upsertQuestion.run({
       id: q.id, source: q.source, pdf_ref: q.pdfRef, module: q.module, topic: q.topic,
       prompt: q.prompt, options_json: JSON.stringify(q.options), correct_index: q.correctIndex,
-      explanation: q.explanation, pool: q.pool, sort_order: q.sortOrder
+      explanation: q.explanation, pool: q.pool, group_id: q.groupId || null, sort_order: q.sortOrder
     });
   }
 });

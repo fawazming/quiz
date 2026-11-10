@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth.jsx';
+import { BrandingProvider } from './branding.jsx';
 import { SocketProvider } from './socket.jsx';
 import { ToastProvider } from './toast.jsx';
 import ThemeSync from './ThemeSync.jsx';
@@ -14,6 +15,7 @@ import DisplayApp from './pages/DisplayApp.jsx';
 
 export default function App() {
   return (
+    <BrandingProvider>
     <AuthProvider>
       <ToastProvider>
         <SocketProvider>
@@ -32,5 +34,6 @@ export default function App() {
         </SocketProvider>
       </ToastProvider>
     </AuthProvider>
+    </BrandingProvider>
   );
 }

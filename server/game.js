@@ -154,7 +154,16 @@ export class GameEngine {
         round1Label: s.round1_label,
         round2Label: s.round2_label,
         round3Label: s.round3_label,
-        theme: { primary: s.theme_primary, accent: s.theme_accent, ink: s.theme_ink }
+        theme: { primary: s.theme_primary, accent: s.theme_accent, ink: s.theme_ink },
+        branding: {
+          org: s.brand_org,
+          appName: s.brand_app_name,
+          logoUrl: s.brand_logo_url,
+          sponsorName: s.sponsor_name,
+          sponsorLogoUrl: s.sponsor_logo_url,
+          backgroundUrl: s.brand_background_url,
+          showSponsor: !!s.brand_show_sponsor
+        }
       },
       round: this.state.round,
       phase: this.state.phase,

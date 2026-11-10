@@ -27,3 +27,10 @@ export function applyTheme(theme = {}) {
   root.style.setProperty('--ink', ink);
   root.style.setProperty('--ink-2', mix(ink, '#ffffff', 0.08));
 }
+
+export function applyBranding(branding = {}) {
+  const root = document.documentElement;
+  const url = String(branding.backgroundUrl || '').trim();
+  const safe = /^(\/uploads\/|\/brand\/|https?:\/\/)/i.test(url) ? url.replace(/["'\\n\r]/g, '') : '';
+  root.style.setProperty('--brand-background-image', safe ? `url("${safe}")` : 'none');
+}

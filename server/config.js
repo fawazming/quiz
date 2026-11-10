@@ -16,9 +16,11 @@ export const config = {
   adminPassword: process.env.ADMIN_PASSWORD || 'MSSN2026!',
   scorekeeperUsername: process.env.SCOREKEEPER_USERNAME || 'scorekeeper',
   scorekeeperPassword: process.env.SCOREKEEPER_PASSWORD || 'SCORE2026!',
-  displayKey: process.env.DISPLAY_KEY || '',
   clientDist: path.join(ROOT, 'dist'),
-  questionsFile: path.join(ROOT, 'data', 'questions.json')
+  questionsFile: path.join(ROOT, 'data', 'questions.json'),
+  uploadsDir: path.join(ROOT, 'data', 'uploads'),
+  groqApiKey: process.env.GROQ_API_KEY || '',
+  groqModel: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'
 };
 
 export const SETTINGS_DEFAULTS = {
@@ -35,6 +37,12 @@ export const SETTINGS_DEFAULTS = {
   theme_primary: '#0f5c4b',
   theme_accent: '#c39a2b',
   theme_ink: '#0c211d',
+  brand_org: 'MSSN Remo',
+  brand_app_name: 'ICT Quiz Arena',
+  brand_logo_url: '/brand/mssn.webp',
+  sponsor_logo_url: '/brand/rayyan.png',
+  brand_background_url: '',
+  brand_show_sponsor: 1,
   sponsor_url: 'https://rayyantech.sgm.ng',
   round1_question_count: 50,
   round1_duration_minutes: 45,
@@ -58,5 +66,5 @@ export const NUMERIC_SETTINGS = new Set([
   'countdown_seconds','round2_question_count','round2_answer_seconds','round2_base_points',
   'round2_speed_bonus','round3_question_count','round3_answer_seconds','round3_base_points',
   'round3_speed_bonus','round3_wrong_penalty','round3_lock_on_first_answer',
-  'round1_enabled','round2_enabled','round3_enabled'
+  'round1_enabled','round2_enabled','round3_enabled','brand_show_sponsor'
 ]);

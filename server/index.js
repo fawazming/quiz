@@ -1,6 +1,7 @@
 import express from 'express';
 import http from 'node:http';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { Server as SocketServer } from 'socket.io';
 import { z } from 'zod';
@@ -12,7 +13,8 @@ import {
   db, transaction, getCandidates, getCandidateById, getQuestionById, makeCode, getQuestions,
   getLeaderboard, getSettings, setSettings, audit
 } from './db.js';
-import { listQuestions, createQuestion, updateQuestion, deleteQuestion, assertQuestionEditable, importQuestions } from './questionAdmin.js';
+import { listQuestions, createQuestion, updateQuestion, deleteQuestion, assertQuestionEditable, importQuestions, listGroups, createGroup, updateGroup, deleteGroup, normalizeImportRow } from './questionAdmin.js';
+import { generateQuestions, parseQuestionsWithAi } from './groq.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -21,8 +23,10 @@ const io = new SocketServer(server, {
   maxHttpBufferSize: 1e6
 });
 const engine = new GameEngine(io);
+fs.mkdirSync(config.uploadsDir, { recursive: true });
+app.use('/uploads', express.static(config.uploadsDir, { maxAge: '1d' }));
 
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '8mb' }));
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'no-referrer');
@@ -163,6 +167,105 @@ app.post('/api/admin/candidates/:id/regenerate-code', expressAuth(['admin']), (r
   res.json({ code });
 });
 
+app.post('/api/admin/upload', expressAuth(['admin']), (req, res) => {
+  try {
+    const { dataUrl, name } = req.body || {};
+    const match = String(dataUrl || '').match(/^data:(image\/(?:png|jpeg|webp|gif));base64,([A-Za-z0-9+/=]+)$/);
+    if (!match) return res.status(400).json({ error: 'Upload a PNG, JPEG, WEBP or GIF image' });
+    const ext = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif' }[match[1]];
+    const buffer = Buffer.from(match[2], 'base64');
+    if (buffer.length > 3 * 1024 * 1024) return res.status(400).json({ error: 'Image must be under 3 MB' });
+    const safe = path.parse(String(name || 'image')).name.replace(/[^a-z0-9_-]/gi, '_').slice(0, 40) || 'image';
+    const filename = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}-${safe}.${ext}`;
+    fs.writeFileSync(path.join(config.uploadsDir, filename), buffer);
+    audit(req.user.username, 'brand.upload', { filename, bytes: buffer.length });
+    res.json({ url: `/uploads/${filename}` });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.get('/api/admin/groups', expressAuth(['admin','scorekeeper']), (req, res) => res.json(listGroups()));
+
+app.post('/api/admin/groups', expressAuth(['admin']), (req, res) => {
+  try {
+    const group = createGroup(req.body || {});
+    audit(req.user.username, 'group.create', { id: group.id, name: group.name });
+    engine.broadcast();
+    res.status(201).json(group);
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.patch('/api/admin/groups/:id', expressAuth(['admin']), (req, res) => {
+  try {
+    const group = updateGroup(req.params.id, req.body || {});
+    audit(req.user.username, 'group.update', { id: group.id });
+    engine.broadcast();
+    res.json(group);
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.delete('/api/admin/groups/:id', expressAuth(['admin']), (req, res) => {
+  try {
+    deleteGroup(req.params.id);
+    audit(req.user.username, 'group.delete', { id: req.params.id });
+    engine.broadcast();
+    res.json({ ok: true });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.post('/api/admin/questions/ai-generate', expressAuth(['admin']), async (req, res) => {
+  try {
+    const { mode = 'generate', count = 5, pool = 'round1', topic = 'General', sourceText = '', groupId = null } = req.body || {};
+    if (!['generate','parse'].includes(mode)) throw new Error('Unknown AI mode');
+    const items = mode === 'parse'
+      ? await parseQuestionsWithAi(sourceText)
+      : await generateQuestions({ count, pool, topic, sourceText });
+    const created = [];
+    const errors = [];
+    for (const [index, item] of items.entries()) {
+      try {
+        const row = normalizeImportRow(item);
+        created.push(createQuestion({
+          ...row,
+          pool: ['round1','round2','round3'].includes(row.pool) ? row.pool : pool,
+          source: row.source === 'AI generated' ? `Groq AI · ${topic}` : row.source,
+          pdfRef: row.pdfRef === 'AI generated' ? `Groq AI · ${new Date().toISOString().slice(0,10)}` : row.pdfRef,
+          groupId
+        }));
+      } catch (err) { errors.push({ row: index + 1, error: err.message }); }
+    }
+    audit(req.user.username, 'question.ai', { mode, created: created.length, errors: errors.length, model: config.groqModel });
+    engine.broadcast();
+    res.json({ created, errors, model: config.groqModel });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.get('/api/admin/questions/export', expressAuth(['admin','scorekeeper']), (req, res) => {
+  const pool = req.query.pool;
+  const group = req.query.group;
+  const format = req.query.format === 'json' ? 'json' : 'csv';
+  let rows = listQuestions();
+  if (['round1','round2','round3'].includes(pool)) rows = rows.filter(q => q.pool === pool);
+  if (group) rows = rows.filter(q => q.groupId === group);
+  if (format === 'json') {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="mssn-question-bank.json"');
+    return res.send(JSON.stringify(rows, null, 2));
+  }
+  const header = ['id','pool','group','module','topic','prompt','optionA','optionB','optionC','optionD','correct','explanation','source','pdfRef'];
+  const lines = [header.join(',')];
+  const groups = new Map(listGroups().map(g => [g.id, g.name]));
+  for (const q of rows) {
+    lines.push([
+      q.id, q.pool, groups.get(q.groupId) || '', q.module, q.topic, q.prompt,
+      q.options[0], q.options[1], q.options[2], q.options[3], 'ABCD'[q.correctIndex],
+      q.explanation, q.source, q.pdfRef
+    ].map(csvCell).join(','));
+  }
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="mssn-question-bank.csv"');
+  res.send('\uFEFF' + lines.join('\r\n'));
+});
+
 app.get('/api/admin/questions', expressAuth(['admin','scorekeeper']), (req, res) => {
   const pool = req.query.pool;
   const rows = listQuestions();
@@ -204,7 +307,7 @@ app.delete('/api/admin/questions/:id', expressAuth(['admin']), (req, res) => {
 
 app.post('/api/admin/questions/import', expressAuth(['admin']), (req, res) => {
   try {
-    const result = importQuestions(req.body?.data || req.body?.csv || req.body?.json || '');
+    const result = importQuestions(req.body?.data || req.body?.csv || req.body?.json || '', req.body?.groupId || null);
     audit(req.user.username, 'question.import', { created: result.created.length, errors: result.errors.length });
     engine.broadcast();
     res.json({ created: result.created, errors: result.errors });
@@ -220,7 +323,11 @@ app.patch('/api/admin/settings', expressAuth(['admin']), (req, res) => {
     const patch = {};
     for (const [k, v] of Object.entries(req.body || {})) {
       if (!allowed.has(k)) continue;
-      if (k.startsWith('theme_')) {
+      if (k === 'brand_background_url' || k === 'brand_logo_url' || k === 'sponsor_logo_url') {
+        const url = String(v || '').trim();
+        if (url && !/^(\/uploads\/|\/brand\/|https?:\/\/)/i.test(url)) throw new Error(`${k} must be an uploaded image or a valid URL`);
+        patch[k] = url;
+      } else if (k.startsWith('theme_')) {
         if (!/^#[0-9a-f]{6}$/i.test(String(v))) throw new Error(`${k} must be a 6-digit hex colour`);
         patch[k] = String(v);
       } else if (['round1_enabled','round2_enabled','round3_enabled'].includes(k)) {

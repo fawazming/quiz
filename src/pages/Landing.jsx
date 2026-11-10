@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, MonitorPlay, ShieldCheck, Tablet, Trophy, Users, Zap } from 'lucide-react';
 import { Brand, Button } from '../components/UI.jsx';
 import { useAuth } from '../auth.jsx';
+import { useBranding } from '../branding.jsx';
 
 export default function Landing() {
   const { user } = useAuth();
+  const { branding } = useBranding();
   return (
     <div className="landing">
       <div className="landing-pattern" />
@@ -19,12 +21,12 @@ export default function Landing() {
 
       <main className="landing-main">
         <section className="hero">
-          <div className="hero-kicker"><span /> MSS Week 2026 · ICT Quiz</div>
-          <h1>Anchored in Deen,<br /><em>Illuminated in Dunya &amp; Digital.</em></h1>
+          <div className="hero-kicker"><span /> {branding.eventName}</div>
+          <h1>{branding.eventTheme?.includes(",") ? <>{branding.eventTheme.split(",")[0]},<br /><em>{branding.eventTheme.split(",").slice(1).join(",").trim()}</em></> : branding.eventTheme}</h1>
           <p className="hero-sub">A live competition arena for the Muslim student in the digital age: knowledge, skills and responsibility.</p>
           <div className="hero-meta">
             <span><strong>Thursday</strong> 26 November 2026</span>
-            <span><strong>MSSN</strong> Remo Area Council</span>
+            <span><strong>{branding.org}</strong> · ICT Quiz</span>
             <span><strong>3 rounds</strong> CBT · Pick a number · First to answer</span>
           </div>
           <div className="hero-actions">
@@ -33,7 +35,7 @@ export default function Landing() {
             </Link>
             <Link to="/join"><Button variant="ghost" size="lg">I am a candidate</Button></Link>
           </div>
-          <div className="hero-sponsor">Proudly supported by <img src="/brand/rayyan.png" alt="Rayyan Technologies" /></div>
+          {branding.showSponsor && <div className="hero-sponsor">Proudly supported by {branding.sponsorLogoUrl ? <img src={branding.sponsorLogoUrl} alt={branding.sponsorName} /> : branding.sponsorName}</div>}
         </section>
 
         <section className="mode-grid">
@@ -71,7 +73,7 @@ export default function Landing() {
       </main>
 
       <footer className="landing-foot">
-        <span>MSSN Remo Area Council · MSS Week 2026</span>
+        <span>{branding.org} · {branding.eventDate}</span>
         <span><Zap size={14} /> Real-time Socket.IO + SQLite</span>
         <span><Users size={14} /> Built for every school</span>
       </footer>
