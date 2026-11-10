@@ -66,8 +66,8 @@ export default function DisplayApp() {
       </main>
 
       <footer className="display-foot">
-        <span>MSSN Remo Area Council · MSS Week 2026</span>
-        <span>Proudly supported by <img src="/brand/rayyan.png" alt="Rayyan Technologies" /></span>
+        <span>{state.event.name}</span>
+        <span>Proudly supported by {state.settings.branding?.sponsorLogoUrl ? <img src={state.settings.branding.sponsorLogoUrl} alt={state.settings.branding.sponsorName} /> : state.settings.branding?.sponsorName}</span>
         <span>{state.event.date}</span>
       </footer>
     </div>
@@ -77,16 +77,16 @@ export default function DisplayApp() {
 function DisplayLobby({ state }) {
   return (
     <section className="display-lobby">
-      <div className="hero-kicker"><span /> MSS Week 2026 · ICT Quiz</div>
-      <h1>Anchored in Deen,<br /><em>Illuminated in Dunya &amp; Digital.</em></h1>
-      <p>{state.event.theme}</p>
+      <div className="hero-kicker"><span /> {state.event.name}</div>
+      <h1>{state.event.theme?.includes(',') ? <>{state.event.theme.split(',')[0]},<br /><em>{state.event.theme.split(',').slice(1).join(',').trim()}</em></> : state.event.theme}</h1>
+      <p>{state.event.name}</p>
       <div className="display-lobby-stats">
         <div><strong>{state.stats.totalCandidates}</strong><span>candidates</span></div>
         <div><strong>{state.stats.onlineCandidates}</strong><span>tablets online</span></div>
         <div><strong>{state.settings.round1QuestionCount}</strong><span>CBT questions</span></div>
       </div>
       <div className="display-wait"><span className="pulse-dot" /> Waiting for the admin to open Round 1</div>
-      <div className="display-sponsor">Proudly supported by <img src="/brand/rayyan.png" alt="Rayyan Technologies" /></div>
+      <div className="display-sponsor">Proudly supported by {state.settings.branding?.sponsorLogoUrl ? <img src={state.settings.branding.sponsorLogoUrl} alt={state.settings.branding.sponsorName} /> : state.settings.branding?.sponsorName}</div>
     </section>
   );
 }
@@ -96,7 +96,7 @@ function DisplayRound1({ state }) {
     <section className="display-race">
       <div className="display-title">
         <Badge tone="gold">Round 1</Badge>
-        <h2>CBT elimination</h2>
+        <h2>{state.settings.round1Label || 'CBT elimination'}</h2>
         <p>{state.settings.round1QuestionCount} questions · {state.settings.round1DurationMinutes} minutes · auto-scored</p>
       </div>
       <div className="display-round1-grid">

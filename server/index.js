@@ -4,7 +4,6 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { Server as SocketServer } from 'socket.io';
-import { z } from 'zod';
 import { config } from './config.js';
 import { GameEngine } from './game.js';
 import { registerSockets } from './socket.js';
@@ -33,14 +32,6 @@ app.use((req, res, next) => {
   next();
 });
 
-const loginSchema = z.object({ username: z.string().min(1), password: z.string().min(1) });
-const codeSchema = z.object({ code: z.string().min(3).max(20) });
-const candidateSchema = z.object({
-  name: z.string().min(2).max(120),
-  school: z.string().min(2).max(160),
-  qualified: z.boolean().optional(),
-  active: z.boolean().optional()
-});
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, version: '1.0.0', round: engine.state.round, phase: engine.state.phase, serverTime: Date.now() });
@@ -50,18 +41,19 @@ app.get('/api/state', (req, res) => res.json(engine.getPublicState()));
 app.get('/api/leaderboard', (req, res) => res.json(getLeaderboard()));
 
 app.post('/api/auth/login', (req, res) => {
-  const parsed = loginSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: 'Username and password are required' });
-  const user = authenticateStaff(parsed.data.username, parsed.data.password);
+  const username = String(req.body?.username || '').trim();
+  const password = String(req.body?.password || '');
+  if (!username || !password) return res.status(400).json({ error: 'Username and password are required' });
+  const user = authenticateStaff(username, password);
   if (!user) return res.status(401).json({ error: 'Invalid username or password' });
   audit(user.username, 'auth.login', user.role);
   res.json({ token: signUser(user), user });
 });
 
 app.post('/api/auth/candidate', (req, res) => {
-  const parsed = codeSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: 'Enter your candidate code' });
-  const user = authenticateCandidate(parsed.data.code);
+  const code = String(req.body?.code || '').trim();
+  if (code.length < 3 || code.length > 20) return res.status(400).json({ error: 'Enter your candidate code' });
+  const user = authenticateCandidate(code);
   if (!user) return res.status(401).json({ error: 'That code is not valid. Ask the admin for your code.' });
   const candidate = getCandidateById(user.candidateId);
   res.json({
@@ -89,14 +81,17 @@ app.get('/api/admin/candidates', expressAuth(['admin','scorekeeper']), (req, res
 });
 
 app.post('/api/admin/candidates', expressAuth(['admin']), (req, res) => {
-  const parsed = candidateSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: 'Name and school are required' });
+  const name = String(req.body?.name || '').trim();
+  const school = String(req.body?.school || '').trim();
+  if (name.length < 2 || name.length > 120 || school.length < 2 || school.length > 160) {
+    return res.status(400).json({ error: 'A valid name and school are required' });
+  }
   const code = makeCode();
   const info = db.prepare('INSERT INTO candidates (name, school, code, qualified) VALUES (?, ?, ?, ?)')
-    .run(parsed.data.name.trim(), parsed.data.school.trim(), code, parsed.data.qualified ? 1 : 0);
-  audit(req.user.username, 'candidate.create', { id: info.lastInsertRowid, name: parsed.data.name });
+    .run(name, school, code, req.body?.qualified ? 1 : 0);
+  audit(req.user.username, 'candidate.create', { id: info.lastInsertRowid, name });
   engine.broadcast();
-  res.status(201).json({ id: info.lastInsertRowid, code, name: parsed.data.name.trim(), school: parsed.data.school.trim() });
+  res.status(201).json({ id: info.lastInsertRowid, code, name, school });
 });
 
 app.post('/api/admin/candidates/import', expressAuth(['admin']), (req, res) => {

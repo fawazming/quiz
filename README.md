@@ -229,7 +229,7 @@ git clone --depth 1 https://github.com/fawazming/quiz.git ~/www/ict-quiz-arena
 bash ~/www/ict-quiz-arena/scripts/install-alwaysdata.sh
 ```
 
-The built `dist/` is committed, so the server installs only production dependencies (~15 MB). Create the Node.js site with `node /home/YOURACCOUNT/www/ict-quiz-arena/server/index.js` and Node 24.
+The built `dist/` is committed, so the server installs only production dependencies (~10 MB). Create the Node.js site with `node /home/YOURACCOUNT/www/ict-quiz-arena/server/index.js` and Node 24.
 
 The general guide covers:
 

@@ -50,7 +50,7 @@ export default function AdminApp() {
       <aside className={`sidebar ${mobile ? 'is-open' : ''}`}>
         <div className="sidebar-brand"><Brand compact light /></div>
         <div className="sidebar-event">
-          <span>MSS Week 2026</span>
+          <span>{state.event.name}</span>
           <strong>{state.event.name}</strong>
         </div>
         <nav className="side-nav">

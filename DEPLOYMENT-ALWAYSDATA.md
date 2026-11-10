@@ -6,11 +6,11 @@ Measured production footprint:
 
 | Item | Size |
 |---|---:|
-| Server dependencies (`npm ci --omit=dev`) | **~15 MB** |
+| Server dependencies (`npm ci --omit=dev`) | **~10 MB** |
 | Built client (`dist/`) | **~0.6 MB** |
 | Server/source/questions | **~1.5 MB** |
 | SQLite database | **< 1 MB** at start |
-| **Total** | **~18 MB** |
+| **Total** | **~12 MB** |
 
 That leaves ~80 MB for the database, logs and backups on a 100 MB plan. (The current alwaysdata Free offer may show 1 GB; the same steps work.)
 
@@ -132,7 +132,7 @@ npm ci --omit=dev
 npm cache clean --force
 ```
 
-This installs only: Express, Socket.IO, `jsonwebtoken`, `bcryptjs`, `dotenv`, `zod` — about **15 MB**. It does **not** install React, Vite or the 33 MB icon package, which are only needed for the local build.
+This installs only: Express, Socket.IO, `jsonwebtoken`, `bcryptjs` and `dotenv` — about **10 MB**. It does **not** install React, Vite or the icon package, which are only needed for the local build.
 
 Create the environment file:
 
