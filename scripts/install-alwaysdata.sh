@@ -60,7 +60,7 @@ echo "Installing production dependencies only..."
 npm ci --omit=dev
 npm cache clean --force || true
 
-if [ -f data/quiz.db ]; then
+if [ -f data/quiz.db ] && [ "$REFRESH_DB" != "1" ]; then
   echo "Backing up the current database..."
   node scripts/db-backup.js || echo "WARNING: automatic backup failed. Check data/ permissions."
 fi
