@@ -197,6 +197,29 @@ function splitCsvLine(line) {
   return cells;
 }
 
+export function bulkDeleteQuestions(ids) {
+  const unique = [...new Set((ids || []).map(String))].slice(0, 1000);
+  if (!unique.length) throw new Error('Select at least one question');
+  const deleted = [];
+  const skipped = [];
+  for (const id of unique) {
+    const q = getQuestionById(id);
+    if (!q) { skipped.push({ id, reason: 'Not found' }); continue; }
+    try {
+      const used = db.prepare(`
+        SELECT
+          (SELECT COUNT(*) FROM round1_answers WHERE question_id = ?) +
+          (SELECT COUNT(*) FROM round2_picks WHERE question_id = ?) +
+          (SELECT COUNT(*) FROM round3_answers WHERE question_id = ?) AS n
+      `).get(id, id, id).n;
+      if (used > 0) { skipped.push({ id, reason: 'Already used in a round' }); continue; }
+      db.prepare('DELETE FROM questions WHERE id = ?').run(id);
+      deleted.push(id);
+    } catch (err) { skipped.push({ id, reason: err.message }); }
+  }
+  return { deleted, skipped };
+}
+
 export function listGroups() {
   return db.prepare(`SELECT g.*, (SELECT COUNT(*) FROM questions q WHERE q.group_id = g.id) AS questionCount
     FROM question_groups g ORDER BY g.name COLLATE NOCASE`).all();

@@ -663,3 +663,5 @@ p{line-height:1.6}
 .group-row:last-child{border-bottom:0}
 .group-row strong{display:block;font-size:12px}.group-row small{display:block;font-size:9.5px;color:var(--muted);margin-top:2px}
 @media(max-width:760px){.inline-group-form{grid-template-columns:1fr}.toolbar-right{width:100%}}
+.check-col{width:30px;text-align:center;padding-left:7px!important;padding-right:4px!important}
+.check-col input{width:15px;height:15px;accent-color:var(--emerald);cursor:pointer}

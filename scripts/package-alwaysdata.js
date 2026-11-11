@@ -21,7 +21,7 @@ const copy = (from, to = from) => {
 copy('dist');
 copy('server');
 fs.mkdirSync(path.join(out, 'scripts'), { recursive: true });
-for (const file of ['seed-demo.js','reset-password.js','verify-questions.js','smoke-test.js']) copy(path.join('scripts', file), path.join('scripts', file));
+for (const file of ['seed-demo.js','reset-password.js','verify-questions.js','smoke-test.js','db-backup.js','db-refresh.js','db-backup-lib.js']) copy(path.join('scripts', file), path.join('scripts', file));
 copy('package.json');
 copy('package-lock.json');
 copy('.env.example');

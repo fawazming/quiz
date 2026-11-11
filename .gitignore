@@ -2,6 +2,7 @@ node_modules/
 build/
 data/*.db
 data/uploads/
+data/backups/
 data/*.db-shm
 data/*.db-wal
 data/smoke.db*

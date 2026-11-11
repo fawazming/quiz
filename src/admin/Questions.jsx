@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Search, Database, BookOpen, Eye, Plus, Upload, Pencil, Trash2, Save,
-  Download, FolderPlus, Sparkles, Layers, X
+  Download, FolderPlus, Sparkles, Layers, X, CheckSquare
 } from 'lucide-react';
 import { Card, Badge, Modal, Spinner, Empty, Button } from '../components/UI.jsx';
 import { api } from '../api.js';
@@ -36,6 +36,8 @@ export default function Questions() {
   const [aiOpen, setAiOpen] = useState(false);
   const [ai, setAi] = useState({ mode: 'generate', topic: 'General', count: 5, pool: 'round1', groupId: '', sourceText: '' });
   const [busy, setBusy] = useState(false);
+  const [selected, setSelected] = useState(new Set());
+  const [confirmBulk, setConfirmBulk] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -43,6 +45,7 @@ export default function Questions() {
       const [qs, gs] = await Promise.all([api('/api/admin/questions'), api('/api/admin/groups')]);
       setRows(qs);
       setGroups(gs);
+      setSelected(new Set());
     } catch (e) { push(e.message, 'error'); }
     finally { setLoading(false); }
   }
@@ -60,6 +63,31 @@ export default function Questions() {
     round2: rows.filter(q => q.pool === 'round2').length,
     round3: rows.filter(q => q.pool === 'round3').length
   }), [rows]);
+
+  function toggleSelect(id) {
+    setSelected(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  }
+  function toggleAll() {
+    const all = filtered.length > 0 && filtered.every(q => selected.has(q.id));
+    setSelected(all ? new Set() : new Set(filtered.map(q => q.id)));
+  }
+  function loadGroup(g) {
+    setGroupFilter(g.id);
+    setSelected(new Set(rows.filter(q => q.groupId === g.id).map(q => q.id)));
+    setShowGroups(false);
+  }
+  async function bulkDelete() {
+    if (!selected.size) return;
+    setBusy(true);
+    try {
+      const res = await api('/api/admin/questions/bulk-delete', { method: 'POST', body: { ids: [...selected] } });
+      push(`${res.deleted.length} deleted${res.skipped.length ? ` · ${res.skipped.length} skipped (used or missing)` : ''}`, res.skipped.length ? 'info' : 'success');
+      setSelected(new Set());
+      setConfirmBulk(false);
+      await load();
+    } catch (err) { push(err.message, 'error'); }
+    finally { setBusy(false); }
+  }
 
   function openNew() {
     setEditing('new');
@@ -196,15 +224,18 @@ export default function Questions() {
             </div>
             <Button variant="ghost" size="sm" onClick={() => exportQuestions('csv')}><Download size={14} /> CSV</Button>
             <Button variant="ghost" size="sm" onClick={() => exportQuestions('json')}><Download size={14} /> JSON</Button>
+            <Button variant="ghost" size="sm" onClick={toggleAll}><CheckSquare size={14} /> {filtered.length && filtered.every(q => selected.has(q.id)) ? 'Clear' : 'Select all'}</Button>
+            <Button variant="danger" size="sm" disabled={!selected.size} onClick={() => setConfirmBulk(true)}><Trash2 size={14} /> Delete ({selected.size})</Button>
           </div>
         </div>
         {loading ? <Spinner label="Loading question bank…" /> : filtered.length ? (
           <div className="table-wrap">
             <table className="data-table question-table">
-              <thead><tr><th>Question</th><th>Source / group</th><th>Pool</th><th>Answer</th><th></th></tr></thead>
+              <thead><tr><th className="check-col"><input type="checkbox" checked={filtered.length > 0 && filtered.every(q => selected.has(q.id))} onChange={toggleAll} aria-label="Select all" /></th><th>Question</th><th>Source / group</th><th>Pool</th><th>Answer</th><th></th></tr></thead>
               <tbody>
                 {filtered.map(q => (
                   <tr key={q.id}>
+                    <td className="check-col"><input type="checkbox" checked={selected.has(q.id)} onChange={() => toggleSelect(q.id)} aria-label={`Select ${q.prompt}`} /></td>
                     <td><strong className="clamp-2">{q.prompt}</strong><small>{q.topic} · {q.pdfRef}</small></td>
                     <td>{q.source}<small>{groupName(q.groupId) || 'Ungrouped'}</small></td>
                     <td><Badge tone={q.pool === 'round1' ? 'green' : q.pool === 'round2' ? 'gold' : 'red'}>{q.pool}</Badge></td>
@@ -286,7 +317,7 @@ export default function Questions() {
           {groups.map(g => (
             <div key={g.id} className="group-row">
               <span><strong>{g.name}</strong><small>{g.description || 'No description'} · {g.questionCount} questions</small></span>
-              <button className="icon-btn danger" onClick={() => removeGroup(g)} title="Delete group (questions stay)"><Trash2 size={15} /></button>
+              <span className="row-actions"><button className="btn btn-ghost btn-sm" onClick={() => loadGroup(g)}>Load</button><button className="icon-btn danger" onClick={() => removeGroup(g)} title="Delete group (questions stay)"><Trash2 size={15} /></button></span>
             </div>
           ))}
           {!groups.length && <p className="muted">No groups yet. Create one to organise imported or AI-generated questions.</p>}
@@ -309,6 +340,11 @@ export default function Questions() {
           </label>
         </div>
         <p className="muted small"><Sparkles size={13} /> Requires <code>GROQ_API_KEY</code> on the server. Generated questions are saved immediately and can be edited or deleted.</p>
+      </Modal>
+
+      <Modal open={confirmBulk} onClose={() => setConfirmBulk(false)} title={`Delete ${selected.size} selected questions?`}
+        footer={<><Button variant="ghost" onClick={() => setConfirmBulk(false)}>Cancel</Button><Button variant="danger" onClick={bulkDelete} loading={busy}>Delete selected</Button></>}>
+        <p>This permanently deletes the selected questions. Questions already used in a round are skipped automatically; reset that round first if you need to remove them.</p>
       </Modal>
 
       <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete question?"

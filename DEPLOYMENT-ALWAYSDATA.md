@@ -310,6 +310,35 @@ Restart the Node.js site from the alwaysdata panel.
 
 The database schema is created if missing, and the initial 94 questions are seeded only when the question table is empty. Admin edits, imports, custom questions, scores, theme and candidates are stored in `data/quiz.db`; back it up before updates.
 
+### Back up and refresh the database
+
+The install script **preserves `.env`** and **backs up the existing database** before applying new code. Schema migrations run automatically on the next start.
+
+Manual backup:
+
+```bash
+cd ~/www/ict-quiz-arena
+npm run db:backup
+ls -lh data/backups
+```
+
+Refresh to a clean database (keeps `.env`):
+
+```bash
+# Stop the Node.js site from the alwaysdata panel first.
+cd ~/www/ict-quiz-arena
+npm run db:refresh
+# Type REFRESH to confirm, or use -- --yes
+```
+
+Or run the full upgrade with refresh:
+
+```bash
+bash scripts/install-alwaysdata.sh --refresh-db
+```
+
+The refresh creates a backup in `data/backups/` before deleting the database. The next start recreates the schema, seeds the initial 94 questions, and recreates staff accounts from `.env`.
+
 ### Back up the database first
 
 ```bash

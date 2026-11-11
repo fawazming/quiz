@@ -122,6 +122,11 @@ CREATE TABLE IF NOT EXISTS score_adjustments (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  version TEXT PRIMARY KEY,
+  applied_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS audit_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   actor TEXT NOT NULL,
@@ -136,8 +141,25 @@ CREATE INDEX IF NOT EXISTS idx_round2_candidate ON round2_picks(candidate_id);
 CREATE INDEX IF NOT EXISTS idx_round3_candidate ON round3_answers(candidate_id);
 `);
 
-const questionColumns = db.prepare('PRAGMA table_info(questions)').all();
-if (!questionColumns.some(c => c.name === 'group_id')) db.exec('ALTER TABLE questions ADD COLUMN group_id TEXT');
+const migrations = [
+  ['001_question_groups', () => {
+    const cols = db.prepare('PRAGMA table_info(questions)').all();
+    if (!cols.some(c => c.name === 'group_id')) db.exec('ALTER TABLE questions ADD COLUMN group_id TEXT');
+  }]
+];
+const appliedMigrations = new Set(db.prepare('SELECT version FROM schema_migrations').all().map(r => r.version));
+for (const [version, fn] of migrations) {
+  if (appliedMigrations.has(version)) continue;
+  transaction(() => {
+    fn();
+    db.prepare('INSERT INTO schema_migrations (version) VALUES (?)').run(version);
+  });
+}
+
+export function getSchemaVersion() {
+  const row = db.prepare('SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1').get();
+  return row?.version || '000';
+}
 
 function seedUser(username, password, role) {
   const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username);

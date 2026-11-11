@@ -10,9 +10,9 @@ import { registerSockets } from './socket.js';
 import { expressAuth, authenticateStaff, authenticateCandidate, signUser } from './auth.js';
 import {
   db, transaction, getCandidates, getCandidateById, getQuestionById, makeCode, getQuestions,
-  getLeaderboard, getSettings, setSettings, audit
+  getLeaderboard, getSettings, setSettings, audit, getSchemaVersion
 } from './db.js';
-import { listQuestions, createQuestion, updateQuestion, deleteQuestion, assertQuestionEditable, importQuestions, listGroups, createGroup, updateGroup, deleteGroup, normalizeImportRow } from './questionAdmin.js';
+import { listQuestions, createQuestion, updateQuestion, deleteQuestion, assertQuestionEditable, importQuestions, listGroups, createGroup, updateGroup, deleteGroup, normalizeImportRow, bulkDeleteQuestions } from './questionAdmin.js';
 import { generateQuestions, parseQuestionsWithAi } from './groq.js';
 
 const app = express();
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 
 
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true, version: '1.0.0', round: engine.state.round, phase: engine.state.phase, serverTime: Date.now() });
+  res.json({ ok: true, version: '1.0.0', schema: getSchemaVersion(), round: engine.state.round, phase: engine.state.phase, serverTime: Date.now() });
 });
 
 app.get('/api/state', (req, res) => res.json(engine.getPublicState()));
@@ -297,6 +297,25 @@ app.delete('/api/admin/questions/:id', expressAuth(['admin']), (req, res) => {
     audit(req.user.username, 'question.delete', { id: req.params.id, prompt: existing.prompt });
     engine.broadcast();
     res.json({ ok: true });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.post('/api/admin/questions/bulk-delete', expressAuth(['admin']), (req, res) => {
+  try {
+    const ids = req.body?.ids;
+    if (!Array.isArray(ids)) throw new Error('ids must be an array');
+    if (engine.state.round1.open) {
+      const active = listQuestions().filter(q => ids.includes(q.id) && q.pool === 'round1');
+      if (active.length) throw new Error('Round 1 is open. Close it before deleting CBT questions.');
+    }
+    if ((engine.state.round2.questionId && ids.includes(engine.state.round2.questionId)) ||
+        (engine.state.round3.questionId && ids.includes(engine.state.round3.questionId))) {
+      throw new Error('A selected question is currently on screen. End or advance the round first.');
+    }
+    const result = bulkDeleteQuestions(ids);
+    audit(req.user.username, 'question.bulk_delete', { deleted: result.deleted.length, skipped: result.skipped.length });
+    engine.broadcast();
+    res.json(result);
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 

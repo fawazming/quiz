@@ -190,6 +190,8 @@ The admin question manager shows the source, PDF reference, options, answer and 
 | `npm run package:alwaysdata` | Build a minimal upload folder in `deploy/alwaysdata/` |
 | `bash scripts/install-alwaysdata.sh` | Server-side install/update from GitHub (Node 24, production deps only) |
 | `npm run reset:password -- <user> <password>` | Reset an admin/scorekeeper password |
+| `npm run db:backup` | Create a consistent SQLite backup in `data/backups/` |
+| `npm run db:refresh` | Back up, then delete the database; the next start reseeds it |
 | `node scripts/smoke-test.js` | End-to-end server test; first run a test server on port 3100 with `DB_PATH=data/smoke.db PORT=3100 node server/index.js` |
 | `node scripts/capacity-test.js 100 http://localhost:3100` | Hold N live Socket.IO connections for a capacity check |
 
@@ -229,7 +231,7 @@ git clone --depth 1 https://github.com/fawazming/quiz.git ~/www/ict-quiz-arena
 bash ~/www/ict-quiz-arena/scripts/install-alwaysdata.sh
 ```
 
-The built `dist/` is committed, so the server installs only production dependencies (~10 MB). Create the Node.js site with `node /home/YOURACCOUNT/www/ict-quiz-arena/server/index.js` and Node 24.
+The built `dist/` is committed, so the server installs only production dependencies (~10 MB). The install script preserves `.env` and backs up the existing database before applying new code; schema migrations run automatically on boot. Create the Node.js site with `node /home/YOURACCOUNT/www/ict-quiz-arena/server/index.js` and Node 24.
 
 The general guide covers:
 

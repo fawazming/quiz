@@ -17,7 +17,9 @@
     "questions:verify": "node scripts/verify-questions.js",
     "test": "vitest run",
     "reset:password": "node scripts/reset-password.js",
-    "package:alwaysdata": "node scripts/package-alwaysdata.js"
+    "package:alwaysdata": "node scripts/package-alwaysdata.js",
+    "db:backup": "node scripts/db-backup.js",
+    "db:refresh": "node scripts/db-refresh.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
