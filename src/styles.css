@@ -665,3 +665,76 @@ p{line-height:1.6}
 @media(max-width:760px){.inline-group-form{grid-template-columns:1fr}.toolbar-right{width:100%}}
 .check-col{width:30px;text-align:center;padding-left:7px!important;padding-right:4px!important}
 .check-col input{width:15px;height:15px;accent-color:var(--emerald);cursor:pointer}
+
+/* Light projector theme */
+.display-shell.display-light{background:#f6f2e8;color:var(--ink);background-image:linear-gradient(rgba(250,248,242,.93),rgba(250,248,242,.97)),var(--brand-background-image,none);background-size:cover;background-position:center}
+.display-light .display-top{background:rgba(255,255,255,.78);border-bottom-color:#d9ded9}
+.display-light .display-top-mid span{color:var(--emerald)}
+.display-light .display-top-mid small{color:#63736c}
+.display-light .display-foot{border-top-color:#d9ded9;color:#66766f}
+.display-light .display-foot img{background:transparent;padding:0}
+.display-light .display-lobby h1,.display-light .display-title h2,.display-light .display-question-text,.display-light .display-winner-name,.display-light .display-pick-head h2{color:var(--ink)}
+.display-light .display-lobby h1 em{color:var(--gold)}
+.display-light .display-lobby>p,.display-light .display-title p,.display-light .display-pick-head p{color:#63736c}
+.display-light .display-lobby-stats{border-top-color:#d9ded9}
+.display-light .display-lobby-stats strong{color:var(--emerald)}
+.display-light .display-lobby-stats span,.display-light .display-wait,.display-light .display-sponsor{color:#63736c}
+.display-light .display-sponsor img{background:transparent;padding:0}
+.display-light .display-progress>p{color:#63736c}
+.display-light .display-big-number{color:var(--emerald)}
+.display-light .display-big-number span{color:#9aa8a1}
+.display-light .display-lb,.display-light .display-lb-strip{background:#fff;border-color:#d9ded9;box-shadow:0 8px 24px rgba(12,33,29,.06)}
+.display-light .display-lb-head{color:var(--emerald)}
+.display-light .display-lb .lb-row,.display-light .display-lb-strip .lb-row{border-color:#edf1ed}
+.display-light .display-lb .lb-person strong,.display-light .display-lb-strip .lb-person strong{color:var(--ink)}
+.display-light .display-lb .lb-person small,.display-light .display-lb-strip .lb-person small{color:#63736c}
+.display-light .display-lb .lb-num,.display-light .display-lb-strip .lb-num{color:#63736c}
+.display-light .display-lb .lb-total,.display-light .display-lb-strip .lb-total{color:var(--emerald)}
+.display-light .display-active-chip{background:#fff;border-color:#d9ded9;box-shadow:0 8px 24px rgba(12,33,29,.06)}
+.display-light .display-active-chip strong{color:var(--ink)}
+.display-light .display-active-chip small{color:#63736c}
+.display-light .display-question-top .timer{background:#fff;border-color:#d9ded9}
+.display-light .display-question-top .timer-top{color:#63736c}
+.display-light .display-question-top .timer-top strong{color:var(--ink)}
+.display-light .display-question-top .timer-bar{background:#e3e9e4}
+.display-light .display-question .option,.display-light .display-answer .option{background:#fff;border-color:#d9ded9;color:var(--ink);box-shadow:0 4px 14px rgba(12,33,29,.04)}
+.display-light .display-question .option-letter{background:var(--mint);color:var(--emerald)}
+.display-light .display-question .option-text{color:var(--ink)}
+.display-light .display-answer-q{color:#3f5650}
+.display-light .display-answer .option-text{color:var(--ink)}
+.display-light .display-answer .option-letter{background:var(--mint);color:var(--emerald)}
+.display-light .display-correct{color:var(--emerald)}
+.display-light .display-source{color:#7b8b84}
+.display-light .display-numbers .number-cell{background:#fff;border-color:#d9ded9;color:var(--ink);box-shadow:0 4px 14px rgba(12,33,29,.04)}
+.display-light .display-numbers .number-cell small{color:#7b8b84}
+.display-light .display-numbers .number-cell.is-picked{background:#eef1ed;color:#9aa8a1;box-shadow:none}
+.display-light .display-countdown .countdown-number{color:var(--emerald)}
+.display-light .display-reveal-banner.good{color:var(--emerald)}
+.display-light .display-reveal-banner.bad{color:var(--coral)}
+.display-light .display-points{color:var(--gold)}
+.display-light .display-points span,.display-light .display-response{color:#63736c}
+.display-light .display-board .leaderboard .lb-row{border-color:#e4eae5}
+.display-light .display-board .lb-person strong{color:var(--ink)}
+.display-light .display-board .lb-person small,.display-light .display-board .lb-num,.display-light .display-board .lb-rank{color:#63736c}
+.display-light .display-board .lb-head{background:#fff;color:#63736c}
+.display-light .display-board .lb-total{color:var(--emerald)}
+.display-light .display-board .leaderboard{background:#fff;border-radius:14px;padding:4px 10px;box-shadow:0 10px 30px rgba(12,33,29,.07)}
+.display-light .display-race-banner{background:linear-gradient(90deg,rgba(195,154,43,.16),rgba(15,92,75,.12));border-color:#e2d4ae;color:#7a5a11}
+.display-light .display-question .timer-bar span{background:var(--emerald)}
+.display-light .display-question .timer-danger .timer-bar span{background:var(--coral)}
+.display-light .display-question .option.is-correct{background:var(--mint);border-color:var(--emerald)}
+.display-light .display-question .option.is-correct .option-text{color:var(--ink)}
+.display-light .display-question .option.is-wrong{background:var(--rose);border-color:var(--coral)}
+.display-light .display-question .option.is-wrong .option-text{color:var(--ink)}
+.display-light .display-question .option.is-correct .option-letter,.display-light .display-question .option.is-wrong .option-letter{color:#fff}
+.display-light.display-fallback{background:#f6f2e8;color:var(--ink);background-image:linear-gradient(rgba(250,248,242,.94),rgba(250,248,242,.97)),var(--brand-background-image,none)}
+.display-light.display-fallback .display-fallback-card{background:#fff;border-color:#d9ded9;box-shadow:0 18px 50px rgba(12,33,29,.1)}
+.display-light.display-fallback h1{color:var(--ink)}
+.display-light.display-fallback p,.display-light.display-fallback small{color:#63736c}
+.display-light.display-fallback-card svg{color:var(--gold)}
+.display-light .brand-text strong{color:var(--ink)}
+.display-light .brand-text small{color:#63736c}
+.display-light .brand-divider{background:#cfdad4}
+.display-light .brand-mssn{background:transparent;padding:0}
+.display-light .brand-sponsored{color:#63736c}
+.display-light .brand-sponsored img{background:transparent;padding:0}

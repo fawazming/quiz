@@ -341,6 +341,9 @@ app.patch('/api/admin/settings', expressAuth(['admin']), (req, res) => {
         const url = String(v || '').trim();
         if (url && !/^(\/uploads\/|\/brand\/|https?:\/\/)/i.test(url)) throw new Error(`${k} must be an uploaded image or a valid URL`);
         patch[k] = url;
+      } else if (k === 'display_theme') {
+        if (!['light','dark'].includes(String(v))) throw new Error('display_theme must be light or dark');
+        patch[k] = String(v);
       } else if (k.startsWith('theme_')) {
         if (!/^#[0-9a-f]{6}$/i.test(String(v))) throw new Error(`${k} must be a 6-digit hex colour`);
         patch[k] = String(v);

@@ -43,6 +43,10 @@ export const SETTINGS_DEFAULTS = {
   sponsor_logo_url: '/brand/rayyan.png',
   brand_background_url: '',
   brand_show_sponsor: 1,
+  display_theme: 'light',
+  round1_group_id: '',
+  round2_group_id: '',
+  round3_group_id: '',
   sponsor_url: 'https://rayyantech.sgm.ng',
   round1_question_count: 50,
   round1_duration_minutes: 45,
@@ -57,7 +61,7 @@ export const SETTINGS_DEFAULTS = {
   round3_answer_seconds: 30,
   round3_base_points: 50,
   round3_speed_bonus: 25,
-  round3_wrong_penalty: 0,
+  round3_wrong_penalty: 5,
   round3_lock_on_first_answer: 1
 };
 

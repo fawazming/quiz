@@ -72,7 +72,10 @@ export class GameEngine {
   publicQuestion(q, reveal = false) { return safeQuestion(q, reveal); }
 
   round1QuestionList() {
-    return getQuestions('round1').map(q => safeQuestion(q, false));
+    const group = this.settings().round1_group_id;
+    return getQuestions('round1')
+      .filter(q => !group || q.group_id === group)
+      .map(q => safeQuestion(q, false));
   }
 
   candidateSession(candidateId) {
@@ -86,7 +89,7 @@ export class GameEngine {
       return {
         open: this.state.round1.open,
         started: false,
-        totalQuestions: Math.min(s.round1_question_count, getQuestions('round1').length),
+        totalQuestions: Math.min(s.round1_question_count, this.round1QuestionList().length),
         deadlineAt: this.state.round1.endsAt,
         serverTime: Date.now()
       };
@@ -149,6 +152,10 @@ export class GameEngine {
         round3BasePoints: s.round3_base_points,
         round3SpeedBonus: s.round3_speed_bonus,
         round3WrongPenalty: s.round3_wrong_penalty,
+        displayTheme: s.display_theme,
+        round1GroupId: s.round1_group_id || '',
+        round2GroupId: s.round2_group_id || '',
+        round3GroupId: s.round3_group_id || '',
         round3LockOnFirstAnswer: !!s.round3_lock_on_first_answer,
         enabledRounds: { 1: !!s.round1_enabled, 2: !!s.round2_enabled, 3: !!s.round3_enabled },
         round1Label: s.round1_label,
@@ -298,7 +305,7 @@ export class GameEngine {
     let session = this.candidateSession(candidateId);
     if (session?.status === 'submitted') throw new Error('You have already submitted Round 1');
     if (!session) {
-      const total = Math.min(s.round1_question_count, getQuestions('round1').length);
+      const total = Math.min(s.round1_question_count, this.round1QuestionList().length);
       if (total < 1) throw new Error('No Round 1 questions are available. Add or import questions first.');
       const deadline = Math.min(this.state.round1.endsAt, Date.now() + s.round1_duration_minutes * 60_000);
       const info = db.prepare(`INSERT INTO round1_sessions
@@ -429,7 +436,8 @@ export class GameEngine {
         return rb - ra;
       });
     }
-    let pool = getQuestions('round2').map(q => q.id);
+    const r2group = s.round2_group_id;
+    let pool = getQuestions('round2').filter(q => !r2group || q.group_id === r2group).map(q => q.id);
     pool = shuffle(pool);
     if (!pool.length) throw new Error('No Round 2 questions are available. Add or import questions first.');
     const count = Math.min(s.round2_question_count, pool.length);
@@ -619,7 +627,8 @@ export class GameEngine {
     if (!eligible.length) eligible = getCandidates();
     if (!eligible.length) throw new Error('Add or activate candidates before starting Round 3');
     db.prepare('DELETE FROM round3_answers').run();
-    let pool = getQuestions('round3').map(q => q.id);
+    const r3group = s.round3_group_id;
+    let pool = getQuestions('round3').filter(q => !r3group || q.group_id === r3group).map(q => q.id);
     if (shuffleQuestions) pool = shuffle(pool);
     const count = Math.min(s.round3_question_count, pool.length);
     pool = pool.slice(0, count);

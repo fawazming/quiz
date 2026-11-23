@@ -22,7 +22,7 @@ export default function Round3({ state, adminState }) {
         <Stat label="Round 3 stage" value={phase === 'idle' ? 'READY' : phaseLabel(state.phase)} sub={`Question ${r3.questionNumber || 0}/${r3.totalQuestions || 0}`} icon={Zap} tone="red" />
         <Stat label="Finalists" value={finalists.length} sub="qualified candidates" icon={Users} tone="green" />
         <Stat label="Race clock" value={`${state.settings.round3AnswerSeconds}s`} sub="first answer locks" icon={Clock3} tone="gold" />
-        <Stat label="Scoring" value={`${state.settings.round3BasePoints}+${state.settings.round3SpeedBonus}`} sub={`wrong penalty ${state.settings.round3WrongPenalty}`} icon={Trophy} tone="ink" />
+        <Stat label="Scoring" value={`${state.settings.round3BasePoints}+${state.settings.round3SpeedBonus}`} sub={`wrong answer: -${state.settings.round3WrongPenalty} pts`} icon={Trophy} tone="ink" />
       </div>
 
       <div className="two-col">

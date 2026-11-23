@@ -145,6 +145,9 @@ const migrations = [
   ['001_question_groups', () => {
     const cols = db.prepare('PRAGMA table_info(questions)').all();
     if (!cols.some(c => c.name === 'group_id')) db.exec('ALTER TABLE questions ADD COLUMN group_id TEXT');
+  }],
+  ['002_default_round3_penalty', () => {
+    db.prepare("UPDATE settings SET value='5' WHERE key='round3_wrong_penalty' AND value='0'").run();
   }]
 ];
 const appliedMigrations = new Set(db.prepare('SELECT version FROM schema_migrations').all().map(r => r.version));

@@ -16,6 +16,12 @@ const EXTRA_FIELDS = [
   ['theme_ink','Dark background', 'color']
 ];
 
+const ROUND_GROUP_FIELDS = [
+  ['round1_group_id','Round 1 question group'],
+  ['round2_group_id','Round 2 question group'],
+  ['round3_group_id','Round 3 question group']
+];
+
 const BRAND_FIELDS = [
   ['brand_org','Organisation name','text'],
   ['brand_app_name','App name','text'],
@@ -51,15 +57,18 @@ const FIELDS = [
   ['round3_answer_seconds','Round 3 answer time (seconds)','number'],
   ['round3_base_points','Round 3 base points','number'],
   ['round3_speed_bonus','Round 3 max speed bonus','number'],
-  ['round3_wrong_penalty','Round 3 wrong-answer penalty','number']
+  ['round3_wrong_penalty','Round 3 wrong-answer penalty (points deducted)','number']
 ];
 
 export default function Settings() {
   const { push } = useToast();
   const [settings, setSettings] = useState(null);
+  const [groups, setGroups] = useState([]);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    api('/api/admin/settings').then(setSettings).catch(e => push(e.message, 'error'));
+    Promise.all([api('/api/admin/settings'), api('/api/admin/groups')])
+      .then(([s, g]) => { setSettings(s); setGroups(g); })
+      .catch(e => push(e.message, 'error'));
   }, []);
   if (!settings) return <Spinner label="Loading settings…" />;
 
@@ -68,12 +77,13 @@ export default function Settings() {
     setBusy(true);
     try {
       const payload = {};
-      for (const [key, , type] of [...FIELDS, ...EXTRA_FIELDS, ...BRAND_FIELDS]) {
+      for (const [key, , type] of [...FIELDS, ...EXTRA_FIELDS, ...BRAND_FIELDS, ...ROUND_GROUP_FIELDS]) {
         if (type === 'toggle') payload[key] = settings[key] ? 1 : 0;
         else if (type === 'number') payload[key] = Number(settings[key]);
         else payload[key] = settings[key];
       }
       payload.brand_show_sponsor = settings.brand_show_sponsor ? 1 : 0;
+      payload.display_theme = settings.display_theme || 'light';
       const res = await api('/api/admin/settings', { method: 'PATCH', body: payload });
       setSettings(res.settings);
       window.dispatchEvent(new Event('branding:refresh'));
@@ -145,6 +155,22 @@ export default function Settings() {
         <div className="form-grid two" style={{ marginTop: '14px' }}>
           {EXTRA_FIELDS.slice(3, 6).map(([key,label]) => (
             <label key={key}><span>{label}</span><input value={settings[key] ?? ''} onChange={e => setSettings({ ...settings, [key]: e.target.value })} /></label>
+          ))}
+          <label><span>Projector theme</span>
+            <select value={settings.display_theme || 'light'} onChange={e => setSettings({ ...settings, display_theme: e.target.value })}>
+              <option value="light">Light (recommended)</option>
+              <option value="dark">Dark</option>
+            </select>
+          </label>
+        </div>
+        <div className="form-grid two" style={{ marginTop: '12px' }}>
+          {ROUND_GROUP_FIELDS.map(([key,label]) => (
+            <label key={key}><span>{label}</span>
+              <select value={settings[key] || ''} onChange={e => setSettings({ ...settings, [key]: e.target.value })}>
+                <option value="">All groups in this pool</option>
+                {groups.map(g => <option key={g.id} value={g.id}>{g.name} ({g.questionCount})</option>)}
+              </select>
+            </label>
           ))}
         </div>
         <div className="theme-row">

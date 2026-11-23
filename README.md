@@ -25,7 +25,7 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 - Theme presets and custom primary/accent/dark colours, applied live to admin, tablets and projector.
 - Custom organisation/app names, logos, sponsor logo and background image upload.
 - Question groups, CSV/JSON export, and a Groq-powered AI question generator / CSV cleanup assistant.
-- Event settings: independent round switches, custom round labels, timers, points, speed bonuses, countdown, qualification count and branding.
+- Event settings: independent round switches, custom round labels, per-round question groups and question counts, timers, points, speed bonuses, countdown, qualification count and branding.
 - CSV result export and an append-only score-adjustment audit log.
 
 ### Scorekeeper
@@ -40,7 +40,7 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 - Eliminated/spectator states with live standings.
 
 ### Projector display
-- Full-screen lobby, CBT progress, number board, countdown, question board, reveal and final leaderboard.
+- Light projector theme by default (dark optional), full-screen lobby, CBT progress, number board, countdown, question board, reveal and final leaderboard.
 - Opens directly with no pairing key; use the browser full-screen mode on the projector.
 - Direct display URL — no pairing key required. Open it on the projector and use the browser's full-screen mode.
 
@@ -120,7 +120,7 @@ It prints eight candidate names, schools and six-character codes. Use a code at 
 ### Round 3 — First to answer
 - All qualified candidates see the question and four colour-coded answers.
 - The **first answer submitted to the server** locks the question for everyone.
-- A correct answer earns base + a speed bonus based on remaining time. A wrong first answer ends the question (configurable penalty, default 0).
+- A correct answer earns base + a speed bonus based on remaining time. A wrong first answer ends the question and deducts the configurable penalty (default **−5 points**) to discourage random picking.
 - Admin presses **Next question** after each reveal.
 
 The server is the single source of truth for timestamps and locks, so a slow tablet cannot “win” by rendering faster.

@@ -28,8 +28,8 @@ export default function DisplayApp() {
   }, [state?.settings?.theme?.primary, state?.settings?.theme?.accent, state?.settings?.theme?.ink, state?.settings?.branding?.backgroundUrl]);
 
   if (!state) return (
-    <div className="display-fallback">
-      <Brand light />
+    <div className="display-fallback display-light">
+      <Brand />
       <div className="display-fallback-card">
         <Maximize size={34} />
         <h1>Display ready</h1>
@@ -44,9 +44,9 @@ export default function DisplayApp() {
   );
 
   return (
-    <div className="display-shell">
+    <div className={`display-shell ${state.settings.displayTheme === 'dark' ? '' : 'display-light'}`}>
       <header className="display-top">
-        <Brand light />
+        <Brand light={state.settings.displayTheme === 'dark'} />
         <div className="display-top-mid">
           <span>{state.event.name}</span>
           <small>{state.event.theme}</small>
