@@ -4,6 +4,7 @@ import { io } from 'socket.io-client';
 import { Wifi, WifiOff, Trophy, Zap, Clock3, RefreshCw, Maximize } from 'lucide-react';
 import { Brand, Badge, Countdown, Leaderboard, QuestionOptions, Spinner, Timer, Empty } from '../components/UI.jsx';
 import { applyTheme, applyBranding } from '../theme.js';
+import { SoundBridge, SoundToggle } from '../SoundBridge.jsx';
 
 export default function DisplayApp() {
   const [params] = useSearchParams();
@@ -45,6 +46,7 @@ export default function DisplayApp() {
 
   return (
     <div className={`display-shell ${state.settings.displayTheme === 'dark' ? '' : 'display-light'}`}>
+      <SoundBridge state={state} mode="show" />
       <header className="display-top">
         <Brand light={state.settings.displayTheme === 'dark'} />
         <div className="display-top-mid">
@@ -54,6 +56,7 @@ export default function DisplayApp() {
         <div className="display-top-right">
           <Badge tone={connected ? 'green' : 'red'}>{connected ? <><Wifi size={12} /> live</> : <><WifiOff size={12} /> offline</>}</Badge>
           <Badge tone="gold">Round {state.round || '—'}</Badge>
+          <SoundToggle />
         </div>
       </header>
 

@@ -27,6 +27,7 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 - Question groups, CSV/JSON export, and a Groq-powered AI question generator / CSV cleanup assistant.
 - Event settings: independent round switches, custom round labels, per-round question groups and question counts, timers, points, speed bonuses, countdown, qualification count and branding.
 - CSV result export and an append-only score-adjustment audit log.
+- Cached Web Audio sound effects for clicks, countdowns, question reveals, correct/wrong answers and fanfares; mute toggle on the host and projector.
 
 ### Scorekeeper
 - Same live view as admin for round control and candidate progress.
@@ -41,8 +42,8 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 
 ### Projector display
 - Light projector theme by default (dark optional), full-screen lobby, CBT progress, number board, countdown, question board, reveal and final leaderboard.
-- Opens directly with no pairing key; use the browser full-screen mode on the projector.
-- Direct display URL — no pairing key required. Open it on the projector and use the browser's full-screen mode.
+- Opens directly with no pairing key; use the browser’s full-screen mode on the projector.
+- Synthesized Web Audio FX are cached in memory — zero audio files, no network, tiny footprint.
 
 ---
 

@@ -8,6 +8,7 @@ import { useSocket } from '../socket.jsx';
 import { useToast } from '../toast.jsx';
 import { Brand, Badge, Button, Card, Countdown, Empty, Leaderboard, Modal, QuestionOptions, Spinner, Timer } from '../components/UI.jsx';
 import { useCountdown, formatTime } from '../useCountdown.js';
+import { SoundBridge } from '../SoundBridge.jsx';
 
 export default function CandidateApp() {
   const { user, logout } = useAuth();
@@ -38,6 +39,7 @@ export default function CandidateApp() {
 
   return (
     <div className="candidate-shell">
+      <SoundBridge mode="off" />
       <header className="candidate-top">
         <Brand compact />
         <div className="candidate-id">
@@ -239,7 +241,7 @@ function Round2Play({ state, me, busy, action }) {
         <Card title={isMe ? 'Your turn — pick a number' : `${active?.name || 'A candidate'} is picking`} subtitle={isMe ? 'Choose one unused number. The question stays hidden until the countdown ends.' : `${active?.school || ''} · the board will update automatically.`}>
           <div className={`number-grid candidate-numbers ${isMe ? 'can-pick' : ''}`}>
             {Array.from({ length: total }, (_, i) => i + 1).map(n => (
-              <button key={n} className={`number-cell ${picked.has(n) ? 'is-picked' : ''}`} disabled={!isMe || picked.has(n) || busy === 'round2:pick'} onClick={() => action('round2:pick', { number: n }, `You picked number ${n}`)}>
+              <button key={n} data-sound="select" className={`number-cell ${picked.has(n) ? 'is-picked' : ''}`} disabled={!isMe || picked.has(n) || busy === 'round2:pick'} onClick={() => action('round2:pick', { number: n }, `You picked number ${n}`)}>
                 <span>{n}</span><small>{picked.has(n) ? 'used' : isMe ? 'pick' : 'open'}</small>
               </button>
             ))}

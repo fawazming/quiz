@@ -7,6 +7,7 @@ import {
 import { useAuth } from '../auth.jsx';
 import { useSocket } from '../socket.jsx';
 import { Brand, Badge, Spinner } from '../components/UI.jsx';
+import { SoundBridge, SoundToggle } from '../SoundBridge.jsx';
 import Dashboard from '../admin/Dashboard.jsx';
 import Round1 from '../admin/Round1.jsx';
 import Round2 from '../admin/Round2.jsx';
@@ -47,6 +48,7 @@ export default function AdminApp() {
 
   return (
     <div className="app-shell">
+      <SoundBridge mode="ui" />
       <aside className={`sidebar ${mobile ? 'is-open' : ''}`}>
         <div className="sidebar-brand"><Brand compact light /></div>
         <div className="sidebar-event">
@@ -83,6 +85,7 @@ export default function AdminApp() {
           <div className="topbar-right">
             <Badge tone={connected ? 'green' : 'red'}>{connected ? <><Wifi size={12} /> live</> : <><WifiOff size={12} /> offline</>}</Badge>
             <Badge tone="gold">Round {state.round || '—'}</Badge>
+            <SoundToggle />
             <Link to="/display" target="_blank" className="btn btn-ghost btn-sm"><MonitorPlay size={15} /> Display</Link>
           </div>
         </header>

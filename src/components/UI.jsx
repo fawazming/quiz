@@ -152,6 +152,7 @@ export function QuestionOptions({
             key={i}
             type="button"
             className={`option ${selected ? 'is-selected' : ''} ${correct ? 'is-correct' : ''} ${wrong ? 'is-wrong' : ''} ${colorMode ? `option-${colors[i]}` : ''}`}
+            data-sound="select"
             onClick={() => !disabled && onSelect && onSelect(i)}
             disabled={disabled}
           >
