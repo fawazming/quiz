@@ -12,6 +12,7 @@ import Protected from './pages/Protected.jsx';
 import AdminApp from './pages/AdminApp.jsx';
 import CandidateApp from './pages/CandidateApp.jsx';
 import DisplayApp from './pages/DisplayApp.jsx';
+import Rules from './pages/Rules.jsx';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/join" element={<Join />} />
               <Route path="/display" element={<DisplayApp />} />
+              <Route path="/rules" element={<Rules />} />
               <Route path="/admin" element={<Protected roles={['admin','scorekeeper']}><AdminApp /></Protected>} />
               <Route path="/play" element={<Protected roles={['candidate']}><CandidateApp /></Protected>} />
               <Route path="*" element={<Navigate to="/" replace />} />
