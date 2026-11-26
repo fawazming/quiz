@@ -14,6 +14,7 @@ export default function Landing() {
       <header className="landing-nav">
         <Brand />
         <nav>
+          <a href="/QUIZ_RULES.md" target="_blank" rel="noreferrer" className="nav-link">Rules &amp; Regulations</a>
           <Link to="/display" className="nav-link">Projector display</Link>
           <Link to="/join" className="nav-link">Candidate join</Link>
         </nav>
@@ -74,6 +75,7 @@ export default function Landing() {
 
       <footer className="landing-foot">
         <span>{branding.org} · {branding.eventDate}</span>
+        <a href="/QUIZ_RULES.md" target="_blank" rel="noreferrer">Rules &amp; Regulations</a>
         <span><Zap size={14} /> Real-time Socket.IO + SQLite</span>
         <span><Users size={14} /> Built for every school</span>
       </footer>
