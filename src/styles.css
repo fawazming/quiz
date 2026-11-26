@@ -738,3 +738,33 @@ p{line-height:1.6}
 .display-light .brand-mssn{background:transparent;padding:0}
 .display-light .brand-sponsored{color:#63736c}
 .display-light .brand-sponsored img{background:transparent;padding:0}
+.auto-run-row{display:grid;grid-template-columns:1fr 220px;gap:12px;align-items:end;margin-top:8px}
+.auto-run-row .check-line{margin:0}
+@media(max-width:760px){.auto-run-row{grid-template-columns:1fr}}
+
+/* Projector hero clock */
+.display-hero-timer{min-width:clamp(135px,15vw,220px);padding:8px 14px 10px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);text-align:center}
+.dht-label{font-size:clamp(8px,.8vw,11px);letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--gold-2)}
+.dht-value{font-family:"Fraunces";font-size:clamp(44px,6.2vw,84px);line-height:.9;color:#fff;animation:pop .18s ease}
+.dht-unit{font-size:clamp(8px,.75vw,11px);letter-spacing:.14em;text-transform:uppercase;color:#9db9ad}
+.dht-bar{height:5px;border-radius:5px;background:rgba(255,255,255,.15);overflow:hidden;margin-top:7px}
+.dht-bar span{display:block;height:100%;background:var(--gold-2);transition:width .15s linear}
+.display-hero-timer.is-urgent{border-color:rgba(255,100,80,.75);background:rgba(185,74,53,.2);animation:urgentPulse .9s infinite}
+.display-hero-timer.is-urgent .dht-value{color:#ffb09e}
+.display-hero-timer.is-urgent .dht-bar span{background:#ff8d78}
+@keyframes urgentPulse{0%,100%{box-shadow:0 0 0 0 rgba(185,74,53,.2)}50%{box-shadow:0 0 0 9px rgba(185,74,53,0)}}
+.display-auto-next{text-align:center;font-family:"JetBrains Mono";font-size:clamp(11px,1.2vw,16px);letter-spacing:.08em;color:var(--gold-2);margin-top:-4px}
+.display-light .display-hero-timer{background:#fff;border-color:#d9ded9;box-shadow:0 8px 24px rgba(12,33,29,.06)}
+.display-light .dht-label{color:var(--emerald)}
+.display-light .dht-value{color:var(--ink)}
+.display-light .dht-unit{color:#63736c}
+.display-light .dht-bar{background:#e4eae5}
+.display-light .dht-bar span{background:var(--emerald)}
+.display-light .display-hero-timer.is-urgent{background:#fff1ed;border-color:#e9a394}
+.display-light .display-hero-timer.is-urgent .dht-value{color:var(--coral)}
+.display-light .display-hero-timer.is-urgent .dht-bar span{background:var(--coral)}
+.display-light .display-auto-next{color:#7a5a11}
+/* Larger, clearer projector text */
+.display-question-text{font-size:clamp(28px,3.5vw,58px)}
+.display-question .option-text{font-size:clamp(18px,2vw,32px)}
+.display-question .option{min-height:clamp(72px,10vh,120px)}

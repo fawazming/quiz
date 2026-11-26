@@ -51,6 +51,7 @@ export const SETTINGS_DEFAULTS = {
   round1_question_count: 50,
   round1_duration_minutes: 45,
   round1_points_per_correct: 2,
+  round1_shuffle: 1,
   qualify_top_n: 8,
   countdown_seconds: 5,
   round2_question_count: 22,
@@ -62,6 +63,8 @@ export const SETTINGS_DEFAULTS = {
   round3_base_points: 50,
   round3_speed_bonus: 25,
   round3_wrong_penalty: 5,
+  round3_auto_run: 0,
+  round3_auto_advance_seconds: 5,
   round3_lock_on_first_answer: 1
 };
 
@@ -70,5 +73,6 @@ export const NUMERIC_SETTINGS = new Set([
   'countdown_seconds','round2_question_count','round2_answer_seconds','round2_base_points',
   'round2_speed_bonus','round3_question_count','round3_answer_seconds','round3_base_points',
   'round3_speed_bonus','round3_wrong_penalty','round3_lock_on_first_answer',
+  'round1_shuffle','round3_auto_run','round3_auto_advance_seconds',
   'round1_enabled','round2_enabled','round3_enabled','brand_show_sponsor'
 ]);

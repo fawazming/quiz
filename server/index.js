@@ -347,7 +347,7 @@ app.patch('/api/admin/settings', expressAuth(['admin']), (req, res) => {
       } else if (k.startsWith('theme_')) {
         if (!/^#[0-9a-f]{6}$/i.test(String(v))) throw new Error(`${k} must be a 6-digit hex colour`);
         patch[k] = String(v);
-      } else if (['round1_enabled','round2_enabled','round3_enabled'].includes(k)) {
+      } else if (['round1_enabled','round2_enabled','round3_enabled','round1_shuffle','round3_auto_run'].includes(k)) {
         patch[k] = v ? 1 : 0;
       } else if (['round1_label','round2_label','round3_label'].includes(k)) {
         if (!String(v).trim() || String(v).length > 80) throw new Error(`${k} must be 1–80 characters`);

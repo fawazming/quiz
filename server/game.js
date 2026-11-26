@@ -97,6 +97,14 @@ export class GameEngine {
     const answers = db.prepare('SELECT question_id, selected_index, is_correct FROM round1_answers WHERE session_id = ?').all(session.id);
     const answerMap = {};
     for (const a of answers) answerMap[a.question_id] = { selectedIndex: a.selected_index, isCorrect: !!a.is_correct };
+    const all = getQuestions('round1').map(q => safeQuestion(q, false));
+    let questions = all;
+    if (session.question_order) {
+      try {
+        const byId = new Map(all.map(q => [q.id, q]));
+        questions = JSON.parse(session.question_order).map(id => byId.get(id)).filter(Boolean);
+      } catch {}
+    }
     return {
       open: this.state.round1.open,
       started: true,
@@ -108,7 +116,7 @@ export class GameEngine {
       score: session.score,
       correctCount: session.correct_count,
       totalQuestions: session.total_questions,
-      questions: this.round1QuestionList().slice(0, session.total_questions),
+      questions: questions.slice(0, session.total_questions),
       answers: answerMap,
       serverTime: Date.now()
     };
@@ -157,6 +165,9 @@ export class GameEngine {
         round2GroupId: s.round2_group_id || '',
         round3GroupId: s.round3_group_id || '',
         round3LockOnFirstAnswer: !!s.round3_lock_on_first_answer,
+        round1Shuffle: !!s.round1_shuffle,
+        round3AutoRun: !!s.round3_auto_run,
+        round3AutoAdvanceSeconds: s.round3_auto_advance_seconds,
         enabledRounds: { 1: !!s.round1_enabled, 2: !!s.round2_enabled, 3: !!s.round3_enabled },
         round1Label: s.round1_label,
         round2Label: s.round2_label,
@@ -218,6 +229,7 @@ export class GameEngine {
         deadlineAt: round3.deadlineAt,
         startedAt: round3.startedAt,
         reveal: round3.reveal,
+        autoAdvanceAt: round3.autoAdvanceAt || null,
         answerCount: r3q
           ? db.prepare('SELECT COUNT(*) AS n FROM round3_answers WHERE question_id = ?').get(r3q.id).n : 0,
         questionNumber: (round3.index ?? -1) + 1,
@@ -305,12 +317,14 @@ export class GameEngine {
     let session = this.candidateSession(candidateId);
     if (session?.status === 'submitted') throw new Error('You have already submitted Round 1');
     if (!session) {
-      const total = Math.min(s.round1_question_count, this.round1QuestionList().length);
+      const pool = this.round1QuestionList();
+      const total = Math.min(s.round1_question_count, pool.length);
       if (total < 1) throw new Error('No Round 1 questions are available. Add or import questions first.');
+      const selected = s.round1_shuffle ? shuffle(pool).slice(0, total) : pool.slice(0, total);
       const deadline = Math.min(this.state.round1.endsAt, Date.now() + s.round1_duration_minutes * 60_000);
       const info = db.prepare(`INSERT INTO round1_sessions
-        (candidate_id, started_at, deadline_at, status, total_questions) VALUES (?, ?, ?, 'active', ?)`)
-        .run(candidateId, Date.now(), deadline, total);
+        (candidate_id, started_at, deadline_at, status, total_questions, question_order) VALUES (?, ?, ?, 'active', ?, ?)`)
+        .run(candidateId, Date.now(), deadline, total, JSON.stringify(selected.map(q => q.id)));
       session = this.candidateSession(candidateId);
       this.log('candidate:' + candidateId, 'round1.start', { sessionId: info.lastInsertRowid });
     }
@@ -638,13 +652,27 @@ export class GameEngine {
     this.state.round3 = {
       phase: 'question', questionIds: pool, index: 0, questionId: pool[0],
       startedAt: Date.now(), deadlineAt: Date.now() + s.round3_answer_seconds * 1000,
-      reveal: null, eligibleIds: eligible.map(c => c.id), answerSeconds: s.round3_answer_seconds
+      reveal: null, autoAdvanceAt: null, eligibleIds: eligible.map(c => c.id), answerSeconds: s.round3_answer_seconds
     };
     this.state.phase = 'round3_question';
     this.save();
     this.schedule('round3:timeout', this.state.round3.deadlineAt, () => this.timeoutRound3());
     this.log(actor, 'round3.start', { questions: count, finalists: eligible.length });
     this.broadcast();
+  }
+
+  armRound3Auto() {
+    this.clearTimer('round3:auto');
+    const s = this.settings();
+    if (!s.round3_auto_run) {
+      this.state.round3.autoAdvanceAt = null;
+      return;
+    }
+    const at = Date.now() + Math.max(1, Number(s.round3_auto_advance_seconds || 5)) * 1000;
+    this.state.round3.autoAdvanceAt = at;
+    this.schedule('round3:auto', at, () => {
+      if (this.state.round3.phase === 'reveal') this.nextRound3('auto');
+    });
   }
 
   answerRound3(candidateId, selectedIndex) {
@@ -679,6 +707,7 @@ export class GameEngine {
     };
     this.state.phase = 'round3_reveal';
     this.clearTimer('round3:timeout');
+    this.armRound3Auto();
     this.save();
     this.log('candidate:' + candidateId, 'round3.answer', { isCorrect, points, responseMs: response, questionId: r3.questionId });
     this.broadcast();
@@ -696,6 +725,7 @@ export class GameEngine {
     };
     this.state.phase = 'round3_reveal';
     this.clearTimer('round3:timeout');
+    this.armRound3Auto();
     this.save();
     this.broadcast();
   }
@@ -703,6 +733,8 @@ export class GameEngine {
   nextRound3(actor = 'admin') {
     const r3 = this.state.round3;
     this.clearTimer('round3:timeout');
+    this.clearTimer('round3:auto');
+    r3.autoAdvanceAt = null;
     const next = (r3.index ?? -1) + 1;
     if (next >= (r3.questionIds || []).length) {
       r3.phase = 'done';
@@ -727,6 +759,7 @@ export class GameEngine {
 
   endRound3(actor = 'admin') {
     this.clearRoundTimers();
+    this.clearTimer('round3:auto');
     const r3 = this.state.round3;
     r3.phase = 'done';
     this.state.phase = 'finished';
@@ -737,6 +770,7 @@ export class GameEngine {
 
   finishEvent(actor = 'admin') {
     this.clearRoundTimers();
+    this.clearTimer('round3:auto');
     this.state.phase = 'finished';
     this.save();
     this.log(actor, 'event.finish');
@@ -816,6 +850,10 @@ export class GameEngine {
       else this.schedule('round2:timeout', r2.deadlineAt, () => this.timeoutRound2());
     }
     const r3 = this.state.round3;
+    if (r3.phase === 'reveal' && r3.autoAdvanceAt) {
+      if (now >= r3.autoAdvanceAt) setTimeout(() => this.nextRound3('auto'), 100);
+      else this.schedule('round3:auto', r3.autoAdvanceAt, () => { if (this.state.round3.phase === 'reveal') this.nextRound3('auto'); });
+    }
     if (r3.phase === 'question' && r3.deadlineAt) {
       if (now >= r3.deadlineAt) setTimeout(() => this.timeoutRound3(), 100);
       else this.schedule('round3:timeout', r3.deadlineAt, () => this.timeoutRound3());

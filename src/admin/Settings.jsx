@@ -84,6 +84,9 @@ export default function Settings() {
       }
       payload.brand_show_sponsor = settings.brand_show_sponsor ? 1 : 0;
       payload.display_theme = settings.display_theme || 'light';
+      payload.round1_shuffle = settings.round1_shuffle ? 1 : 0;
+      payload.round3_auto_run = settings.round3_auto_run ? 1 : 0;
+      payload.round3_auto_advance_seconds = Number(settings.round3_auto_advance_seconds || 5);
       const res = await api('/api/admin/settings', { method: 'PATCH', body: payload });
       setSettings(res.settings);
       window.dispatchEvent(new Event('branding:refresh'));
@@ -194,6 +197,7 @@ export default function Settings() {
             <label key={key}><span>{label}</span><input type={type} min="1" value={settings[key] ?? ''} onChange={e => setSettings({ ...settings, [key]: e.target.value })} /></label>
           ))}
         </div>
+        <label className="check-line"><input type="checkbox" checked={!!settings.round1_shuffle} onChange={e => setSettings({ ...settings, round1_shuffle: e.target.checked ? 1 : 0 })} /> Shuffle questions differently for each CBT candidate</label>
       </Card>
 
       <Card title="Round 2 · Pick a number" subtitle="Countdown, answer window and scoring">
@@ -209,6 +213,10 @@ export default function Settings() {
           {FIELDS.slice(14).map(([key,label,type]) => (
             <label key={key}><span>{label}</span><input type={type} min="0" value={settings[key] ?? ''} onChange={e => setSettings({ ...settings, [key]: e.target.value })} /></label>
           ))}
+        </div>
+        <div className="auto-run-row">
+          <label className="check-line"><input type="checkbox" checked={!!settings.round3_auto_run} onChange={e => setSettings({ ...settings, round3_auto_run: e.target.checked ? 1 : 0 })} /> Auto-run Round 3 continuously</label>
+          <label><span>Seconds on reveal before next</span><input type="number" min="1" max="60" value={settings.round3_auto_advance_seconds || 5} onChange={e => setSettings({ ...settings, round3_auto_advance_seconds: e.target.value })} /></label>
         </div>
       </Card>
 

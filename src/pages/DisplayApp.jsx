@@ -4,6 +4,7 @@ import { io } from 'socket.io-client';
 import { Wifi, WifiOff, Trophy, Zap, Clock3, RefreshCw, Maximize } from 'lucide-react';
 import { Brand, Badge, Countdown, Leaderboard, QuestionOptions, Spinner, Timer, Empty } from '../components/UI.jsx';
 import { applyTheme, applyBranding } from '../theme.js';
+import { useCountdown } from '../useCountdown.js';
 import { SoundBridge, SoundToggle } from '../SoundBridge.jsx';
 
 export default function DisplayApp() {
@@ -94,6 +95,21 @@ function DisplayLobby({ state }) {
   );
 }
 
+function DisplayTimer({ deadline, serverTime, totalSeconds, label = 'TIME LEFT' }) {
+  const remaining = useCountdown(deadline, serverTime, 100);
+  const seconds = Math.max(0, Math.ceil(remaining / 1000));
+  const total = Math.max(1, (totalSeconds || 1) * 1000);
+  const pct = Math.max(0, Math.min(100, (remaining / total) * 100));
+  return (
+    <div className={`display-hero-timer ${seconds <= 10 ? 'is-urgent' : ''}`}>
+      <div className="dht-label">{label}</div>
+      <div className="dht-value" key={seconds}>{seconds}</div>
+      <div className="dht-unit">seconds</div>
+      <div className="dht-bar"><span style={{ width: `${pct}%` }} /></div>
+    </div>
+  );
+}
+
 function DisplayRound1({ state }) {
   return (
     <section className="display-race">
@@ -151,7 +167,7 @@ function DisplayRound2({ state }) {
             <div><strong>{active?.name}</strong><small>{active?.school}</small></div>
           </div>
           <Badge tone="gold">Number {r2.activeNumber} · {r2.question.topic}</Badge>
-          <Timer deadline={r2.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round2AnswerSeconds} label="Time left" />
+          <DisplayTimer deadline={r2.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round2AnswerSeconds} label="TIME LEFT" />
         </div>
         <h2 className="display-question-text">{r2.question.prompt}</h2>
         <QuestionOptions options={r2.question.options} disabled />
@@ -199,7 +215,7 @@ function DisplayRound3({ state }) {
       <div className="display-question-top">
         <Badge tone="red">Race {r3.questionNumber} / {r3.totalQuestions}</Badge>
         <Badge tone="blue">{r3.answerCount ? 'LOCKED' : 'OPEN'}</Badge>
-        <Timer deadline={r3.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round3AnswerSeconds} label="Race clock" />
+        <DisplayTimer deadline={r3.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round3AnswerSeconds} label="RACE CLOCK" />
       </div>
       <h2 className="display-question-text">{r3.question.prompt}</h2>
       <QuestionOptions options={r3.question.options} colorMode disabled />
@@ -212,6 +228,7 @@ function DisplayReveal({ reveal, state, kicker }) {
   return (
     <section className="display-reveal">
       <div className={`display-reveal-banner ${reveal.isCorrect ? 'good' : 'bad'}`}>{reveal.timedOut ? 'TIME UP' : reveal.isCorrect ? 'CORRECT' : 'INCORRECT'}</div>
+      {state.round3?.autoAdvanceAt && <AutoNext state={state} />}
       <div className="display-reveal-main">
         <div className="display-winner">
           <div className="display-winner-name">{reveal.candidate?.name || 'Nobody answered'}</div>
@@ -230,6 +247,11 @@ function DisplayReveal({ reveal, state, kicker }) {
       <div className="display-lb-strip"><Leaderboard rows={state.leaderboard.slice(0, 5)} compact /></div>
     </section>
   );
+}
+
+function AutoNext({ state }) {
+  const remaining = useCountdown(state.round3?.autoAdvanceAt, state.serverTime, 100);
+  return <div className="display-auto-next">Next question in {Math.max(0, Math.ceil(remaining / 1000))}s</div>;
 }
 
 function DisplayBoard({ state }) {

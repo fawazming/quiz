@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS round1_sessions (
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','submitted','expired')),
   score INTEGER NOT NULL DEFAULT 0,
   correct_count INTEGER NOT NULL DEFAULT 0,
-  total_questions INTEGER NOT NULL DEFAULT 50
+  total_questions INTEGER NOT NULL DEFAULT 50,
+  question_order TEXT
 );
 
 CREATE TABLE IF NOT EXISTS round1_answers (
@@ -148,6 +149,10 @@ const migrations = [
   }],
   ['002_default_round3_penalty', () => {
     db.prepare("UPDATE settings SET value='5' WHERE key='round3_wrong_penalty' AND value='0'").run();
+  }],
+  ['003_round1_question_order', () => {
+    const cols = db.prepare('PRAGMA table_info(round1_sessions)').all();
+    if (!cols.some(c => c.name === 'question_order')) db.exec('ALTER TABLE round1_sessions ADD COLUMN question_order TEXT');
   }]
 ];
 const appliedMigrations = new Set(db.prepare('SELECT version FROM schema_migrations').all().map(r => r.version));

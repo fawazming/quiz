@@ -21,7 +21,7 @@ function context() {
     compressor.attack.value = 0.003;
     compressor.release.value = 0.25;
     master = ctx.createGain();
-    master.gain.value = 0.5;
+    master.gain.value = 0.82;
     master.connect(compressor);
     compressor.connect(ctx.destination);
   }
@@ -134,6 +134,28 @@ function build(name) {
     case 'error':
       buffer = render(0.3, (t) => tone(t, 150, 'square', 0.12, 0.004, 0.1) + tone(t, 110, 'saw', 0.08, 0.004, 0.1));
       break;
+    case 'pick':
+      buffer = render(0.2, (t) => tone(t, 240, 'triangle', 0.18, 0.004, 0.12, 520) + tone(t, 720, 'sine', 0.06, 0.004, 0.08));
+      break;
+    case 'lock':
+      buffer = render(0.24, (t) => tone(t, 150, 'square', 0.14, 0.002, 0.06) + tone(t, 900, 'sine', 0.1, 0.002, 0.09) + (Math.random() - 0.5) * 0.05 * Math.exp(-t * 40));
+      break;
+    case 'win':
+      buffer = render(0.55, (t) => {
+        let s = 0;
+        [523.25, 659.25, 1046.5].forEach((f, i) => { if (t >= i * 0.07) s += tone(t - i * 0.07, f, 'sine', 0.17, 0.004, 0.32); });
+        return s;
+      });
+      break;
+    case 'lose':
+      buffer = render(0.45, (t) => tone(t, 330, 'triangle', 0.15, 0.004, 0.2, -120) + tone(t, 165, 'sine', 0.07, 0.004, 0.18));
+      break;
+    case 'applause':
+      buffer = render(1.1, (t) => {
+        const envA = Math.min(1, t / 0.08) * Math.exp(-Math.max(0, t - 0.15) / 0.45);
+        return (Math.random() - 0.5) * 0.18 * envA + tone(t, 180, 'sine', 0.02, 0.02, 0.4);
+      });
+      break;
     default:
       buffer = render(0.05, (t) => tone(t, 1000, 'sine', 0.1, 0.001, 0.015));
   }
@@ -146,7 +168,7 @@ export function preload() {
   const c = ensure();
   if (!c) return;
   preloaded = true;
-  ['click', 'select', 'tick', 'question', 'countdown', 'correct', 'wrong', 'timeup', 'submit', 'join', 'start', 'fanfare', 'error'].forEach(build);
+  ['click', 'select', 'tick', 'question', 'countdown', 'correct', 'wrong', 'timeup', 'submit', 'join', 'start', 'fanfare', 'error', 'pick', 'lock', 'win', 'lose', 'applause'].forEach(build);
 }
 
 export function play(name) {
