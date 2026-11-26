@@ -215,6 +215,10 @@ The admin question manager shows the source, PDF reference, options, answer and 
 
 ---
 
+## Competition rulebook
+
+Official rules and regulations: **[QUIZ_RULES.md](QUIZ_RULES.md)**.
+
 ## Extra build prompt
 
 `KAHOOT_PUBLIC_JOIN_PROMPT.md` contains a ready-to-paste AI prompt for a separate **public-join Kahoot-style quiz app** with a 30 MB production deployment budget.
