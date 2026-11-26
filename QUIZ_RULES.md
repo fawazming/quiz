@@ -326,6 +326,17 @@ Penalties may include:
 
 The organiser may also refer serious cases to the school or relevant authority.
 
+### Disqualification after Round 2
+
+After Round 2 and before Round 3, the admin may disqualify a candidate from further participation. The candidate:
+
+- is removed from the Round 3 eligibility list;
+- cannot pick a number or answer in Round 3;
+- remains visible in the official record with a **DQ** mark;
+- keeps existing scores for audit purposes but is not eligible for a prize unless reinstated by the organiser.
+
+A disqualification reason must be recorded. The candidate and school coordinator may request a review under the protest procedure.
+
 ---
 
 ## 14. Deen + Digital code of conduct
@@ -473,4 +484,4 @@ By registering and joining the quiz, each candidate and school coordinator confi
 
 ---
 
-*MSSN Remo Area Council · MSS Week 2026 ICT Quiz · Proudly supported by Rayyan Technologies · [rayyantech.sgm.ng](https://rayyantech.sgm.ng)*
+*MSSN Remo Area Council · MSS Week 2026 ICT Quiz · Sponsored by Engineer Sanusi Wasiu · Tech Partner: Rayyan Technologies · [rayyantech.sgm.ng](https://rayyantech.sgm.ng)*

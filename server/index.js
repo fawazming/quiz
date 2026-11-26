@@ -74,7 +74,8 @@ app.get('/api/admin/candidates', expressAuth(['admin','scorekeeper']), (req, res
   const includeInactive = req.query.all === '1';
   const rows = getCandidates({ includeInactive }).map(c => ({
     id: c.id, name: c.name, school: c.school, code: c.code,
-    qualified: !!c.qualified, active: !!c.active, createdAt: c.created_at,
+    qualified: !!c.qualified, active: !!c.active, disqualified: !!c.disqualified,
+    disqualifiedReason: c.disqualified_reason || '', disqualifiedAt: c.disqualified_at || '', createdAt: c.created_at,
     online: engine.online.has(c.id)
   }));
   res.json(rows);
@@ -143,6 +144,20 @@ app.delete('/api/admin/candidates/:id', expressAuth(['admin']), (req, res) => {
   audit(req.user.username, 'candidate.delete', { id, name: existing.name });
   engine.broadcast();
   res.json({ ok: true });
+});
+
+app.post('/api/admin/candidates/:id/disqualify', expressAuth(['admin']), (req, res) => {
+  try {
+    engine.disqualifyCandidate(Number(req.params.id), req.body?.reason, req.user.username);
+    res.json({ ok: true });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.post('/api/admin/candidates/:id/reinstate', expressAuth(['admin']), (req, res) => {
+  try {
+    engine.reinstateCandidate(Number(req.params.id), req.user.username);
+    res.json({ ok: true });
+  } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 app.post('/api/admin/candidates/:id/reset-round1', expressAuth(['admin']), (req, res) => {
@@ -337,7 +352,7 @@ app.patch('/api/admin/settings', expressAuth(['admin']), (req, res) => {
     const patch = {};
     for (const [k, v] of Object.entries(req.body || {})) {
       if (!allowed.has(k)) continue;
-      if (k === 'brand_background_url' || k === 'brand_logo_url' || k === 'sponsor_logo_url') {
+      if (k === 'brand_background_url' || k === 'brand_logo_url' || k === 'sponsor_logo_url' || k === 'tech_partner_logo_url') {
         const url = String(v || '').trim();
         if (url && !/^(\/uploads\/|\/brand\/|https?:\/\/)/i.test(url)) throw new Error(`${k} must be an uploaded image or a valid URL`);
         patch[k] = url;
@@ -373,8 +388,8 @@ app.patch('/api/admin/settings', expressAuth(['admin']), (req, res) => {
 app.get('/api/admin/export.csv', expressAuth(['admin','scorekeeper']), (req, res) => {
   const lb = getLeaderboard();
   const rows = [
-    ['Rank','Candidate','School','Round 1','Round 2','Round 3','Adjustments','Total','Qualified'],
-    ...lb.map(x => [x.rank, x.name, x.school, x.round1, x.round2, x.round3, x.adjustments, x.total, x.qualified ? 'Yes' : 'No'])
+    ['Rank','Candidate','School','Round 1','Round 2','Round 3','Adjustments','Total','Qualified','Disqualified'],
+    ...lb.map(x => [x.rank, x.name, x.school, x.round1, x.round2, x.round3, x.adjustments, x.total, x.qualified ? 'Yes' : 'No', x.disqualified ? 'Yes' : 'No'])
   ];
   const csv = rows.map(r => r.map(csvCell).join(',')).join('\r\n');
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');

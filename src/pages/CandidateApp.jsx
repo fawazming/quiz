@@ -21,6 +21,7 @@ export default function CandidateApp() {
 
   const me = state.candidates.find(c => c.id === user.candidateId) || user;
   const qualified = !!state.leaderboard.find(c => c.id === me.id)?.qualified;
+  const disqualified = !!state.candidates.find(c => c.id === me.id)?.disqualified;
   const inRound2 = (state.round2?.order || []).some(c => c.id === me.id) || state.round2?.activeCandidate?.id === me.id;
   const inRound3 = (state.round3?.eligibleIds || []).includes(me.id) || qualified;
   const phase = state.phase;
@@ -56,26 +57,28 @@ export default function CandidateApp() {
       <main className="candidate-main">
         {error && <div className="alert error"><AlertTriangle size={16} /> {error}</div>}
 
-        {phase === 'finished' && <FinalBoard state={state} me={me} />}
+        {disqualified && <Disqualified state={state} me={me} />}
 
-        {phase !== 'finished' && isRound1 && (
+        {!disqualified && phase === 'finished' && <FinalBoard state={state} me={me} />}
+
+        {!disqualified && phase !== 'finished' && isRound1 && (
           round1 ? <Round1Test round1={round1} state={state} busy={busy} action={action} setRound1={setRound1} />
             : <Spinner label="Loading your CBT paper…" />
         )}
 
-        {phase !== 'finished' && state.round === 2 && (
+        {!disqualified && phase !== 'finished' && state.round === 2 && (
           inRound2
             ? <Round2Play state={state} me={me} busy={busy} action={action} />
             : <Eliminated state={state} me={me} />
         )}
 
-        {phase !== 'finished' && state.round === 3 && (
+        {!disqualified && phase !== 'finished' && state.round === 3 && (
           inRound3
             ? <Round3Play state={state} me={me} busy={busy} action={action} />
             : <Eliminated state={state} me={me} />
         )}
 
-        {phase !== 'finished' && state.round === 0 && <Lobby state={state} me={me} />}
+        {!disqualified && phase !== 'finished' && state.round === 0 && <Lobby state={state} me={me} />}
       </main>
     </div>
   );
@@ -378,6 +381,21 @@ function Eliminated({ state, me }) {
           <div className="eliminated-icon"><Trophy size={30} /></div>
           <h3>{row ? `${row.total} points` : 'Your result'}</h3>
           <p>You did not qualify for the next stage. Stay in the hall and support your school — the live leaderboard is on the projector.</p>
+          <Leaderboard rows={state.leaderboard.slice(0, 8)} compact />
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function Disqualified({ state, me }) {
+  return (
+    <div className="candidate-gate">
+      <Card title="Competition status" subtitle="Official decision">
+        <div className="eliminated">
+          <div className="eliminated-icon" style={{ background: 'var(--rose)', color: 'var(--coral)' }}><Trophy size={30} /></div>
+          <h3>Disqualified</h3>
+          <p>You have been disqualified from further rounds of this competition. Your existing scores remain in the official record. Please speak with your school coordinator if you believe this is an error.</p>
           <Leaderboard rows={state.leaderboard.slice(0, 8)} compact />
         </div>
       </Card>

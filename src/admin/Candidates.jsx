@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Upload, Search, Copy, RefreshCw, Trash2, CheckCircle2, Circle, UserX, UserCheck, RotateCcw, Printer } from 'lucide-react';
+import { Plus, Upload, Search, Copy, RefreshCw, Trash2, CheckCircle2, Circle, UserX, UserCheck, RotateCcw, Printer, Ban, Undo2 } from 'lucide-react';
 import { Card, Button, Badge, Modal, OnlineBadge, Spinner, Empty } from '../components/UI.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
@@ -20,6 +20,8 @@ export default function Candidates({ adminState }) {
   const [csv, setCsv] = useState('name,school\nAmina Yusuf,Remo Secondary School\n');
   const [busy, setBusy] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [dqTarget, setDqTarget] = useState(null);
+  const [dqReason, setDqReason] = useState('');
 
   async function load() {
     setLoading(true);
@@ -65,6 +67,24 @@ export default function Candidates({ adminState }) {
     } catch (err) { push(err.message, 'error'); }
   }
 
+  async function disqualify() {
+    if (!dqTarget) return;
+    try {
+      await api(`/api/admin/candidates/${dqTarget.id}/disqualify`, { method: 'POST', body: { reason: dqReason } });
+      push(`${dqTarget.name} disqualified from the competition`, 'success');
+      setDqTarget(null); setDqReason('');
+      await load();
+    } catch (err) { push(err.message, 'error'); }
+  }
+
+  async function reinstate(row) {
+    try {
+      await api(`/api/admin/candidates/${row.id}/reinstate`, { method: 'POST' });
+      push(`${row.name} reinstated`, 'success');
+      await load();
+    } catch (err) { push(err.message, 'error'); }
+  }
+
   async function resetCbt(row) {
     try {
       await api(`/api/admin/candidates/${row.id}/reset-round1`, { method: 'POST' });
@@ -103,7 +123,7 @@ export default function Candidates({ adminState }) {
     const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const origin = window.location.origin;
     const logo = branding.logoUrl ? (branding.logoUrl.startsWith('http') ? branding.logoUrl : origin + branding.logoUrl) : '';
-    const sponsor = branding.showSponsor && branding.sponsorLogoUrl ? (branding.sponsorLogoUrl.startsWith('http') ? branding.sponsorLogoUrl : origin + branding.sponsorLogoUrl) : '';
+    const tech = branding.techPartnerLogoUrl ? (branding.techPartnerLogoUrl.startsWith('http') ? branding.techPartnerLogoUrl : origin + branding.techPartnerLogoUrl) : '';
     const cards = list.map((r, i) => `
       <article class="card">
         <div class="card-top"><span class="serial">Candidate ${i + 1} of ${list.length}</span><span class="event">${esc(branding.eventName)}</span></div>
@@ -138,7 +158,7 @@ export default function Candidates({ adminState }) {
       </style></head><body>
       <header><div class="brand">${logo ? `<img src="${logo}" alt="">` : ''}<div><strong>${esc(branding.org)}</strong><small>${esc(branding.appName)}</small></div></div><div class="meta"><strong>${esc(branding.eventName)}</strong>${esc(branding.eventDate)}<br>Candidate access codes</div></header>
       <div class="grid">${cards}</div>
-      <footer><span>Keep this code private. Each code identifies one candidate.</span>${sponsor ? `<img src="${sponsor}" alt="${esc(branding.sponsorName)}">` : ''}</footer>
+      <footer><span>Keep this code private. Each code identifies one candidate.</span><span class="credits">Sponsored by ${esc(branding.sponsorName)}${branding.techPartnerName ? ` · Tech Partner ${esc(branding.techPartnerName)}` : ''}${tech ? ` <img src="${tech}" alt="">` : ''}</span></footer>
       </body></html>`;
     const win = window.open('', '_blank', 'width=900,height=760');
     if (!win) return push('Allow pop-ups to print candidate codes', 'error');
@@ -177,7 +197,7 @@ export default function Candidates({ adminState }) {
                     <td>
                       <button className="code-chip" onClick={() => copy(r.code)}>{r.code} <Copy size={12} /></button>
                     </td>
-                    <td><Badge tone={r.active ? 'green' : 'grey'}>{r.active ? 'active' : 'inactive'}</Badge></td>
+                    <td><Badge tone={r.disqualified ? 'red' : r.active ? 'green' : 'grey'}>{r.disqualified ? 'disqualified' : r.active ? 'active' : 'inactive'}</Badge>{r.disqualified && r.disqualifiedReason ? <small>{r.disqualifiedReason}</small> : null}</td>
                     <td>
                       {isAdmin ? (
                         <button className={`toggle-pill ${r.qualified ? 'on' : ''}`} onClick={() => patch(r, { qualified: !r.qualified }, r.qualified ? 'Qualification removed' : 'Candidate qualified')}>
@@ -188,6 +208,9 @@ export default function Candidates({ adminState }) {
                     <td className="row-actions">
                       {isAdmin && <>
                         <button className="icon-btn" title="Reset CBT attempt" onClick={() => resetCbt(r)}><RotateCcw size={15} /></button>
+                        {r.disqualified
+                          ? <button className="icon-btn" title="Reinstate candidate" onClick={() => reinstate(r)}><Undo2 size={15} /></button>
+                          : <button className="icon-btn danger" title="Disqualify after Round 2" onClick={() => { setDqTarget(r); setDqReason(''); }}><Ban size={15} /></button>}
                         <button className="icon-btn" title="Regenerate code" onClick={() => regenerate(r)}><RefreshCw size={15} /></button>
                         <button className="icon-btn" title={r.active ? 'Deactivate' : 'Activate'} onClick={() => patch(r, { active: !r.active }, r.active ? 'Candidate deactivated' : 'Candidate activated')}>
                           {r.active ? <UserX size={15} /> : <UserCheck size={15} />}
@@ -215,6 +238,12 @@ export default function Candidates({ adminState }) {
         footer={<><Button variant="ghost" onClick={() => setShowImport(false)}>Cancel</Button><Button onClick={importCsv} loading={busy}><Upload size={15} /> Import</Button></>}>
         <p className="muted">Use columns <code>name,school</code>. A header row is optional. Each candidate gets a unique six-character code.</p>
         <textarea className="csv-box" rows={10} value={csv} onChange={e => setCsv(e.target.value)} />
+      </Modal>
+
+      <Modal open={!!dqTarget} onClose={() => setDqTarget(null)} title="Disqualify candidate?"
+        footer={<><Button variant="ghost" onClick={() => setDqTarget(null)}>Cancel</Button><Button variant="danger" onClick={disqualify} disabled={dqReason.trim().length < 3}>Disqualify</Button></>}>
+        <p>Disqualify <strong>{dqTarget?.name}</strong> from further rounds? Their existing scores remain in the record, but they will not be eligible for Round 3.</p>
+        <label className="form-grid"><span>Reason (required)</span><textarea rows="3" value={dqReason} onChange={e => setDqReason(e.target.value)} placeholder="e.g. verified misconduct during Round 2" /></label>
       </Modal>
 
       <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Remove candidate?"

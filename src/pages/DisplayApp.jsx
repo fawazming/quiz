@@ -71,7 +71,7 @@ export default function DisplayApp() {
 
       <footer className="display-foot">
         <span>{state.event.name}</span>
-        <span>Proudly supported by {state.settings.branding?.sponsorLogoUrl ? <img src={state.settings.branding.sponsorLogoUrl} alt={state.settings.branding.sponsorName} /> : state.settings.branding?.sponsorName}</span>
+        <span>Sponsored by <strong>{state.settings.branding?.sponsorName}</strong> {state.settings.branding?.techPartnerLogoUrl ? <>· Tech Partner <img src={state.settings.branding.techPartnerLogoUrl} alt={state.settings.branding.techPartnerName} /> {state.settings.branding.techPartnerName}</> : ''}</span>
         <span>{state.event.date}</span>
       </footer>
     </div>
@@ -90,7 +90,7 @@ function DisplayLobby({ state }) {
         <div><strong>{state.settings.round1QuestionCount}</strong><span>CBT questions</span></div>
       </div>
       <div className="display-wait"><span className="pulse-dot" /> Waiting for the admin to open Round 1</div>
-      <div className="display-sponsor">Proudly supported by {state.settings.branding?.sponsorLogoUrl ? <img src={state.settings.branding.sponsorLogoUrl} alt={state.settings.branding.sponsorName} /> : state.settings.branding?.sponsorName}</div>
+      <div className="display-sponsor">Sponsored by <strong>{state.settings.branding?.sponsorName}</strong>{state.settings.branding?.techPartnerLogoUrl && <> <span className="display-tech">Tech Partner <img src={state.settings.branding.techPartnerLogoUrl} alt={state.settings.branding.techPartnerName} /> {state.settings.branding.techPartnerName}</span></>}</div>
     </section>
   );
 }

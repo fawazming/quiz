@@ -266,4 +266,4 @@ No Docker is required. Run **one** PM2 instance because SQLite is a local file.
 ## Credits
 
 **MSSN Remo Area Council** · MSS Week 2026 · *Anchored in Deen, Illuminated in Dunya and Digital.*  
-Proudly supported by **Rayyan Technologies** — [rayyantech.sgm.ng](https://rayyantech.sgm.ng).
+Sponsored by **Engineer Sanusi Wasiu** · Tech Partner: **Rayyan Technologies** — [rayyantech.sgm.ng](https://rayyantech.sgm.ng).

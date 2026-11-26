@@ -36,7 +36,10 @@ export default function Landing() {
             </Link>
             <Link to="/join"><Button variant="ghost" size="lg">I am a candidate</Button></Link>
           </div>
-          {branding.showSponsor && <div className="hero-sponsor">Proudly supported by {branding.sponsorLogoUrl ? <img src={branding.sponsorLogoUrl} alt={branding.sponsorName} /> : branding.sponsorName}</div>}
+          {branding.showSponsor && <div className="hero-sponsor">
+            <span>Sponsored by <strong>{branding.sponsorName}</strong></span>
+            {branding.techPartnerName && <span className="hero-tech">Tech Partner {branding.techPartnerLogoUrl && <img src={branding.techPartnerLogoUrl} alt={branding.techPartnerName} />} {branding.techPartnerName}</span>}
+          </div>}
         </section>
 
         <section className="mode-grid">

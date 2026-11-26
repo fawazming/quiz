@@ -19,7 +19,10 @@ export function Brand({ compact = false, light = false }) {
       {!compact && branding.showSponsor && (
         <>
           <span className="brand-spacer" />
-          <span className="brand-sponsored">Proudly supported by {branding.sponsorLogoUrl ? <img src={branding.sponsorLogoUrl} alt={branding.sponsorName} /> : branding.sponsorName}</span>
+          <span className="brand-sponsored">
+            <span>Sponsored by <strong>{branding.sponsorName}</strong></span>
+            {branding.techPartnerName && <span className="brand-tech">Tech Partner {branding.techPartnerLogoUrl && <img src={branding.techPartnerLogoUrl} alt={branding.techPartnerName} />} {branding.techPartnerName}</span>}
+          </span>
         </>
       )}
     </Link>
@@ -121,7 +124,7 @@ export function Leaderboard({ rows, highlightId, compact = false, limit = 100 })
         <div key={r.id} className={`lb-row ${highlightId === r.id ? 'lb-highlight' : ''}`}>
           <span className="lb-rank">{r.rank}</span>
           <span className="lb-person">
-            <strong>{r.name}</strong>
+            <strong>{r.name}{r.disqualified ? <span className="dq-tag">DQ</span> : null}</strong>
             <small>{r.school}</small>
           </span>
           <span className="lb-num">{r.round1}</span>

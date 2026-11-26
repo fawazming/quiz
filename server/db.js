@@ -31,6 +31,9 @@ CREATE TABLE IF NOT EXISTS candidates (
   code TEXT NOT NULL UNIQUE,
   qualified INTEGER NOT NULL DEFAULT 0,
   active INTEGER NOT NULL DEFAULT 1,
+  disqualified INTEGER NOT NULL DEFAULT 0,
+  disqualified_reason TEXT,
+  disqualified_at TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -153,6 +156,17 @@ const migrations = [
   ['003_round1_question_order', () => {
     const cols = db.prepare('PRAGMA table_info(round1_sessions)').all();
     if (!cols.some(c => c.name === 'question_order')) db.exec('ALTER TABLE round1_sessions ADD COLUMN question_order TEXT');
+  }],
+  ['004_sponsor_and_tech_partner', () => {
+    db.prepare("UPDATE settings SET value='Engineer Sanusi Wasiu' WHERE key='sponsor_name' AND value='Rayyan Technologies'").run();
+    db.prepare("UPDATE settings SET value='' WHERE key='sponsor_logo_url' AND value='/brand/rayyan.png'").run();
+    db.prepare("UPDATE settings SET value='' WHERE key='sponsor_url' AND value='https://rayyantech.sgm.ng'").run();
+  }],
+  ['005_disqualification', () => {
+    const cols = db.prepare('PRAGMA table_info(candidates)').all();
+    if (!cols.some(c => c.name === 'disqualified')) db.exec('ALTER TABLE candidates ADD COLUMN disqualified INTEGER NOT NULL DEFAULT 0');
+    if (!cols.some(c => c.name === 'disqualified_reason')) db.exec('ALTER TABLE candidates ADD COLUMN disqualified_reason TEXT');
+    if (!cols.some(c => c.name === 'disqualified_at')) db.exec('ALTER TABLE candidates ADD COLUMN disqualified_at TEXT');
   }]
 ];
 const appliedMigrations = new Set(db.prepare('SELECT version FROM schema_migrations').all().map(r => r.version));
@@ -265,7 +279,7 @@ export function saveGameState(state) {
 }
 
 export function publicCandidate(c) {
-  return { id: c.id, name: c.name, school: c.school, qualified: !!c.qualified, active: !!c.active };
+  return { id: c.id, name: c.name, school: c.school, qualified: !!c.qualified, active: !!c.active, disqualified: !!c.disqualified };
 }
 
 export function getCandidates({ includeInactive = false } = {}) {
@@ -296,18 +310,18 @@ export function getQuestionById(id) {
 
 export function getLeaderboard() {
   const rows = db.prepare(`
-    SELECT c.id, c.name, c.school, c.qualified, c.active,
+    SELECT c.id, c.name, c.school, c.qualified, c.active, c.disqualified,
       COALESCE((SELECT score FROM round1_sessions s WHERE s.candidate_id=c.id AND s.status='submitted'),0) AS round1,
       COALESCE((SELECT SUM(points) FROM round2_picks p WHERE p.candidate_id=c.id),0) AS round2,
       COALESCE((SELECT SUM(points) FROM round3_answers r WHERE r.candidate_id=c.id),0) AS round3,
       COALESCE((SELECT SUM(delta) FROM score_adjustments a WHERE a.candidate_id=c.id),0) AS adjustments
     FROM candidates c
     WHERE c.active = 1
-    ORDER BY (round1 + round2 + round3 + adjustments) DESC, round3 DESC, round2 DESC, c.name COLLATE NOCASE
+    ORDER BY c.disqualified ASC, (round1 + round2 + round3 + adjustments) DESC, round3 DESC, round2 DESC, c.name COLLATE NOCASE
   `).all();
   return rows.map((r, i) => ({
     rank: i + 1, id: r.id, name: r.name, school: r.school,
-    qualified: !!r.qualified, round1: r.round1, round2: r.round2, round3: r.round3,
+    qualified: !!r.qualified, disqualified: !!r.disqualified, round1: r.round1, round2: r.round2, round3: r.round3,
     adjustments: r.adjustments, total: r.round1 + r.round2 + r.round3 + r.adjustments
   }));
 }

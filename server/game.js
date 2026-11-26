@@ -179,6 +179,9 @@ export class GameEngine {
           logoUrl: s.brand_logo_url,
           sponsorName: s.sponsor_name,
           sponsorLogoUrl: s.sponsor_logo_url,
+          techPartnerName: s.tech_partner_name,
+          techPartnerUrl: s.tech_partner_url,
+          techPartnerLogoUrl: s.tech_partner_logo_url,
           backgroundUrl: s.brand_background_url,
           showSponsor: !!s.brand_show_sponsor
         }
@@ -253,7 +256,8 @@ export class GameEngine {
       ...pub,
       settings: s,
       candidates: getCandidates({ includeInactive: true }).map(c => ({
-        ...publicCandidate(c), code: c.code, createdAt: c.created_at, online: this.online.has(c.id)
+        ...publicCandidate(c), code: c.code, createdAt: c.created_at,
+        disqualifiedReason: c.disqualified_reason || '', disqualifiedAt: c.disqualified_at || '', online: this.online.has(c.id)
       })),
       round1Sessions: sessions.map(x => ({
         candidateId: x.candidate_id, name: x.name, school: x.school, status: x.status,
@@ -292,7 +296,7 @@ export class GameEngine {
     transaction(() => {
       db.prepare('DELETE FROM round1_answers').run();
       db.prepare('DELETE FROM round1_sessions').run();
-      db.prepare('UPDATE candidates SET qualified = 0').run();
+      db.prepare('UPDATE candidates SET qualified = 0, disqualified = 0, disqualified_reason = NULL, disqualified_at = NULL').run();
     });
     this.state.round = 1;
     this.state.phase = 'round1';
@@ -314,6 +318,7 @@ export class GameEngine {
     }
     const candidate = getCandidateById(candidateId);
     if (!candidate || !candidate.active) throw new Error('Candidate not found');
+    if (candidate.disqualified) throw new Error('This candidate has been disqualified');
     let session = this.candidateSession(candidateId);
     if (session?.status === 'submitted') throw new Error('You have already submitted Round 1');
     if (!session) {
@@ -394,12 +399,13 @@ export class GameEngine {
 
   qualifyTop(actor = 'admin', count = null) {
     const s = this.settings();
-    const n = Math.max(1, Math.min(Number(count || s.qualify_top_n), getCandidates().length));
-    const lb = getLeaderboard();
+    const eligible = getCandidates().filter(c => !c.disqualified);
+    const n = Math.max(1, Math.min(Number(count || s.qualify_top_n), eligible.length));
+    const lb = getLeaderboard().filter(x => !x.disqualified);
     const winnerIds = new Set(lb.slice(0, n).map(x => x.id));
     transaction(() => {
       for (const c of getCandidates()) {
-        db.prepare('UPDATE candidates SET qualified = ? WHERE id = ?').run(winnerIds.has(c.id) ? 1 : 0, c.id);
+        db.prepare('UPDATE candidates SET qualified = ? WHERE id = ?').run(winnerIds.has(c.id) && !c.disqualified ? 1 : 0, c.id);
       }
     });
     this.log(actor, 'round1.qualify', { count: n, ids: [...winnerIds] });
@@ -407,11 +413,35 @@ export class GameEngine {
     return { qualified: n };
   }
 
+  disqualifyCandidate(candidateId, reason, actor = 'admin') {
+    const candidate = getCandidateById(candidateId);
+    if (!candidate) throw new Error('Candidate not found');
+    const why = String(reason || '').trim();
+    if (why.length < 3) throw new Error('A disqualification reason is required');
+    db.prepare(`UPDATE candidates SET disqualified = 1, disqualified_reason = ?, disqualified_at = datetime('now'), qualified = 0 WHERE id = ?`)
+      .run(why, candidateId);
+    if (this.state.round3?.eligibleIds) {
+      this.state.round3.eligibleIds = this.state.round3.eligibleIds.filter(id => Number(id) !== Number(candidateId));
+    }
+    this.save();
+    this.log(actor, 'candidate.disqualify', { candidateId, reason: why });
+    this.broadcast();
+  }
+
+  reinstateCandidate(candidateId, actor = 'admin') {
+    const candidate = getCandidateById(candidateId);
+    if (!candidate) throw new Error('Candidate not found');
+    db.prepare('UPDATE candidates SET disqualified = 0, disqualified_reason = NULL, disqualified_at = NULL WHERE id = ?').run(candidateId);
+    this.save();
+    this.log(actor, 'candidate.reinstate', { candidateId });
+    this.broadcast();
+  }
+
   resetRound1(actor = 'admin') {
     this.clearTimer('round1:close');
     db.prepare('DELETE FROM round1_answers').run();
     db.prepare('DELETE FROM round1_sessions').run();
-    db.prepare('UPDATE candidates SET qualified = 0').run();
+    db.prepare('UPDATE candidates SET qualified = 0, disqualified = 0, disqualified_reason = NULL, disqualified_at = NULL').run();
     this.state.round1 = { open: false, startedAt: null, endsAt: null };
     if (this.state.round === 1) { this.state.round = 0; this.state.phase = 'lobby'; }
     this.save();
@@ -437,8 +467,8 @@ export class GameEngine {
     if (!['idle','done'].includes(this.state.round2.phase)) throw new Error('Round 2 is already in progress or awaiting a reset');
     const s = this.settings();
     db.prepare('DELETE FROM round2_picks').run();
-    let qualified = getCandidates().filter(c => c.qualified);
-    if (!qualified.length) qualified = getCandidates();
+    let qualified = getCandidates().filter(c => c.qualified && !c.disqualified);
+    if (!qualified.length) qualified = getCandidates().filter(c => !c.disqualified);
     if (qualified.length < 1) throw new Error('At least one active candidate is required');
     let order;
     if (shuffleOrder) order = shuffle(qualified).map(c => c.id);
@@ -473,6 +503,8 @@ export class GameEngine {
   }
 
   pickRound2(candidateId, number) {
+    const candidate = getCandidateById(candidateId);
+    if (!candidate || candidate.disqualified) throw new Error('You are not eligible for this round');
     const r2 = this.state.round2;
     if (r2.phase !== 'pick') throw new Error('It is not time to pick a number');
     if (Number(r2.activeCandidateId) !== Number(candidateId)) throw new Error('It is not your turn');
@@ -517,6 +549,8 @@ export class GameEngine {
   }
 
   answerRound2(candidateId, selectedIndex) {
+    const candidate = getCandidateById(candidateId);
+    if (!candidate || candidate.disqualified) throw new Error('You are not eligible for this round');
     const r2 = this.state.round2;
     if (r2.phase !== 'question') throw new Error('The question is not open');
     if (Number(r2.activeCandidateId) !== Number(candidateId)) throw new Error('It is not your turn');
@@ -637,8 +671,8 @@ export class GameEngine {
     if (!this.settings().round3_enabled) throw new Error('Round 3 is disabled in Settings');
     if (!['idle','done'].includes(this.state.round3.phase)) throw new Error('Round 3 is already in progress or awaiting a reset');
     const s = this.settings();
-    let eligible = getCandidates().filter(c => c.qualified);
-    if (!eligible.length) eligible = getCandidates();
+    let eligible = getCandidates().filter(c => c.qualified && !c.disqualified);
+    if (!eligible.length) eligible = getCandidates().filter(c => !c.disqualified);
     if (!eligible.length) throw new Error('Add or activate candidates before starting Round 3');
     db.prepare('DELETE FROM round3_answers').run();
     const r3group = s.round3_group_id;
@@ -681,6 +715,7 @@ export class GameEngine {
     if (Date.now() > r3.deadlineAt) { this.timeoutRound3(); throw new Error('Time is up'); }
     const candidate = getCandidateById(candidateId);
     if (!candidate || !candidate.active) throw new Error('Candidate not found');
+    if (candidate.disqualified) throw new Error('This candidate has been disqualified');
     if (!(r3.eligibleIds || []).includes(candidateId) && !candidate.qualified) throw new Error('You are not eligible for Round 3');
     if (db.prepare('SELECT 1 FROM round3_answers WHERE question_id = ?').get(r3.questionId)) {
       throw new Error('Someone answered first — this question is locked');
@@ -810,7 +845,7 @@ export class GameEngine {
     db.prepare('DELETE FROM round2_picks').run();
     db.prepare('DELETE FROM round3_answers').run();
     db.prepare('DELETE FROM score_adjustments').run();
-    db.prepare('UPDATE candidates SET qualified = 0').run();
+    db.prepare('UPDATE candidates SET qualified = 0, disqualified = 0, disqualified_reason = NULL, disqualified_at = NULL').run();
     this.state = {
       round: 0, phase: 'lobby',
       round1: { open: false, startedAt: null, endsAt: null },

@@ -22,6 +22,12 @@ const ROUND_GROUP_FIELDS = [
   ['round3_group_id','Round 3 question group']
 ];
 
+const PARTNER_FIELDS = [
+  ['tech_partner_name','Tech partner name','text'],
+  ['tech_partner_url','Tech partner URL','text'],
+  ['tech_partner_logo_url','Tech partner logo URL','text']
+];
+
 const BRAND_FIELDS = [
   ['brand_org','Organisation name','text'],
   ['brand_app_name','App name','text'],
@@ -77,7 +83,7 @@ export default function Settings() {
     setBusy(true);
     try {
       const payload = {};
-      for (const [key, , type] of [...FIELDS, ...EXTRA_FIELDS, ...BRAND_FIELDS, ...ROUND_GROUP_FIELDS]) {
+      for (const [key, , type] of [...FIELDS, ...EXTRA_FIELDS, ...BRAND_FIELDS, ...ROUND_GROUP_FIELDS, ...PARTNER_FIELDS]) {
         if (type === 'toggle') payload[key] = settings[key] ? 1 : 0;
         else if (type === 'number') payload[key] = Number(settings[key]);
         else payload[key] = settings[key];
@@ -138,9 +144,23 @@ export default function Settings() {
             </label>
           ))}
         </div>
+        <div className="partner-block">
+          <div className="form-grid two">
+            {PARTNER_FIELDS.slice(0, 2).map(([key,label]) => (
+              <label key={key}><span>{label}</span><input value={settings[key] ?? ''} onChange={e => setSettings({ ...settings, [key]: e.target.value })} /></label>
+            ))}
+            <label className="span-2"><span>Tech partner logo URL</span>
+              <div className="upload-line">
+                <input value={settings.tech_partner_logo_url ?? ''} onChange={e => setSettings({ ...settings, tech_partner_logo_url: e.target.value })} placeholder="/uploads/... or https://..." />
+                <label className="file-btn">Upload<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={e => upload(e.target.files?.[0], 'tech_partner_logo_url')} /></label>
+              </div>
+            </label>
+          </div>
+        </div>
         <div className="brand-preview-row">
           {settings.brand_logo_url && <span className="brand-preview"><img src={settings.brand_logo_url} alt="Organisation logo preview" /><small>Organisation logo</small></span>}
           {settings.sponsor_logo_url && <span className="brand-preview"><img src={settings.sponsor_logo_url} alt="Sponsor logo preview" /><small>Sponsor logo</small></span>}
+          {settings.tech_partner_logo_url && <span className="brand-preview"><img src={settings.tech_partner_logo_url} alt="Tech partner logo preview" /><small>Tech partner</small></span>}
           {settings.brand_background_url && <span className="brand-preview cover" style={{ backgroundImage: `url(${settings.brand_background_url})` }}><small>Background</small></span>}
         </div>
         <label className="check-line"><input type="checkbox" checked={!!settings.brand_show_sponsor} onChange={e => setSettings({ ...settings, brand_show_sponsor: e.target.checked ? 1 : 0 })} /> Show sponsor lockup in the header</label>
