@@ -41,7 +41,10 @@ export default function AuditProbe({ state }) {
       setData(result);
       setUpdatedAt(Date.now());
       if (selectedRound === 1) {
-        setSessionId(current => result.sessions.some(s => s.id === current) ? current : (result.sessions[0]?.id || ''));
+        setSessionId(current => {
+          const stillExists = result.sessions.some(s => String(s.id) === String(current));
+          return stillExists ? current : String(result.sessions[0]?.id || '');
+        });
       }
     } catch (err) { push(err.message, 'error'); }
     finally { setLoading(false); }
@@ -130,9 +133,9 @@ export default function AuditProbe({ state }) {
               </Card>
 
               <Card title="Probe a CBT answer sheet" subtitle="Question-by-question stored selections" actions={
-                <select value={sessionId} onChange={e => setSessionId(e.target.value)}>
+                <select value={String(sessionId)} onChange={e => setSessionId(e.target.value)}>
                   <option value="">Choose a session…</option>
-                  {sessions.map(s => <option key={s.id} value={s.id}>{s.name} · {s.school}</option>)}
+                  {sessions.map(s => <option key={s.id} value={String(s.id)}>{s.name} · {s.school}</option>)}
                 </select>
               }>
                 {selectedSession ? (
