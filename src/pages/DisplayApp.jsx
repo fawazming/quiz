@@ -152,6 +152,7 @@ function DisplayRound2({ state }) {
           <span className="avatar">{active?.name?.slice(0, 1)}</span>
           <div><strong>{active?.name}</strong><small>{active?.school}</small></div>
           <Badge tone="gold">Number {r2.activeNumber}</Badge>
+          {r2.stageCount > 1 && <Badge tone="blue">Stage {r2.stageNumber}/{r2.stageCount}</Badge>}
         </div>
         <Countdown endsAt={r2.countdownEndsAt} serverTime={state.serverTime} label="Question revealed in" />
       </section>
@@ -167,6 +168,7 @@ function DisplayRound2({ state }) {
             <div><strong>{active?.name}</strong><small>{active?.school}</small></div>
           </div>
           <Badge tone="gold">Number {r2.activeNumber} · {r2.question.topic}</Badge>
+          {r2.stageCount > 1 && <Badge tone="blue">Stage {r2.stageNumber}/{r2.stageCount} · {r2.stageGroupName || r2.stageLabel}</Badge>}
           <DisplayTimer deadline={r2.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round2AnswerSeconds} label="TIME LEFT" />
         </div>
         <h2 className="display-question-text">{r2.question.prompt}</h2>
@@ -189,6 +191,7 @@ function DisplayRound2({ state }) {
         </div>
         <div>
           <Badge tone="gold">Pick a number</Badge>
+          {r2.stageCount > 1 && <Badge tone="blue">Stage {r2.stageNumber}/{r2.stageCount} · {r2.stageGroupName || r2.stageLabel}</Badge>}
           <h2>{total - picked.size} numbers still open</h2>
           <p>The candidate chooses an unused number on their tablet.</p>
         </div>
@@ -205,22 +208,43 @@ function DisplayRound2({ state }) {
 function DisplayRound3({ state }) {
   const r3 = state.round3;
   const reveal = r3.reveal;
+  const unlockRemaining = useCountdown(r3.unlockAt, state.serverTime, 100);
+  const waiting = r3.phase === 'question' && unlockRemaining > 0;
+  const unlockSeconds = Math.max(0, Math.ceil(unlockRemaining / 1000));
   if (r3.phase === 'reveal' && reveal) {
     return <DisplayReveal reveal={reveal} state={state} kicker="Round 3 · First to answer" />;
   }
   if (!r3.question) return <Empty title="Waiting for the next question">The admin will start the race.</Empty>;
   return (
     <section className="display-question race-display">
-      <div className="display-race-banner"><Zap size={20} /> FIRST TO ANSWER · ONE ANSWER LOCKS THE QUESTION</div>
+      <div className={`display-race-banner ${waiting ? 'is-readin' : ''}`}>
+        <Zap size={20} /> {waiting ? `READ THE QUESTION · ANSWERS UNLOCK IN ${unlockSeconds}` : 'FIRST TO ANSWER · ONE ANSWER LOCKS THE QUESTION'}
+      </div>
       <div className="display-question-top">
         <Badge tone="red">Race {r3.questionNumber} / {r3.totalQuestions}</Badge>
-        <Badge tone="blue">{r3.answerCount ? 'LOCKED' : 'OPEN'}</Badge>
-        <DisplayTimer deadline={r3.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round3AnswerSeconds} label="RACE CLOCK" />
+        <Badge tone={waiting ? 'gold' : 'blue'}>{waiting ? 'READ-ONLY' : r3.answerCount ? 'LOCKED' : 'OPEN'}</Badge>
+        {waiting
+          ? <DisplayUnlock seconds={unlockSeconds} unlockAt={r3.unlockAt} serverTime={state.serverTime} delaySeconds={r3.unlockDelaySeconds} />
+          : <DisplayTimer deadline={r3.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round3AnswerSeconds} label="RACE CLOCK" />}
       </div>
       <h2 className="display-question-text">{r3.question.prompt}</h2>
       <QuestionOptions options={r3.question.options} colorMode disabled />
       <div className="display-source">{r3.question.source}</div>
     </section>
+  );
+}
+
+function DisplayUnlock({ seconds, unlockAt, serverTime, delaySeconds }) {
+  const remaining = useCountdown(unlockAt, serverTime, 100);
+  const total = Math.max(1, (delaySeconds || 1) * 1000);
+  const pct = Math.max(0, Math.min(100, (remaining / total) * 100));
+  return (
+    <div className="display-hero-timer display-unlock">
+      <div className="dht-label">ANSWERS UNLOCK IN</div>
+      <div className="dht-value" key={seconds}>{seconds}</div>
+      <div className="dht-unit">seconds</div>
+      <div className="dht-bar"><span style={{ width: `${pct}%` }} /></div>
+    </div>
   );
 }
 

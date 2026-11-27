@@ -49,6 +49,7 @@ export const SETTINGS_DEFAULTS = {
   display_theme: 'light',
   round1_group_id: '',
   round2_group_id: '',
+  round2_stages: '[]',
   round3_group_id: '',
   sponsor_url: '',
   round1_question_count: 50,
@@ -61,8 +62,11 @@ export const SETTINGS_DEFAULTS = {
   round2_answer_seconds: 60,
   round2_base_points: 50,
   round2_speed_bonus: 25,
+  round2_qualify_top_n: 4,
+  round2_qualify_basis: 'total',
   round3_question_count: 22,
   round3_answer_seconds: 30,
+  round3_unlock_delay_seconds: 5,
   round3_base_points: 50,
   round3_speed_bonus: 25,
   round3_wrong_penalty: 5,
@@ -74,8 +78,8 @@ export const SETTINGS_DEFAULTS = {
 export const NUMERIC_SETTINGS = new Set([
   'round1_question_count','round1_duration_minutes','round1_points_per_correct','qualify_top_n',
   'countdown_seconds','round2_question_count','round2_answer_seconds','round2_base_points',
-  'round2_speed_bonus','round3_question_count','round3_answer_seconds','round3_base_points',
-  'round3_speed_bonus','round3_wrong_penalty','round3_lock_on_first_answer',
+  'round2_speed_bonus','round2_qualify_top_n','round3_question_count','round3_answer_seconds','round3_unlock_delay_seconds',
+  'round3_base_points','round3_speed_bonus','round3_wrong_penalty','round3_lock_on_first_answer',
   'round1_shuffle','round3_auto_run','round3_auto_advance_seconds',
   'round1_enabled','round2_enabled','round3_enabled','brand_show_sponsor'
 ]);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, ChevronRight, RotateCcw, Shuffle, Hash, Clock3, Trophy, Eye } from 'lucide-react';
+import { Play, ChevronRight, RotateCcw, Shuffle, Hash, Clock3, Trophy, Eye, Award } from 'lucide-react';
 import { Card, Button, Badge, Timer, Countdown, QuestionOptions, Modal, Empty, Stat, Leaderboard } from '../components/UI.jsx';
 import { useAction, phaseLabel, phaseTone } from './shared.js';
 
@@ -13,15 +13,32 @@ export default function Round2({ state, adminState }) {
   const phase = r2.phase;
   const picked = new Set(r2.pickedNumbers || []);
   const total = r2.totalNumbers || 0;
+  const stages = r2.stages || [];
+  const round2Qualifiers = state.candidates.filter(c => c.round2Qualified);
+  const basisLabel = state.settings.round2QualifyBasis === 'round2' ? 'Round 2 score' : state.settings.round2QualifyBasis === 'round1' ? 'Round 1 score' : 'overall total';
 
   return (
     <div className="stack">
       <div className="stat-grid">
-        <Stat label="Round 2 stage" value={phase === 'idle' ? 'READY' : phaseLabel(state.phase)} sub={`${r2.pickedNumbers.length}/${total} numbers picked`} icon={Hash} tone="gold" />
+        <Stat label="Round 2 stage" value={phase === 'idle' ? 'READY' : phaseLabel(state.phase)} sub={`${r2.pickedNumbers.length}/${total} numbers picked${r2.stageCount > 1 ? ` · Stage ${r2.stageNumber}/${r2.stageCount}` : ''}`} icon={Hash} tone="gold" />
         <Stat label="Active candidate" value={active?.name || '—'} sub={active?.school || 'waiting'} icon={Trophy} tone="green" />
         <Stat label="Answer timer" value={`${state.settings.round2AnswerSeconds}s`} sub={`${state.settings.countdownSeconds}s reveal countdown`} icon={Clock3} tone="blue" />
-        <Stat label="Scoring" value={`${state.settings.round2BasePoints}+${state.settings.round2SpeedBonus}`} sub="base + max speed bonus" icon={Trophy} tone="ink" />
+        <Stat label="Round 3 qualifiers" value={round2Qualifiers.length || '—'} sub={`top ${state.settings.round2QualifyTopN || 4} by ${basisLabel}`} icon={Award} tone="ink" />
       </div>
+
+      {stages.length > 1 && (
+        <Card title="Round 2 stages" subtitle="Each stage has its own number board and question group">
+          <div className="stage-strip">
+            {stages.map((stage, i) => (
+              <div key={i} className={`stage-pill ${i === r2.stageIndex ? 'is-active' : ''} ${stage.pickedCount >= stage.count ? 'is-done' : ''}`}>
+                <span>Stage {i + 1}</span>
+                <strong>{stage.groupName || stage.label || 'All groups'}</strong>
+                <small>{stage.pickedCount}/{stage.count} picked</small>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <div className="two-col">
         <Card title="Run the pick-a-number round" subtitle="The active candidate picks an unused number on their tablet">
@@ -35,6 +52,9 @@ export default function Round2({ state, adminState }) {
             <Button variant="danger" onClick={() => run('round2:end', {}, 'Round 2 concluded')} disabled={!['pick','countdown','question','reveal'].includes(phase)}>
               End round
             </Button>
+            <Button variant="gold" onClick={() => run('round2:qualify', { count: state.settings.round2QualifyTopN, basis: state.settings.round2QualifyBasis }, `Top ${state.settings.round2QualifyTopN} qualified for Round 3`)} loading={busy === 'round2:qualify'} disabled={!r2.pickedNumbers.length}>
+              <Award size={16} /> Qualify top {state.settings.round2QualifyTopN || 4}
+            </Button>
             <Button variant="ghost" onClick={() => setConfirmReset(true)}><RotateCcw size={15} /> Reset</Button>
           </div>
           <label className="check-line">
@@ -43,7 +63,7 @@ export default function Round2({ state, adminState }) {
           </label>
           <div className="notice">
             <Eye size={16} />
-            <span>The question stays hidden until the 5-second countdown ends, then appears on the projector and on the active tablet.</span>
+            <span>The question stays hidden until the {state.settings.countdownSeconds}-second countdown ends, then appears on the projector and on the active tablet. After play, qualify the configured top candidates for Round 3.</span>
           </div>
           {phase === 'countdown' && <Countdown endsAt={r2.countdownEndsAt} serverTime={state.serverTime} />}
           {phase === 'question' && <Timer deadline={r2.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round2AnswerSeconds} label={`${active?.name || 'Candidate'} is answering`} />}
@@ -69,7 +89,7 @@ export default function Round2({ state, adminState }) {
         </Card>
       </div>
 
-      <Card title="Number board" subtitle={`${total - picked.size} numbers still available`}>
+      <Card title="Number board" subtitle={`${total - picked.size} numbers still available${r2.stageCount > 1 ? ` · Stage ${r2.stageNumber}/${r2.stageCount} · ${r2.stageGroupName || r2.stageLabel}` : ''}`}>
         {total ? (
           <div className="number-grid">
             {Array.from({ length: total }, (_, i) => i + 1).map(n => (
@@ -91,6 +111,20 @@ export default function Round2({ state, adminState }) {
           </div>
         </Card>
       )}
+
+      <Card title="Round 3 qualifiers" subtitle={round2Qualifiers.length ? `${round2Qualifiers.length} candidate(s) selected by ${basisLabel}` : `Press “Qualify top ${state.settings.round2QualifyTopN || 4}” after play to lock the Round 3 field`}>
+        {round2Qualifiers.length ? (
+          <div className="finalist-list">
+            {round2Qualifiers.map((c, i) => (
+              <div key={c.id} className="finalist-row">
+                <span className="q-rank">{i + 1}</span>
+                <span><strong>{c.name}</strong><small>{c.school}</small></span>
+                <span className="q-score">{state.leaderboard.find(x => x.id === c.id)?.total ?? 0} pts</span>
+              </div>
+            ))}
+          </div>
+        ) : <p className="muted">No Round 3 qualifiers have been selected yet. Qualification does not happen automatically — press the qualify button when Round 2 is finished.</p>}
+      </Card>
 
       <Card title="Standings after Round 2" subtitle="Overall total across rounds">
         <Leaderboard rows={state.leaderboard} limit={12} compact />

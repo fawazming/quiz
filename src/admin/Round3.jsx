@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Play, ChevronRight, RotateCcw, Zap, Clock3, Trophy, Shuffle, Users } from 'lucide-react';
-import { Card, Button, Badge, Timer, QuestionOptions, Modal, Stat, Leaderboard, Empty } from '../components/UI.jsx';
+import { Card, Button, Badge, Timer, Countdown, QuestionOptions, Modal, Stat, Leaderboard, Empty } from '../components/UI.jsx';
+import { useCountdown } from '../useCountdown.js';
 import { useAction, phaseLabel, phaseTone } from './shared.js';
 
 export default function Round3({ state, adminState }) {
@@ -10,18 +11,24 @@ export default function Round3({ state, adminState }) {
   const r3 = state.round3;
   const full = adminState?.round3?.questionFull;
   const eligibleIds = state.round3?.eligibleIds || [];
+  const round2Qualifiers = state.candidates.filter(c => c.round2Qualified);
   const finalists = eligibleIds.length
     ? state.candidates.filter(c => eligibleIds.includes(c.id))
-    : state.leaderboard.filter(c => c.qualified);
+    : round2Qualifiers.length
+      ? round2Qualifiers
+      : state.leaderboard.filter(c => c.qualified);
   const phase = r3.phase;
   const reveal = r3.reveal;
+  const unlockRemaining = useCountdown(phase === 'question' ? r3.unlockAt : 0, state.serverTime, 100);
+  const waiting = phase === 'question' && unlockRemaining > 0;
+  const unlockSeconds = Math.max(0, Math.ceil(unlockRemaining / 1000));
 
   return (
     <div className="stack">
       <div className="stat-grid">
         <Stat label="Round 3 stage" value={phase === 'idle' ? 'READY' : phaseLabel(state.phase)} sub={`Question ${r3.questionNumber || 0}/${r3.totalQuestions || 0}`} icon={Zap} tone="red" />
-        <Stat label="Finalists" value={finalists.length} sub="qualified candidates" icon={Users} tone="green" />
-        <Stat label="Race clock" value={`${state.settings.round3AnswerSeconds}s`} sub="first answer locks" icon={Clock3} tone="gold" />
+        <Stat label="Finalists" value={finalists.length} sub={round2Qualifiers.length ? 'qualified after Round 2' : 'qualified candidates'} icon={Users} tone="green" />
+        <Stat label="Race clock" value={`${state.settings.round3AnswerSeconds}s`} sub={`${state.settings.round3UnlockDelaySeconds || 0}s read-in · first answer locks`} icon={Clock3} tone="gold" />
         <Stat label="Scoring" value={`${state.settings.round3BasePoints}+${state.settings.round3SpeedBonus}`} sub={`wrong answer: -${state.settings.round3WrongPenalty} pts`} icon={Trophy} tone="ink" />
       </div>
 
@@ -45,11 +52,13 @@ export default function Round3({ state, adminState }) {
           </label>
           <div className="notice">
             <Zap size={16} />
-            <span>Server timestamps decide the winner. Once the first answer is stored, every tablet locks immediately.</span>
+            <span>Server timestamps decide the winner. The question appears first for a {state.settings.round3UnlockDelaySeconds || 0}-second read-in; answers are rejected until the countdown ends, then the first stored answer locks the question.</span>
           </div>
-          {phase === 'question' && <Timer deadline={r3.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round3AnswerSeconds} label="Race clock" />}
+          {waiting
+            ? <Countdown endsAt={r3.unlockAt} serverTime={state.serverTime} label="Question released — answers unlock in" />
+            : phase === 'question' && <Timer deadline={r3.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round3AnswerSeconds} label="Race clock" />}
           <div className="live-meta-row" style={{ marginTop: '12px' }}>
-            <Badge tone={r3.answerCount ? 'red' : 'green'}>{r3.answerCount ? 'Locked' : 'Open'}</Badge>
+            <Badge tone={waiting ? 'gold' : r3.answerCount ? 'red' : 'green'}>{waiting ? `Read-only · ${unlockSeconds}s` : r3.answerCount ? 'Locked' : 'Open'}</Badge>
             <Badge tone="blue">{r3.answerCount} answer(s)</Badge>
           </div>
         </Card>
@@ -83,7 +92,7 @@ export default function Round3({ state, adminState }) {
       )}
 
       <div className="two-col">
-        <Card title="Finalists" subtitle="Qualified from Round 1">
+        <Card title="Finalists" subtitle={round2Qualifiers.length ? 'Qualified after Round 2' : 'Qualified from Round 1'}>
           {finalists.length ? (
             <div className="finalist-list">
               {finalists.map((c, i) => (

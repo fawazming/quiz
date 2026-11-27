@@ -51,6 +51,7 @@ export function registerSockets(io, engine) {
 
     /* ------------------------------- ROUND 2 ------------------------------- */
     socket.on('round2:start', adminOnly((payload) => engine.startRound2(user.username || 'admin', { shuffleOrder: !!payload.shuffleOrder })));
+    socket.on('round2:qualify', adminOnly((payload) => engine.qualifyRound2(user.username || 'admin', payload.count, payload.basis)));
     socket.on('round2:next', adminOnly(() => engine.nextRound2(user.username || 'admin')));
     socket.on('round2:end', adminOnly(() => engine.endRound2(user.username || 'admin')));
     socket.on('round2:reset', adminOnly(() => engine.resetRound2(user.username || 'admin')));

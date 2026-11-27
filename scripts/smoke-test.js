@@ -75,7 +75,7 @@ console.log('Round 1 OK, state:', lastState?.phase, 'submitted:', lastState?.rou
 // shorten the reveal countdown for the smoke test
 await fetchJson('/api/admin/settings', {
   method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${admin.token}` },
-  body: JSON.stringify({ countdown_seconds: 0, round2_answer_seconds: 5, round3_answer_seconds: 5 })
+  body: JSON.stringify({ countdown_seconds: 0, round2_answer_seconds: 5, round3_answer_seconds: 5, round3_unlock_delay_seconds: 0 })
 });
 await ack(adminSocket, 'round2:start', { shuffleOrder: false });
 await sleep(250);
@@ -89,9 +89,14 @@ await sleep(250);
 if (lastState.round2.phase !== 'reveal') throw new Error('Round 2 did not reveal');
 console.log('Round 2 OK, reveal:', lastState.round2.reveal.isCorrect, lastState.round2.reveal.points);
 await ack(adminSocket, 'round2:next');
+await ack(adminSocket, 'round2:qualify', { count: 2, basis: 'total' });
+await sleep(150);
+if ((lastState?.stats?.round2Qualified || 0) < 1) throw new Error('Round 2 qualification was not stored');
+const qualifier = lastState.candidates.find(c => c.round2Qualified);
+const qualifierSocket = qualifier?.id === candidates[0].id ? s1 : s2;
 await ack(adminSocket, 'round3:start', { shuffleQuestions: true });
 await sleep(250);
-await ack(s1, 'round3:answer', { selectedIndex: 0 });
+await ack(qualifierSocket, 'round3:answer', { selectedIndex: 0 });
 await sleep(300);
 if (!['round3_reveal','round3_question'].includes(lastState.phase)) throw new Error('Round 3 reveal missing: ' + lastState.phase);
 console.log('Round 3 OK, phase:', lastState.phase, 'reveal:', lastState.round3.reveal?.candidate?.name);

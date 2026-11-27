@@ -30,6 +30,9 @@ export default function Dashboard({ state, setTab }) {
     actions.push(<Button key="r3start" variant="gold" onClick={() => run('round3:start', {}, 'Round 3 started')} loading={busy === 'round3:start'}><Play size={16} /> Start {state.settings.round3Label}</Button>);
   }
   if (state.phase === 'round2_done' && enabled[3]) {
+    if (state.round2.pickedNumbers?.length) {
+      actions.push(<Button key="qual2" variant="ghost" onClick={() => run('round2:qualify', { count: state.settings.round2QualifyTopN, basis: state.settings.round2QualifyBasis }, `Top ${state.settings.round2QualifyTopN} qualified for Round 3`)}><Target size={15} /> Qualify top {state.settings.round2QualifyTopN}</Button>);
+    }
     actions.push(<Button key="r3start" variant="gold" onClick={() => run('round3:start', {}, 'Round 3 started')} loading={busy === 'round3:start'}><Play size={16} /> Start {state.settings.round3Label}</Button>);
   }
   if (state.phase === 'round1') {
@@ -66,7 +69,7 @@ export default function Dashboard({ state, setTab }) {
       </section>
 
       <div className="stat-grid">
-        <Stat label="Candidates" value={state.stats.totalCandidates} sub={`${state.stats.qualified} qualified`} icon={Users} />
+        <Stat label="Candidates" value={state.stats.totalCandidates} sub={`${state.stats.qualified} qualified · ${state.stats.round2Qualified || 0} Round 3`} icon={Users} />
         <Stat label="Online now" value={state.stats.onlineCandidates} sub="connected tablets" icon={Wifi} tone="blue" />
         <Stat label="CBT submissions" value={state.stats.round1Submitted} sub={`${state.stats.round1Active} still writing`} icon={Target} tone="gold" />
         <Stat label="Current round" value={state.round || '—'} sub={phaseLabel(state.phase)} icon={Trophy} tone="ink" />

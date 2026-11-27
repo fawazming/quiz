@@ -348,6 +348,8 @@ cp data/quiz.db data/quiz-$(date +%F-%H%M).backup.db
 
 Download it with SFTP if you want an off-server copy.
 
+From the app, an admin can open **Settings → Database snapshot** to download a consistent SQLite snapshot and later load it back. Loading a snapshot validates the file and schema, backs up the current database in `data/backups/`, replaces the live data and reloads the arena. Keep snapshots off-server as an extra safeguard.
+
 ---
 
 ## 10. Troubleshooting

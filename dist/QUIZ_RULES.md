@@ -75,9 +75,9 @@ The standard competition has three independently switchable rounds:
 | Round | Name | Format | Default |
 |---|---|---|---|
 | **Round 1** | CBT elimination | Individual multiple-choice test | 50 questions · 45 minutes · 2 points per correct |
-| **Round 2** | Pick a number | Candidate chooses an unused number; timed question; projector reveal | 22 numbers · 60 seconds · 50 base + 25 speed bonus |
-| **Round 3** | First to answer | Race: first submitted answer locks the question | 22 questions · 30 seconds · 50 base + 25 speed · −5 wrong |
-| **Qualification** | Top candidates | Highest Round 1 scores advance | Top 8 by default |
+| **Round 2** | Pick a number | Candidate chooses an unused number; timed question; projector reveal; optional multiple group stages | 22 numbers per stage · 60 seconds · 50 base + 25 speed bonus |
+| **Round 3** | First to answer | Race: question read-in, then first submitted answer locks it | 22 questions · 5-second read-in · 30 seconds · 50 base + 25 speed · −5 wrong |
+| **Qualification** | Top candidates | Round 1 qualifiers advance to Round 2; Round 2 qualifiers advance to Round 3 | Top 8 after Round 1 · top 4 after Round 2 (defaults) |
 
 The organiser may:
 
@@ -189,6 +189,15 @@ The admin’s published qualification list is final unless a verified scoring er
 3. Candidates may receive more than one turn if numbers remain after the rotation.
 4. The admin may end Round 2 at any time. Scores already earned remain.
 
+### 8.5 Multiple groups and qualification for Round 3
+
+1. The organiser may configure more than one Round 2 **stage**. Each stage uses its own question group and its own number board.
+2. Stages run in order. The admin moves to the next stage after the final reveal of the current stage.
+3. Round 2 scores from all stages are combined for the overall leaderboard and for qualification.
+4. After Round 2, the admin may qualify a configured number of candidates for Round 3. Qualification can be based on the overall total, the Round 2 score or the Round 1 score.
+5. Only candidates qualified through Round 2 advance to Round 3. A candidate who did not take a Round 2 turn is not included in the Round 2 qualification pool.
+6. If the organiser does not run the Round 2 qualification step, the app falls back to the Round 1 qualifiers (or all active candidates when no qualifiers exist).
+
 ---
 
 ## 9. Round 3 — First to answer
@@ -203,20 +212,22 @@ The admin’s published qualification list is final unless a verified scoring er
 
 ### 9.2 Timing and scoring
 
-1. The race clock is set by the admin — default **30 seconds**.
-2. The server records the response time.
-3. A correct answer earns:
+1. At the start of each question, the question may be shown for a configurable **read-in** period before answers are accepted — default **5 seconds**.
+2. During the read-in, the server rejects every answer and the race clock has not started.
+3. When the read-in ends, the race clock starts. It is set by the admin — default **30 seconds**.
+4. The server records the response time from the moment answers unlock.
+5. A correct answer earns:
 
    **Base points + speed bonus** based on remaining time.
 
    Default: **50 base + up to 25 speed bonus**.
-4. A wrong first answer earns the configured penalty:
+6. A wrong first answer earns the configured penalty:
 
    **Default: −5 points.**
 
    The penalty is deducted from the candidate’s total. The organiser may set a different penalty before the round, including 0.
-5. A timeout with no answer earns **0 points**; it does not incur the wrong-answer penalty.
-6. The question is then revealed with the first candidate’s name, school, selected answer, correct answer, response time and points.
+7. A timeout with no answer earns **0 points**; it does not incur the wrong-answer penalty.
+8. The question is then revealed with the first candidate’s name, school, selected answer, correct answer, response time and points.
 
 ### 9.3 Continuous / automatic run
 

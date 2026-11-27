@@ -15,6 +15,7 @@ import Round3 from '../admin/Round3.jsx';
 import Candidates from '../admin/Candidates.jsx';
 import Questions from '../admin/Questions.jsx';
 import Scores from '../admin/Scores.jsx';
+import AuditProbe from '../admin/AuditProbe.jsx';
 import Settings from '../admin/Settings.jsx';
 
 const NAV = [
@@ -25,6 +26,7 @@ const NAV = [
   { id: 'candidates', label: 'Candidates', icon: Users },
   { id: 'questions', label: 'Question bank', icon: ListChecks },
   { id: 'scores', label: 'Scores', icon: Trophy },
+  { id: 'audit', label: 'Audit & probe', icon: ShieldCheck },
   { id: 'settings', label: 'Settings', icon: SettingsIcon }
 ];
 
@@ -42,7 +44,7 @@ export default function AdminApp() {
     round2: state.settings.round2Label || 'Pick',
     round3: state.settings.round3Label || 'Race'
   };
-  const items = (isAdmin ? NAV : NAV.filter(n => ['dashboard','round1','round2','round3','candidates','questions','scores'].includes(n.id)))
+  const items = (isAdmin ? NAV : NAV.filter(n => ['dashboard','round1','round2','round3','candidates','questions','scores','audit'].includes(n.id)))
     .filter(n => !n.round || !!state.settings.enabledRounds?.[n.round])
     .map(n => n.round ? { ...n, label: `Round ${n.round} · ${labels['round' + n.round]}` } : n);
 
@@ -97,6 +99,7 @@ export default function AdminApp() {
           {tab === 'candidates' && <Candidates adminState={adminState} />}
           {tab === 'questions' && <Questions />}
           {tab === 'scores' && <Scores state={state} adminState={adminState} />}
+          {tab === 'audit' && <AuditProbe state={state} adminState={adminState} />}
           {tab === 'settings' && isAdmin && <Settings />}
         </main>
       </div>

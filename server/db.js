@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS candidates (
   school TEXT NOT NULL,
   code TEXT NOT NULL UNIQUE,
   qualified INTEGER NOT NULL DEFAULT 0,
+  round2_qualified INTEGER NOT NULL DEFAULT 0,
   active INTEGER NOT NULL DEFAULT 1,
   disqualified INTEGER NOT NULL DEFAULT 0,
   disqualified_reason TEXT,
@@ -96,6 +97,8 @@ CREATE TABLE IF NOT EXISTS round2_picks (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   candidate_id INTEGER NOT NULL REFERENCES candidates(id) ON DELETE CASCADE,
   number INTEGER NOT NULL,
+  stage INTEGER NOT NULL DEFAULT 0,
+  stage_label TEXT,
   question_id TEXT NOT NULL REFERENCES questions(id),
   selected_index INTEGER,
   is_correct INTEGER,
@@ -167,6 +170,13 @@ const migrations = [
     if (!cols.some(c => c.name === 'disqualified')) db.exec('ALTER TABLE candidates ADD COLUMN disqualified INTEGER NOT NULL DEFAULT 0');
     if (!cols.some(c => c.name === 'disqualified_reason')) db.exec('ALTER TABLE candidates ADD COLUMN disqualified_reason TEXT');
     if (!cols.some(c => c.name === 'disqualified_at')) db.exec('ALTER TABLE candidates ADD COLUMN disqualified_at TEXT');
+  }],
+  ['006_round2_qualification_and_stages', () => {
+    const cols = db.prepare('PRAGMA table_info(candidates)').all();
+    if (!cols.some(c => c.name === 'round2_qualified')) db.exec('ALTER TABLE candidates ADD COLUMN round2_qualified INTEGER NOT NULL DEFAULT 0');
+    const pickCols = db.prepare('PRAGMA table_info(round2_picks)').all();
+    if (!pickCols.some(c => c.name === 'stage')) db.exec('ALTER TABLE round2_picks ADD COLUMN stage INTEGER NOT NULL DEFAULT 0');
+    if (!pickCols.some(c => c.name === 'stage_label')) db.exec('ALTER TABLE round2_picks ADD COLUMN stage_label TEXT');
   }]
 ];
 const appliedMigrations = new Set(db.prepare('SELECT version FROM schema_migrations').all().map(r => r.version));
@@ -243,13 +253,15 @@ export function defaultGameState() {
     round1: { open: false, startedAt: null, endsAt: null },
     round2: {
       phase: 'idle', order: [], turnIndex: 0, activeCandidateId: null,
+      stages: [], stageIndex: 0, stageCount: 1, stageGroupId: '', stageGroupName: '', stageLabel: '',
       numbers: {}, pickedNumbers: [], totalNumbers: 0, activeNumber: null,
       questionId: null, startedAt: null, countdownEndsAt: null, deadlineAt: null,
       reveal: null, answerSeconds: 60, countdownSeconds: 5
     },
     round3: {
       phase: 'idle', questionIds: [], index: -1, questionId: null,
-      startedAt: null, deadlineAt: null, reveal: null, eligibleIds: [], answerSeconds: 30
+      startedAt: null, unlockAt: null, deadlineAt: null, reveal: null,
+      eligibleIds: [], answerSeconds: 30, unlockDelaySeconds: 5
     },
     updatedAt: Date.now()
   };
@@ -279,7 +291,11 @@ export function saveGameState(state) {
 }
 
 export function publicCandidate(c) {
-  return { id: c.id, name: c.name, school: c.school, qualified: !!c.qualified, active: !!c.active, disqualified: !!c.disqualified };
+  return {
+    id: c.id, name: c.name, school: c.school,
+    qualified: !!c.qualified, round2Qualified: !!c.round2_qualified,
+    active: !!c.active, disqualified: !!c.disqualified
+  };
 }
 
 export function getCandidates({ includeInactive = false } = {}) {
@@ -310,7 +326,7 @@ export function getQuestionById(id) {
 
 export function getLeaderboard() {
   const rows = db.prepare(`
-    SELECT c.id, c.name, c.school, c.qualified, c.active, c.disqualified,
+    SELECT c.id, c.name, c.school, c.qualified, c.round2_qualified, c.active, c.disqualified,
       COALESCE((SELECT score FROM round1_sessions s WHERE s.candidate_id=c.id AND s.status='submitted'),0) AS round1,
       COALESCE((SELECT SUM(points) FROM round2_picks p WHERE p.candidate_id=c.id),0) AS round2,
       COALESCE((SELECT SUM(points) FROM round3_answers r WHERE r.candidate_id=c.id),0) AS round3,
@@ -321,7 +337,8 @@ export function getLeaderboard() {
   `).all();
   return rows.map((r, i) => ({
     rank: i + 1, id: r.id, name: r.name, school: r.school,
-    qualified: !!r.qualified, disqualified: !!r.disqualified, round1: r.round1, round2: r.round2, round3: r.round3,
+    qualified: !!r.qualified, round2Qualified: !!r.round2_qualified, disqualified: !!r.disqualified,
+    round1: r.round1, round2: r.round2, round3: r.round3,
     adjustments: r.adjustments, total: r.round1 + r.round2 + r.round3 + r.adjustments
   }));
 }

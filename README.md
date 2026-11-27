@@ -19,15 +19,19 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 - Open/close Round 1, watch live submissions, qualify the top N.
 - End and conclude Round 2 or Round 3 at any moment; finish the whole event from the dashboard.
 - Start/advance/end Round 2, see the number board, the answer key and the reveal.
-- Start/advance Round 3, see the first-answer lock and race result.
+- Run multiple Round 2 stages, each with its own question group and number board.
+- Qualify a configurable number of Round 2 candidates for Round 3 by overall total, Round 2 score or Round 1 score.
+- Start/advance Round 3, see the first-answer lock, the configurable question read-in countdown and the race result.
 - Candidate registry with unique six-character tablet codes, CSV import, qualification toggles.
 - Question bank manager: add, edit, delete, import JSON/CSV, and inspect the 94 PDF-sourced questions.
 - Theme presets and custom primary/accent/dark colours, applied live to admin, tablets and projector.
 - Custom organisation/app names, logos, sponsor logo and background image upload.
 - Question groups, CSV/JSON export, and a Groq-powered AI question generator / CSV cleanup assistant.
-- Event settings: independent round switches, custom round labels, per-round question groups and question counts, timers, points, speed bonuses, countdown, qualification count and branding.
+- Event settings: independent round switches, custom round labels, per-round question groups and question counts, timers, points, speed bonuses, countdown, read-in delay, qualification counts and branding.
+- Audit & probe tab: inspect stored CBT answer sheets, Round 2 picks, Round 3 answers and the per-round audit trail for any round.
+- Downloadable SQLite database snapshots and validated snapshot restore with automatic pre-restore backup.
 - CSV result export and an append-only score-adjustment audit log.
-- Cached Web Audio sound effects for clicks, countdowns, question reveals, correct/wrong answers and fanfares; mute toggle on the host and projector.
+- Cached Web Audio sound effects for clicks, countdowns, question reveals, correct/wrong answers, stage changes, unlock stings and fanfares; mute toggle on the host and projector.
 
 ### Scorekeeper
 - Same live view as admin for round control and candidate progress.
@@ -36,8 +40,8 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 ### Candidate tablet
 - Code-based join, no email or password.
 - CBT with a 50-question palette, auto-save, countdown, review and submit.
-- Round 2 picker, countdown, question, answer lock and reveal.
-- Round 3 race buttons with immediate lock.
+- Round 2 picker, stage indicator, countdown, question, answer lock and reveal.
+- Round 3 race buttons with a read-in countdown before answers unlock and an immediate lock on first answer.
 - Eliminated/spectator states with live standings.
 
 ### Projector display
@@ -117,12 +121,20 @@ It prints eight candidate names, schools and six-character codes. Use a code at 
 - The question appears on the projector and active tablet; the active candidate has `round2_answer_seconds` (default 60).
 - Points: base + speed bonus for a correct answer; 0 for wrong/timeout.
 - After the reveal, **Next** rotates to the next qualified candidate. The rotation continues over unpicked numbers until the board is empty.
+- **Multiple stages:** in Settings, add one stage per question group. Each stage runs a separate number board; after the final reveal, Next moves to the next stage.
+- **Qualification:** after play, use **Qualify top N** to choose the Round 3 field. The ranking basis (overall total, Round 2 score or Round 1 score) is configurable. Only candidates who took a Round 2 turn are in the qualification pool.
 
 ### Round 3 — First to answer
 - All qualified candidates see the question and four colour-coded answers.
-- The **first answer submitted to the server** locks the question for everyone.
+- The question is shown first for a configurable **read-in** (default 5 seconds). Answers are rejected by the server until the countdown ends; the race clock starts at unlock.
+- The **first answer submitted to the server** after unlock locks the question for everyone.
 - A correct answer earns base + a speed bonus based on remaining time. A wrong first answer ends the question and deducts the configurable penalty (default **−5 points**) to discourage random picking.
 - Admin presses **Next question** after each reveal.
+
+### Audit & probe / database snapshots
+- The **Audit & probe** tab is a read-only investigation view. Select Round 1, 2 or 3 to inspect stored CBT scripts, Round 2 picks, Round 3 race answers and round-specific audit events.
+- **Settings → Database snapshot** downloads a single SQLite file containing candidates, questions, settings, scores, game state and the audit log.
+- Loading a snapshot validates the SQLite header, integrity, relationships and schema; backs up the current database; replaces the data; and reloads the live arena. The current snapshot format is schema `006`.
 
 The server is the single source of truth for timestamps and locks, so a slow tablet cannot “win” by rendering faster.
 
@@ -155,6 +167,7 @@ The admin question manager shows the source, PDF reference, options, answer and 
 ├── server/
 │   ├── index.js        Express API, static client, Socket.IO bootstrap
 │   ├── db.js           SQLite schema, seeding, leaderboard
+│   ├── dbSnapshot.js   Database snapshot download/restore and validation
 │   ├── game.js         Round state machine and server timers
 │   ├── socket.js       Authenticated socket events
 │   ├── auth.js         JWT, staff/candidate auth, socket auth

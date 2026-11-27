@@ -23,7 +23,13 @@ export default function CandidateApp() {
   const qualified = !!state.leaderboard.find(c => c.id === me.id)?.qualified;
   const disqualified = !!state.candidates.find(c => c.id === me.id)?.disqualified;
   const inRound2 = (state.round2?.order || []).some(c => c.id === me.id) || state.round2?.activeCandidate?.id === me.id;
-  const inRound3 = (state.round3?.eligibleIds || []).includes(me.id) || qualified;
+  const round3EligibleIds = state.round3?.eligibleIds || [];
+  const round2QualifierIds = state.candidates.filter(c => c.round2Qualified).map(c => c.id);
+  const inRound3 = round3EligibleIds.length
+    ? round3EligibleIds.includes(me.id)
+    : round2QualifierIds.length
+      ? round2QualifierIds.includes(me.id)
+      : qualified;
   const phase = state.phase;
   const isRound1 = state.round === 1 || phase === 'round1' || phase === 'round1_closed';
 
@@ -241,7 +247,7 @@ function Round2Play({ state, me, busy, action }) {
   if (phase === 'pick') {
     return (
       <div className="candidate-gate wide">
-        <Card title={isMe ? 'Your turn — pick a number' : `${active?.name || 'A candidate'} is picking`} subtitle={isMe ? 'Choose one unused number. The question stays hidden until the countdown ends.' : `${active?.school || ''} · the board will update automatically.`}>
+        <Card title={isMe ? 'Your turn — pick a number' : `${active?.name || 'A candidate'} is picking`} subtitle={isMe ? `Choose one unused number. The question stays hidden until the countdown ends.${r2.stageCount > 1 ? ` Stage ${r2.stageNumber}/${r2.stageCount} · ${r2.stageGroupName || r2.stageLabel}` : ''}` : `${active?.school || ''} · ${r2.stageCount > 1 ? `Stage ${r2.stageNumber}/${r2.stageCount} · ` : ''}the board will update automatically.`}>
           <div className={`number-grid candidate-numbers ${isMe ? 'can-pick' : ''}`}>
             {Array.from({ length: total }, (_, i) => i + 1).map(n => (
               <button key={n} data-sound="select" className={`number-cell ${picked.has(n) ? 'is-picked' : ''}`} disabled={!isMe || picked.has(n) || busy === 'round2:pick'} onClick={() => action('round2:pick', { number: n }, `You picked number ${n}`)}>
@@ -256,7 +262,7 @@ function Round2Play({ state, me, busy, action }) {
   }
 
   if (phase === 'countdown') {
-    return <div className="candidate-gate"><Card><Countdown endsAt={r2.countdownEndsAt} serverTime={state.serverTime} label={`${active?.name || 'Candidate'} picked number ${r2.activeNumber}`} /></Card></div>;
+    return <div className="candidate-gate"><Card><Countdown endsAt={r2.countdownEndsAt} serverTime={state.serverTime} label={`${active?.name || 'Candidate'} picked number ${r2.activeNumber}${r2.stageCount > 1 ? ` · Stage ${r2.stageNumber}/${r2.stageCount}` : ''}`} /></Card></div>;
   }
 
   if (phase === 'question' && r2.question) {
@@ -264,6 +270,7 @@ function Round2Play({ state, me, busy, action }) {
       <div className="race-play">
         <div className="race-top">
           <Badge tone="gold">Number {r2.activeNumber}</Badge>
+          {r2.stageCount > 1 && <Badge tone="blue">Stage {r2.stageNumber}/{r2.stageCount}</Badge>}
           <Badge tone={isMe ? 'green' : 'grey'}>{isMe ? 'Your question' : `${active?.name} is answering`}</Badge>
           <Timer deadline={r2.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round2AnswerSeconds} label="Time left" />
         </div>
@@ -292,17 +299,22 @@ function Round3Play({ state, me, busy, action }) {
   const r3 = state.round3;
   const phase = r3.phase;
   const [locked, setLocked] = useState(false);
+  const unlockRemaining = useCountdown(phase === 'question' ? r3.unlockAt : 0, state.serverTime, 100);
+  const waiting = phase === 'question' && unlockRemaining > 0;
+  const unlockSeconds = Math.max(0, Math.ceil(unlockRemaining / 1000));
 
   useEffect(() => { setLocked(false); }, [r3.question?.id, phase]);
 
   if (phase === 'question' && r3.question) {
     return (
       <div className="race-play">
-        <div className="race-banner"><Zap size={18} /> First to answer — the first submitted answer locks the question</div>
+        <div className={`race-banner ${waiting ? 'is-readin' : ''}`}><Zap size={18} /> {waiting ? 'Read the question — answers are locked for a few seconds' : 'First to answer — the first submitted answer locks the question'}</div>
         <div className="race-top">
           <Badge tone="red">Race question {r3.questionNumber}/{r3.totalQuestions}</Badge>
-          <Badge tone={r3.answerCount ? 'gold' : 'green'}>{r3.answerCount ? 'Locked' : 'Open'}</Badge>
-          <Timer deadline={r3.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round3AnswerSeconds} label="Race clock" />
+          <Badge tone={waiting ? 'gold' : r3.answerCount ? 'gold' : 'green'}>{waiting ? `Unlocks in ${unlockSeconds}s` : r3.answerCount ? 'Locked' : 'Open'}</Badge>
+          {waiting
+            ? <Countdown endsAt={r3.unlockAt} serverTime={state.serverTime} label="Answers unlock in" />
+            : <Timer deadline={r3.deadlineAt} serverTime={state.serverTime} totalSeconds={state.settings.round3AnswerSeconds} label="Race clock" />}
         </div>
         <Card className="question-card race-card">
           <div className="q-source">{r3.question.source}</div>
@@ -310,13 +322,13 @@ function Round3Play({ state, me, busy, action }) {
           <QuestionOptions
             options={r3.question.options}
             colorMode
-            disabled={locked || r3.answerCount > 0 || busy === 'round3:answer'}
+            disabled={waiting || locked || r3.answerCount > 0 || busy === 'round3:answer'}
             onSelect={(i) => {
               setLocked(true);
               action('round3:answer', { selectedIndex: i }, 'Answer submitted');
             }}
           />
-          <div className="spectator-note">{locked ? 'Your answer is in. Waiting for the result…' : 'Tap an answer once. There is no second chance.'}</div>
+          <div className="spectator-note">{waiting ? `Read carefully. Answers unlock in ${unlockSeconds} second${unlockSeconds === 1 ? '' : 's'}.` : locked ? 'Your answer is in. Waiting for the result…' : 'Tap an answer once. There is no second chance.'}</div>
         </Card>
       </div>
     );

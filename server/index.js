@@ -14,6 +14,7 @@ import {
 } from './db.js';
 import { listQuestions, createQuestion, updateQuestion, deleteQuestion, assertQuestionEditable, importQuestions, listGroups, createGroup, updateGroup, deleteGroup, normalizeImportRow, bulkDeleteQuestions } from './questionAdmin.js';
 import { generateQuestions, parseQuestionsWithAi } from './groq.js';
+import { createDatabaseSnapshot, restoreDatabaseSnapshot, snapshotDirectory } from './dbSnapshot.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -74,7 +75,7 @@ app.get('/api/admin/candidates', expressAuth(['admin','scorekeeper']), (req, res
   const includeInactive = req.query.all === '1';
   const rows = getCandidates({ includeInactive }).map(c => ({
     id: c.id, name: c.name, school: c.school, code: c.code,
-    qualified: !!c.qualified, active: !!c.active, disqualified: !!c.disqualified,
+    qualified: !!c.qualified, round2Qualified: !!c.round2_qualified, active: !!c.active, disqualified: !!c.disqualified,
     disqualifiedReason: c.disqualified_reason || '', disqualifiedAt: c.disqualified_at || '', createdAt: c.created_at,
     online: engine.online.has(c.id)
   }));
@@ -359,6 +360,23 @@ app.patch('/api/admin/settings', expressAuth(['admin']), (req, res) => {
       } else if (k === 'display_theme') {
         if (!['light','dark'].includes(String(v))) throw new Error('display_theme must be light or dark');
         patch[k] = String(v);
+      } else if (k === 'round2_qualify_basis') {
+        if (!['total','round1','round2'].includes(String(v))) throw new Error('Round 2 qualifier basis is invalid');
+        patch[k] = String(v);
+      } else if (k === 'round2_stages') {
+        let stages;
+        try { stages = typeof v === 'string' ? JSON.parse(v) : v; } catch { throw new Error('Round 2 stages must be valid JSON'); }
+        if (!Array.isArray(stages)) throw new Error('Round 2 stages must be an array');
+        const groupIds = new Set(db.prepare('SELECT id FROM question_groups').all().map(r => r.id));
+        const normalized = stages.slice(0, 20).map((item, index) => {
+          if (!item || typeof item !== 'object') throw new Error(`Round 2 stage ${index + 1} is invalid`);
+          const groupId = String(item.groupId || '').trim();
+          if (groupId && !groupIds.has(groupId)) throw new Error(`Round 2 stage ${index + 1} uses an unknown group`);
+          const count = Number(item.count);
+          if (!Number.isInteger(count) || count < 1 || count > 200) throw new Error(`Round 2 stage ${index + 1} count must be 1–200`);
+          return { groupId, count, label: String(item.label || '').trim().slice(0, 80) };
+        });
+        patch[k] = JSON.stringify(normalized);
       } else if (k.startsWith('theme_')) {
         if (!/^#[0-9a-f]{6}$/i.test(String(v))) throw new Error(`${k} must be a 6-digit hex colour`);
         patch[k] = String(v);
@@ -388,8 +406,8 @@ app.patch('/api/admin/settings', expressAuth(['admin']), (req, res) => {
 app.get('/api/admin/export.csv', expressAuth(['admin','scorekeeper']), (req, res) => {
   const lb = getLeaderboard();
   const rows = [
-    ['Rank','Candidate','School','Round 1','Round 2','Round 3','Adjustments','Total','Qualified','Disqualified'],
-    ...lb.map(x => [x.rank, x.name, x.school, x.round1, x.round2, x.round3, x.adjustments, x.total, x.qualified ? 'Yes' : 'No', x.disqualified ? 'Yes' : 'No'])
+    ['Rank','Candidate','School','Round 1','Round 2','Round 3','Adjustments','Total','Qualified','Round 2 Qualified','Disqualified'],
+    ...lb.map(x => [x.rank, x.name, x.school, x.round1, x.round2, x.round3, x.adjustments, x.total, x.qualified ? 'Yes' : 'No', x.round2Qualified ? 'Yes' : 'No', x.disqualified ? 'Yes' : 'No'])
   ];
   const csv = rows.map(r => r.map(csvCell).join(',')).join('\r\n');
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -399,6 +417,48 @@ app.get('/api/admin/export.csv', expressAuth(['admin','scorekeeper']), (req, res
 
 app.get('/api/admin/audit', expressAuth(['admin']), (req, res) => {
   res.json(db.prepare('SELECT * FROM audit_log ORDER BY id DESC LIMIT 200').all());
+});
+
+app.get('/api/admin/rounds/:round/probe', expressAuth(['admin','scorekeeper']), (req, res) => {
+  try {
+    res.json(engine.getRoundProbe(Number(req.params.round)));
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.post('/api/admin/round2/qualify', expressAuth(['admin']), (req, res) => {
+  try {
+    const result = engine.qualifyRound2(req.user.username, req.body?.count, req.body?.basis);
+    res.json({ ok: true, ...result });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+app.get('/api/admin/database/snapshot', expressAuth(['admin']), (req, res) => {
+  try {
+    const file = createDatabaseSnapshot('download');
+    if (!file || !fs.existsSync(file)) return res.status(404).json({ error: 'No database snapshot available' });
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    audit(req.user.username, 'database.snapshot', { file: path.basename(file) });
+    res.download(file, `mssn-quiz-snapshot-${stamp}.db`);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/admin/database/restore', expressAuth(['admin']), express.raw({ type: 'application/octet-stream', limit: '64mb' }), (req, res) => {
+  const upload = req.body;
+  if (!Buffer.isBuffer(upload) || upload.length < 4096) return res.status(400).json({ error: 'Choose a valid .db snapshot file' });
+  const dir = snapshotDirectory();
+  fs.mkdirSync(dir, { recursive: true });
+  const temp = path.join(dir, `upload-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.db`);
+  try {
+    fs.writeFileSync(temp, upload);
+    const result = restoreDatabaseSnapshot(temp);
+    engine.reloadFromDatabase();
+    audit(req.user.username, 'database.restore', { bytes: upload.length, backup: result.backup ? path.basename(result.backup) : null });
+    res.json({ ok: true, backup: result.backup ? path.basename(result.backup) : null });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  } finally {
+    try { fs.unlinkSync(temp); } catch {}
+  }
 });
 
 app.get('/api/admin/state', expressAuth(['admin','scorekeeper']), (req, res) => res.json(engine.getAdminState()));
