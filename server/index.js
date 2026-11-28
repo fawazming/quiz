@@ -225,11 +225,11 @@ app.delete('/api/admin/groups/:id', expressAuth(['admin']), (req, res) => {
 
 app.post('/api/admin/questions/ai-generate', expressAuth(['admin']), async (req, res) => {
   try {
-    const { mode = 'generate', count = 5, pool = 'round1', topic = 'General', sourceText = '', groupId = null } = req.body || {};
+    const { mode = 'generate', count = 5, pool = 'round1', topic = 'General', sourceText = '', groupId = null, useGuide = true } = req.body || {};
     if (!['generate','parse'].includes(mode)) throw new Error('Unknown AI mode');
     const items = mode === 'parse'
       ? await parseQuestionsWithAi(sourceText)
-      : await generateQuestions({ count, pool, topic, sourceText });
+      : await generateQuestions({ count, pool, topic, sourceText, useGuide: useGuide !== false });
     const created = [];
     const errors = [];
     for (const [index, item] of items.entries()) {

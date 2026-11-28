@@ -34,7 +34,7 @@ export default function Questions() {
   const [groupForm, setGroupForm] = useState({ name: '', description: '' });
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [aiOpen, setAiOpen] = useState(false);
-  const [ai, setAi] = useState({ mode: 'generate', topic: 'General', count: 5, pool: 'round1', groupId: '', sourceText: '' });
+  const [ai, setAi] = useState({ mode: 'generate', topic: 'General', count: 5, pool: 'round1', groupId: '', sourceText: '', useGuide: true });
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const [confirmBulk, setConfirmBulk] = useState(false);
@@ -335,11 +335,14 @@ export default function Questions() {
           <label><span>How many</span><input type="number" min="1" max="30" value={ai.count} onChange={e => setAi({ ...ai, count: e.target.value })} /></label>
           <label><span>Pool</span><select value={ai.pool} onChange={e => setAi({ ...ai, pool: e.target.value })}><option value="round1">Round 1</option><option value="round2">Round 2</option><option value="round3">Round 3</option></select></label>
           <label><span>Group</span><select value={ai.groupId} onChange={e => setAi({ ...ai, groupId: e.target.value })}><option value="">Ungrouped</option>{groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
-          <label className="span-2"><span>{ai.mode === 'parse' ? 'Raw CSV / text to clean' : 'Source material (optional)'}</span>
-            <textarea className="csv-box" rows={ai.mode === 'parse' ? 10 : 6} value={ai.sourceText} onChange={e => setAi({ ...ai, sourceText: e.target.value })} placeholder={ai.mode === 'parse' ? 'Paste messy CSV or notes; Groq will convert it to valid questions.' : 'Paste the PDF section or notes the questions should be based on. Leave empty for general knowledge.'} />
+          {ai.mode === 'generate' && (
+            <label className="check-line span-2"><input type="checkbox" checked={ai.useGuide !== false} onChange={e => setAi({ ...ai, useGuide: e.target.checked })} /> <span><BookOpen size={14} /> Use the built-in study guide as the source of knowledge (recommended)</span></label>
+          )}
+          <label className="span-2"><span>{ai.mode === 'parse' ? 'Raw CSV / text to clean' : 'Extra source material (optional)'}</span>
+            <textarea className="csv-box" rows={ai.mode === 'parse' ? 10 : 6} value={ai.sourceText} onChange={e => setAi({ ...ai, sourceText: e.target.value })} placeholder={ai.mode === 'parse' ? 'Paste messy CSV or notes; Groq will convert it to valid questions.' : 'Optional extra notes. The built-in study guide is used automatically when enabled.'} />
           </label>
         </div>
-        <p className="muted small"><Sparkles size={13} /> Requires <code>GROQ_API_KEY</code> on the server. Generated questions are saved immediately and can be edited or deleted.</p>
+        <p className="muted small"><Sparkles size={13} /> Groq generates each question with its correct answer and explanation. With the guide enabled, answers are grounded in the bundled Module 1 study-guide chapters. Requires <code>GROQ_API_KEY</code> on the server.</p>
       </Modal>
 
       <Modal open={confirmBulk} onClose={() => setConfirmBulk(false)} title={`Delete ${selected.size} selected questions?`}

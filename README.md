@@ -28,7 +28,9 @@ Built with **Node.js 24, Express, Socket.IO, SQLite (`node:sqlite`), React and V
 - Custom organisation/app names, logos, sponsor logo and background image upload.
 - Question groups, CSV/JSON export, and a Groq-powered AI question generator / CSV cleanup assistant.
 - Event settings: independent round switches, custom round labels, per-round question groups and question counts, timers, points, speed bonuses, countdown, read-in delay, qualification counts and branding.
+- Public **Admin how-to** page at `/admin-guide`, opened in a new tab from the admin sidebar, with individual task guides.
 - Audit & probe tab: inspect stored CBT answer sheets, Round 2 picks, Round 3 answers and the per-round audit trail for any round.
+- Groq question generation with built-in study-guide excerpts so generated questions and answers are grounded in `data/guide/`.
 - Downloadable SQLite database snapshots and validated snapshot restore with automatic pre-restore backup.
 - CSV result export and an append-only score-adjustment audit log.
 - Cached Web Audio sound effects for clicks, countdowns, question reveals, correct/wrong answers, stage changes, unlock stings and fanfares; mute toggle on the host and projector.

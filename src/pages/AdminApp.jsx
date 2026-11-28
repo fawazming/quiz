@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   LayoutDashboard, ListChecks, Users, HelpCircle, Trophy, Settings as SettingsIcon,
-  MonitorPlay, LogOut, Wifi, WifiOff, ShieldCheck, Menu, X
+  MonitorPlay, LogOut, Wifi, WifiOff, ShieldCheck, Menu, X, BookOpen
 } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
 import { useSocket } from '../socket.jsx';
@@ -72,6 +72,7 @@ export default function AdminApp() {
             <ShieldCheck size={16} />
             <div><strong>{user.username}</strong><small>{user.role}</small></div>
           </div>
+          <Link to="/admin-guide" target="_blank" rel="noreferrer" className="side-link"><BookOpen size={16} /> Admin how-to</Link>
           <Link to="/display" target="_blank" className="side-link"><MonitorPlay size={16} /> Open display</Link>
           <button className="side-link danger" onClick={logout}><LogOut size={16} /> Sign out</button>
         </div>

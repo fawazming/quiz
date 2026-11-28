@@ -30,6 +30,7 @@ copy('DEPLOYMENT-ALWAYSDATA.md');
 fs.mkdirSync(path.join(out, 'data'), { recursive: true });
 copy('data/questions.json', 'data/questions.json');
 copy('data/SOURCES.md', 'data/SOURCES.md');
+copy('data/guide', 'data/guide');
 
 fs.writeFileSync(path.join(out, 'UPLOAD.txt'), `MSSN Remo ICT Quiz Arena — alwaysdata bundle
 
